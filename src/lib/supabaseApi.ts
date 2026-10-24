@@ -36,7 +36,7 @@ export const signUpWithEmail = async (
     password,
     options: {
       data: { username: username.trim().toLocaleLowerCase() },
-      emailRedirectTo: `${window.location.origin}${window.location.pathname}`,
+      emailRedirectTo: 'https://procurement-pi-two.vercel.app/',
     },
   });
   if (error) throw new Error(error.message);
