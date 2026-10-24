@@ -87,7 +87,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ errorMessage, onLogin, onS
             <p className="mt-1.5 text-sm text-slate-600">
               {isSignUp
                 ? 'इमेल verify गरेपछि आफ्नो खातामा लगइन गर्न सक्नुहुन्छ।'
-                : 'प्रणाली प्रयोग गर्न आफ्नो लगइन विवरण प्रविष्ट गर्नुहोस्।'}
+                : 'आफ्नो लगइन विवरण प्रविष्ट गर्नुहोस्।'}
             </p>
           </div>
 
