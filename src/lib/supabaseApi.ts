@@ -31,15 +31,25 @@ export const signUpWithEmail = async (
   password: string,
 ): Promise<AppUser | null> => {
   const client = requireSupabase();
+  const normalizedEmail = email.trim();
+  const emailRedirectTo = 'https://procurement-pi-two.vercel.app/';
   const { data, error } = await client.auth.signUp({
-    email: email.trim(),
+    email: normalizedEmail,
     password,
     options: {
       data: { username: username.trim().toLocaleLowerCase() },
-      emailRedirectTo: 'https://procurement-pi-two.vercel.app/',
+      emailRedirectTo,
     },
   });
   if (error) throw new Error(error.message);
+  if (data.user && !data.session && data.user.identities?.length === 0) {
+    const { error: resendError } = await client.auth.resend({
+      type: 'signup',
+      email: normalizedEmail,
+      options: { emailRedirectTo },
+    });
+    if (resendError) throw new Error(resendError.message);
+  }
   return data.session && data.user ? getAppUser(data.user.id) : null;
 };
 
