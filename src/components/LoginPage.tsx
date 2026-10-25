@@ -16,6 +16,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ errorMessage, onLogin, onS
   const [email, setEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,20 +140,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({ errorMessage, onLogin, onS
                 <label htmlFor="signup-password" className="mb-1.5 block text-sm font-medium text-slate-700">
                   पासवर्ड (कम्तीमा ८ अक्षर)
                 </label>
-                <input
-                  id="signup-password"
-                  name="new-password"
-                  type="password"
-                  autoComplete="new-password"
-                  minLength={8}
-                  value={signUpPassword}
-                  onChange={(event) => {
-                    setSignUpPassword(event.target.value);
-                    setError('');
-                  }}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    id="signup-password"
+                    name="new-password"
+                    type={showSignUpPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    minLength={8}
+                    value={signUpPassword}
+                    onChange={(event) => {
+                      setSignUpPassword(event.target.value);
+                      setError('');
+                    }}
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 pr-11 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignUpPassword((visible) => !visible)}
+                    className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 hover:text-slate-700"
+                    aria-label={showSignUpPassword ? 'पासवर्ड लुकाउनुहोस्' : 'पासवर्ड देखाउनुहोस्'}
+                  >
+                    {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
 
               {error && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
