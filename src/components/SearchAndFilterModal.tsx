@@ -16,15 +16,32 @@ import {
   KEY_LEGAL_CLAUSES, 
   OFFICIAL_SCHEDULES 
 } from '../data/procurementData';
-import { ACT_CHAPTERS } from '../data/completeLawData';
+import { ACT_CHAPTERS, RULE_CHAPTERS } from '../data/completeLawData';
+import { PROCUREMENT_GLOSSARY } from '../data/procurementGlossaryData';
+import { PROCUREMENT_DILEMMAS } from '../data/procurementDilemmasData';
+import { PROCUREMENT_TEMPLATES } from '../data/templatesData';
 import { ProcurementType } from '../types/procurement';
+import { 
+  HelpCircle, 
+  BookA, 
+  FileText 
+} from 'lucide-react';
 
 const SEARCH_TERM_ALIASES: Record<string, string[]> = {
+  'कालोसूची': ['कालोसूची', 'blacklisting'],
+  'धरौटी जफत': ['धरौटी', 'जफत', 'जमानत'],
+  'भेरिएसन': ['भेरिएसन', 'variation'],
+  'सवारी साधन भाडा': ['सवारी', 'भाडा'],
+  'उपभोक्ता समिति': ['उपभोक्ता', 'समिति'],
   'औसत अङ्क नजिक': ['औसत', 'अङ्क'],
   '३०% घटेको': ['३०%'],
   '५ वटा ठेक्का सीमा': ['५', 'ठेक्का'],
   'भेरिएसन सीमा': ['भेरिएसन'],
   'रिटेन्सन मनी ५%': ['रिटेन्सन'],
+  'एकल बोलपत्र': ['एकल', 'एउटा'],
+  'प्रि-बिड बैठक': ['प्रि-बिड', 'बैठक'],
+  'म्याद थप': ['म्याद', 'थप'],
+  'मोबिलाइजेसन पेश्की': ['मोबिलाइजेसन', 'पेश्की'],
 };
 
 const searchableText = (value: unknown): string => {
@@ -50,7 +67,7 @@ const matchesSearch = (value: unknown, term: string): boolean => {
 interface SearchAndFilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectResult: (category: 'method' | 'stage' | 'checklist' | 'clause' | 'schedule', id: string) => void;
+  onSelectResult: (category: 'method' | 'stage' | 'checklist' | 'clause' | 'schedule' | 'dilemma' | 'glossary' | 'template', id: string) => void;
 }
 
 export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
@@ -62,19 +79,22 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
   const [selectedType, setSelectedType] = useState<ProcurementType | 'all'>('all');
   const [selectedThreshold, setSelectedThreshold] = useState<string>('all');
   const [selectedStage, setSelectedStage] = useState<string>('all');
-  const [selectedContentType, setSelectedContentType] = useState<'all' | 'methods' | 'clauses' | 'checklists' | 'schedules'>('all');
+  const [selectedContentType, setSelectedContentType] = useState<'all' | 'methods' | 'clauses' | 'checklists' | 'schedules' | 'dilemmas' | 'glossary' | 'templates'>('all');
 
   // Quick preset keywords for quick search
   const quickSearches = [
-    'औसत अङ्क नजिक',
+    'कालोसूची',
+    'धरौटी जफत',
+    'भेरिएसन',
+    'सवारी साधन भाडा',
+    'उपभोक्ता समिति',
     '३०% घटेको',
     '५ वटा ठेक्का सीमा',
-    'भेरिएसन सीमा',
+    'औसत अङ्क नजिक',
     'मोबिलाइजेसन पेश्की',
-    'सामाजिक सुरक्षा कोष (SSF)',
-    'उपभोक्ता समिति',
-    'क्याटलग सपिङ',
-    'कालोसूची',
+    'म्याद थप',
+    'एकल बोलपत्र',
+    'प्रि-बिड बैठक',
     'रिटेन्सन मनी ५%',
     'कार्यस्थल सूचना पाटी',
   ];
@@ -102,10 +122,21 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
         })
       : [];
 
-    // 2. Filter Legal Clauses & Act Sections
+    // 2. Filter Legal Clauses & Act / Rule Sections
     const allClausesList = [
       ...KEY_LEGAL_CLAUSES,
       ...ACT_CHAPTERS.flatMap((ch) =>
+        ch.sections.map((s) => ({
+          id: s.sectionNo,
+          lawType: ch.lawType,
+          clauseNumber: s.sectionNo,
+          title: s.title,
+          summary: s.simpleExplanation || s.officialSummary,
+          category: 'general' as const,
+          tags: s.tags,
+        }))
+      ),
+      ...RULE_CHAPTERS.flatMap((ch) =>
         ch.sections.map((s) => ({
           id: s.sectionNo,
           lawType: ch.lawType,
@@ -156,12 +187,39 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
         })
       : [];
 
+    // 6. Filter Practical Dilemmas & Cases (समस्या समाधान तथा नजिर)
+    const matchedDilemmas = (selectedContentType === 'all' || selectedContentType === 'dilemmas')
+      ? PROCUREMENT_DILEMMAS.filter((d) => {
+          if (!term) return true;
+          return matchesSearch(d, term);
+        })
+      : [];
+
+    // 7. Filter Procurement Glossary (शब्दावली कोष)
+    const matchedGlossary = (selectedContentType === 'all' || selectedContentType === 'glossary')
+      ? PROCUREMENT_GLOSSARY.filter((g) => {
+          if (!term) return true;
+          return matchesSearch(g, term);
+        })
+      : [];
+
+    // 8. Filter Templates (कागजात तथा टिप्पणी ढाँचाहरू)
+    const matchedTemplates = (selectedContentType === 'all' || selectedContentType === 'templates')
+      ? PROCUREMENT_TEMPLATES.filter((t) => {
+          if (!term) return true;
+          return matchesSearch(t, term);
+        })
+      : [];
+
     const totalCount =
       matchedMethods.length +
       matchedClauses.length +
       matchedChecklists.length +
       matchedStages.length +
-      matchedSchedules.length;
+      matchedSchedules.length +
+      matchedDilemmas.length +
+      matchedGlossary.length +
+      matchedTemplates.length;
 
     return {
       methods: matchedMethods,
@@ -169,6 +227,9 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
       checklists: matchedChecklists,
       stages: matchedStages,
       schedules: matchedSchedules,
+      dilemmas: matchedDilemmas,
+      glossary: matchedGlossary,
+      templates: matchedTemplates,
       totalCount,
     };
   }, [searchTerm, selectedType, selectedThreshold, selectedStage, selectedContentType]);
@@ -516,6 +577,118 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
                         </h4>
                         <p className="text-xs text-slate-600 mt-1">{sch.description}</p>
                         <span className="text-[11px] text-slate-600 mt-2 block font-mono">{sch.ruleReference}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Group 6: Practical Case Dilemmas & Verdicts (समस्या समाधान तथा नजिर) */}
+              {filteredResults.dilemmas.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2.5">
+                    <HelpCircle className="w-4 h-4 text-purple-700" />
+                    <span>व्यवहारिक समस्या समाधान र नजिरहरू ({filteredResults.dilemmas.length})</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {filteredResults.dilemmas.map((dil) => (
+                      <div
+                        key={dil.id}
+                        onClick={() => {
+                          onSelectResult('dilemma', dil.id);
+                          onClose();
+                        }}
+                        className="p-3 rounded-lg border border-purple-200 hover:border-purple-400 hover:bg-purple-50/30 transition-all cursor-pointer group text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-purple-800 bg-purple-100 px-2 py-0.5 rounded-sm">
+                            {dil.categoryLabel}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {dil.legalClauses[0]}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-semibold text-slate-900 mt-1.5 group-hover:text-purple-800 transition-colors">
+                          {dil.question}
+                        </h4>
+                        <p className="text-xs text-slate-600 mt-1 line-clamp-2">{dil.scenario}</p>
+                        <div className="text-[11px] text-emerald-800 font-semibold mt-2 pt-2 border-t border-purple-100 flex items-center justify-between">
+                          <span className="line-clamp-1">निकास: {dil.verdict}</span>
+                          <ArrowRight className="w-3 h-3 text-purple-700 shrink-0 ml-1" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Group 7: Procurement Glossary (शब्दावली कोष) */}
+              {filteredResults.glossary.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2.5">
+                    <BookA className="w-4 h-4 text-emerald-700" />
+                    <span>पारिभाषिक शब्दावली कोष ({filteredResults.glossary.length})</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {filteredResults.glossary.map((term) => (
+                      <div
+                        key={term.id}
+                        onClick={() => {
+                          onSelectResult('glossary', term.id);
+                          onClose();
+                        }}
+                        className="p-3 rounded-lg border border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/30 transition-all cursor-pointer group text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-emerald-900 group-hover:text-emerald-700">
+                            {term.termNepali}
+                          </span>
+                          <span className="text-[10px] text-slate-500 italic">
+                            {term.termEnglish}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-700 mt-1 line-clamp-2">{term.shortDefinition}</p>
+                        <div className="text-[11px] text-slate-500 mt-2 pt-1 border-t border-emerald-100 font-mono">
+                          {term.legalReference}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Group 8: Draft Templates & Notesheets (निर्णय र टिप्पणीका ढाँचाहरू) */}
+              {filteredResults.templates.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2.5">
+                    <FileText className="w-4 h-4 text-red-700" />
+                    <span>कागजात तथा टिप्पणीका ढाँचाहरू ({filteredResults.templates.length})</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {filteredResults.templates.map((tmpl) => (
+                      <div
+                        key={tmpl.id}
+                        onClick={() => {
+                          onSelectResult('template', tmpl.id);
+                          onClose();
+                        }}
+                        className="p-3 rounded-lg border border-red-200 hover:border-red-400 hover:bg-red-50/30 transition-all cursor-pointer group text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-red-800 bg-red-100 px-2 py-0.5 rounded-sm">
+                            {tmpl.category === 'notesheet' ? 'टिप्पणी र आदेश' : tmpl.category}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {tmpl.formatTypes.join(', ')}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-semibold text-slate-900 mt-1.5 group-hover:text-red-700 transition-colors">
+                          {tmpl.titleNepali}
+                        </h4>
+                        <p className="text-xs text-slate-600 mt-1 line-clamp-2">{tmpl.description}</p>
+                        <div className="text-[11px] text-slate-500 mt-2 pt-1 border-t border-red-100 font-mono">
+                          {tmpl.legalReference}
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -19,6 +19,8 @@ import {
   HelpCircle,
   Users,
   FileCheck,
+  BookA,
+  Clock,
 } from 'lucide-react';
 import { UserRole } from '../types/auth';
 
@@ -47,6 +49,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'dashboard', label: 'ड्यासबोर्ड', icon: Briefcase, desc: ' ' },
         { id: 'advisor', label: 'खरिद सल्लाहकार', icon: Sparkles, desc: ' ', badge: ' ' },
+        { id: 'workflow-wizard', label: 'चरणबद्ध गाइड (Wizard)', icon: ClipboardList, desc: ' ', badge: 'नयाँ' },
+        { id: 'dilemma-solver', label: 'समस्या समाधान (FAQ)', icon: HelpCircle, desc: ' ', badge: 'नयाँ' },
         ...(userRole === 'admin'
           ? [{ id: 'user-management', label: 'प्रयोगकर्ता व्यवस्थापन', icon: Users, desc: ' ' }]
           : []),
@@ -73,14 +77,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'law-corpus', label: 'ऐन/नियमका व्यवस्थाहरु', icon: BookOpen, desc: ' ', badge: ' ' },
         { id: 'amendments', label: '१६औँ संशोधनका विशेषता', icon: ShieldCheck, desc:' ' },
+        { id: 'glossary', label: 'शब्दावली कोष (Glossary)', icon: BookA, desc: ' ', badge: 'नयाँ' },
         { id: 'clauses', label: 'महत्वपूर्ण दफाहरू', icon: BookOpen, desc: ' ' },
         { id: 'schedules', label: 'अनुसूचीहरू (१–८)', icon: Scale, desc: ' ' },
       ],
     },
     {
-      groupTitle: 'नमूना कागजात',
+      groupTitle: 'नमूना कागजात तथा क्याल्कुलेटर',
       items: [
         { id: 'templates', label: 'कागजात ढाँचाहरु', icon: FileText, desc: ' ' },
+        { id: 'timeline-calculator', label: 'कानूनी म्याद क्याल्कुलेटर', icon: Clock, desc: ' ', badge: 'नयाँ' },
         { id: 'calculator', label: 'थ्रेसहोल्ड क्याल्कुलेटर', icon: Calculator, desc: ' ' },
       ],
     },

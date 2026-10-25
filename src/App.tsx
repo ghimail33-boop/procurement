@@ -19,6 +19,9 @@ import { TemplatesView } from './components/TemplatesView';
 import { CalculatorView } from './components/CalculatorView';
 import { LegalClausesView } from './components/LegalClausesView';
 import { SchedulesView } from './components/SchedulesView';
+import { ProcurementGlossaryView } from './components/ProcurementGlossaryView';
+import { ProcurementDilemmaSolverView } from './components/ProcurementDilemmaSolverView';
+import { ProcurementWorkflowWizard } from './components/ProcurementWorkflowWizard';
 import { SearchAndFilterModal } from './components/SearchAndFilterModal';
 import { NewProjectModal } from './components/NewProjectModal';
 import { LoginPage } from './components/LoginPage';
@@ -164,7 +167,10 @@ function ProcurementApp({
     setUsers((previous) => previous.filter((user) => user.id !== id));
   };
 
-  const handleSelectSearchResult = (category: 'method' | 'stage' | 'checklist' | 'clause' | 'schedule', id: string) => {
+  const handleSelectSearchResult = (
+    category: 'method' | 'stage' | 'checklist' | 'clause' | 'schedule' | 'dilemma' | 'glossary' | 'template', 
+    id: string
+  ) => {
     if (category === 'method') {
       setSelectedMethodId(id);
       setActiveTab('methods');
@@ -176,6 +182,13 @@ function ProcurementApp({
       setActiveTab('clauses');
     } else if (category === 'schedule') {
       setActiveTab('schedules');
+    } else if (category === 'dilemma') {
+      setActiveTab('dilemma-solver');
+    } else if (category === 'glossary') {
+      setActiveTab('glossary');
+    } else if (category === 'template') {
+      setSelectedTemplateId(id);
+      setActiveTab('templates');
     }
   };
 
@@ -247,6 +260,13 @@ function ProcurementApp({
             />
           )}
 
+          {activeTab === 'workflow-wizard' && (
+            <ProcurementWorkflowWizard
+              onNavigateToTemplate={navigateToTemplate}
+              onNavigateToClause={(clause) => setActiveTab('law-corpus')}
+            />
+          )}
+
           {activeTab === 'methods' && (
             <ProcurementMethodsView
               initialSelectedMethodId={selectedMethodId}
@@ -261,12 +281,20 @@ function ProcurementApp({
             />
           )}
 
+          {activeTab === 'dilemma-solver' && (
+            <ProcurementDilemmaSolverView />
+          )}
+
           {activeTab === 'law-corpus' && (
             <CompleteLawCorpusView />
           )}
 
           {activeTab === 'amendments' && (
             <AmendmentsHighlightView />
+          )}
+
+          {activeTab === 'glossary' && (
+            <ProcurementGlossaryView />
           )}
 
           {activeTab === 'stages' && (
@@ -293,8 +321,16 @@ function ProcurementApp({
             />
           )}
 
+          {activeTab === 'timeline-calculator' && (
+            <CalculatorView
+              initialSubTab="timeline"
+              onSelectMethod={navigateToMethodWithId}
+            />
+          )}
+
           {activeTab === 'calculator' && (
             <CalculatorView
+              initialSubTab="threshold"
               onSelectMethod={navigateToMethodWithId}
             />
           )}

@@ -38,10 +38,12 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
 
   // Customization fields for the active template
   const [customOffice, setCustomOffice] = useState('राष्ट्रिय सतर्कता केन्द्र');
-  const [customProject, setCustomProject] = useState('कम्प्युटर पार्टस् खरिद तथा मर्मतसम्भार');
+  const [customProject, setCustomProject] = useState('भवन निर्माण तथा स्तरोन्नति कार्य');
   const [customAmount, setCustomAmount] = useState('४५,००,०००/-');
+  const [customBidAmount, setCustomBidAmount] = useState('३६,५०,०००/-');
+  const [customContractor, setCustomContractor] = useState('श्री कालिका-तुदी जेभी, काठमाडौं');
   const [customDate, setCustomDate] = useState('२०८१/०७/१५');
-  const [customContractNo, setCustomContractNo] = useState('UDBC/NCB/WORKS/02-083/84');
+  const [customContractNo, setCustomContractNo] = useState('UDBC/NCB/WORKS/02-081/82');
 
   const filteredTemplates = PROCUREMENT_TEMPLATES.filter((t) => {
     if (selectedCategory !== 'all' && t.category !== selectedCategory) return false;
@@ -67,11 +69,16 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
     text = text.replace(/\[कामको नाम\]/g, customProject || '[कामको नाम]');
     text = text.replace(/\[लागत अनुमान\]/g, customAmount || '[लागत रकम]');
     text = text.replace(/\[लागत रकम\]/g, customAmount || '[लागत रकम]');
+    text = text.replace(/\[सफल बोलपत्रदाताको नाम\]/g, customContractor || '[सफल बोलपत्रदाताको नाम]');
+    text = text.replace(/\[निर्माण व्यवसायीको नाम\]/g, customContractor || '[निर्माण व्यवसायीको नाम]');
+    text = text.replace(/\[कबोल रकम\]/g, customBidAmount || '[कबोल रकम]');
+    text = text.replace(/\[कबोल अङ्क\]/g, customBidAmount || '[कबोल अङ्क]');
     text = text.replace(/\[मिति\]/g, customDate || '[मिति]');
     text = text.replace(/\[ठेक्का नं\.\]/g, customContractNo || '[ठेक्का नं.]');
     text = text.replace(/\[ठेक्का नं\]/g, customContractNo || '[ठेक्का नं]');
+    text = text.replace(/\[आर्थिक वर्ष\]/g, '२०८१/०८२');
     return text;
-  }, [activeTemplate, customOffice, customProject, customAmount, customDate, customContractNo]);
+  }, [activeTemplate, customOffice, customProject, customAmount, customBidAmount, customContractor, customDate, customContractNo]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(compiledContent);
@@ -154,6 +161,18 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
           }`}
         >
           सबै ढाँचाहरू ({PROCUREMENT_TEMPLATES.length})
+        </button>
+        <button
+          onClick={() => setSelectedCategory('notesheet')}
+          className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+            selectedCategory === 'notesheet'
+              ? 'bg-red-700 text-white font-semibold shadow-xs'
+              : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+          <span>टिप्पणी र आदेश (Notesheets)</span>
+          <span className="text-[10px] bg-red-800 text-white px-1.5 py-0.2 rounded-full font-bold">६</span>
         </button>
         <button
           onClick={() => setSelectedCategory('notice')}
@@ -254,7 +273,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 text-xs">
               <div>
                 <label className="text-[11px] font-medium text-slate-700 block mb-1">सार्वजनिक निकायको नाम:</label>
                 <input
@@ -279,6 +298,33 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                   type="text"
                   value={customContractNo}
                   onChange={(e) => setCustomContractNo(e.target.value)}
+                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-red-600 focus:outline-hidden"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-slate-700 block mb-1">लागत अनुमान रकम (रु):</label>
+                <input
+                  type="text"
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-red-600 focus:outline-hidden"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-slate-700 block mb-1">कबोल रकम / सम्झौता रकम (रु):</label>
+                <input
+                  type="text"
+                  value={customBidAmount}
+                  onChange={(e) => setCustomBidAmount(e.target.value)}
+                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-red-600 focus:outline-hidden"
+                />
+              </div>
+              <div>
+                <label className="text-[11px] font-medium text-slate-700 block mb-1">सफल बोलपत्रदाता / व्यवसायी:</label>
+                <input
+                  type="text"
+                  value={customContractor}
+                  onChange={(e) => setCustomContractor(e.target.value)}
                   className="w-full p-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-red-600 focus:outline-hidden"
                 />
               </div>

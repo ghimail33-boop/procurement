@@ -341,3 +341,19 @@ export const RULES_BY_ACT_PROVISION: Record<string, string[]> = {
   '69': ['146'],
   '71': ['147'],
 };
+
+export const ACT_BY_RULE_PROVISION: Record<string, string[]> = (() => {
+  const map: Record<string, string[]> = {};
+  Object.entries(RULES_BY_ACT_PROVISION).forEach(([actSec, rules]) => {
+    rules.forEach((ruleNo) => {
+      if (!map[ruleNo]) {
+        map[ruleNo] = [];
+      }
+      if (!map[ruleNo].includes(actSec)) {
+        map[ruleNo].push(actSec);
+      }
+    });
+  });
+  return map;
+})();
+

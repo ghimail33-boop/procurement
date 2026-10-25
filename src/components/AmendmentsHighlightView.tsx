@@ -11,6 +11,8 @@ import {
   Building
 } from 'lucide-react';
 import { AMENDMENT_16_HIGHLIGHTS } from '../data/completeLawData';
+import { AMENDMENT_16_COMPARISONS } from '../data/amendmentComparisonsData';
+import { AmendmentComparisonCard } from './AmendmentComparisonCard';
 
 export const AmendmentsHighlightView: React.FC = () => {
   const comparisonItems = [
@@ -150,6 +152,28 @@ export const AmendmentsHighlightView: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Detailed Before vs After Cards with Thresholds & Audit Warnings */}
+      <div className="space-y-4 pt-4">
+        <div>
+          <div className="flex items-center gap-2 text-xs font-semibold text-amber-700 uppercase tracking-wide">
+            <Sparkles className="w-4 h-4 text-amber-600" />
+            <span>धारागत तुलना तथा बेरुजु जोखिम विश्लेषण</span>
+          </div>
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">
+            १६औँ संशोधनका प्रमुख नियमहरूको Before vs After तुलना कार्डहरू
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            प्रत्येक नियमको साविक र हालको व्यवस्था, सीमा परिवर्तन, र लेखापरीक्षण/अख्तियार जोखिमको विस्तृत विश्लेषण।
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4">
+          {AMENDMENT_16_COMPARISONS.map((comp) => (
+            <AmendmentComparisonCard key={comp.id} comparison={comp} />
+          ))}
         </div>
       </div>
     </div>

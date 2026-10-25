@@ -13,12 +13,18 @@ import {
 } from 'lucide-react';
 import { ProcurementType } from '../types/procurement';
 import { analyzeProcurementThreshold, formatNepaliCurrency } from '../utils/procurementUtils';
+import { ProcurementTimelineCalculator } from './ProcurementTimelineCalculator';
 
 interface CalculatorViewProps {
   onSelectMethod?: (methodId: string) => void;
+  initialSubTab?: 'threshold' | 'timeline';
 }
 
-export const CalculatorView: React.FC<CalculatorViewProps> = ({ onSelectMethod }) => {
+export const CalculatorView: React.FC<CalculatorViewProps> = ({ 
+  onSelectMethod,
+  initialSubTab = 'threshold'
+}) => {
+  const [activeSubTab, setActiveSubTab] = useState<'threshold' | 'timeline'>(initialSubTab);
   const [procurementType, setProcurementType] = useState<ProcurementType>('works');
   const [amount, setAmount] = useState<number>(45000000); // Default 4.5 crore
 
@@ -76,19 +82,51 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({ onSelectMethod }
 
   return (
     <div className="space-y-6">
-      {/* View Header */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-2 text-xs font-semibold text-red-700 uppercase tracking-wide">
+      {/* Top Dual Tab Switcher */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <button
+          onClick={() => setActiveSubTab('threshold')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            activeSubTab === 'threshold'
+              ? 'bg-slate-900 text-white shadow-xs'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+          }`}
+        >
           <Calculator className="w-4 h-4" />
-          <span>आर्थिक सीमा तथा अख्तियारी क्याल्कुलेटर</span>
-        </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
-          खरिद विधि, अख्तियारी तथा धरौटी गणना उपकरण (Procurement Method & Threshold Calculator)
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
-          सार्वजनिक खरिद ऐन र नियमावली (१६औँ संशोधनसहित) अनुसार खरिदको प्रकार र रकम प्रविष्ट गरी कुन विधि अपनाउने, कसले लागत अनुमान स्वीकृत गर्ने, कति धरौटी माग्ने र कति दिनको सूचना प्रकाशन गर्ने तुरुन्तै गणना गर्नुहोस्।
-        </p>
+          <span>थ्रेसहोल्ड तथा अख्तियारी क्याल्कुलेटर</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('timeline')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+            activeSubTab === 'timeline'
+              ? 'bg-red-700 text-white shadow-xs'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>कानूनी म्याद र क्यालेन्डर क्याल्कुलेटर</span>
+          <span className="text-[10px] bg-red-800 text-white px-2 py-0.5 rounded-full font-bold">नयाँ</span>
+        </button>
       </div>
+
+      {activeSubTab === 'timeline' ? (
+        <ProcurementTimelineCalculator />
+      ) : (
+        <>
+          {/* View Header */}
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+            <div className="flex items-center gap-2 text-xs font-semibold text-red-700 uppercase tracking-wide">
+              <Calculator className="w-4 h-4" />
+              <span>आर्थिक सीमा तथा अख्तियारी क्याल्कुलेटर</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+              खरिद विधि, अख्तियारी तथा धरौटी गणना उपकरण (Procurement Method & Threshold Calculator)
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
+              सार्वजनिक खरिद ऐन र नियमावली (१६औँ संशोधनसहित) अनुसार खरिदको प्रकार र रकम प्रविष्ट गरी कुन विधि अपनाउने, कसले लागत अनुमान स्वीकृत गर्ने, कति धरौटी माग्ने र कति दिनको सूचना प्रकाशन गर्ने तुरुन्तै गणना गर्नुहोस्।
+            </p>
+          </div>
 
       {/* Input Section */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-5">
@@ -408,6 +446,8 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({ onSelectMethod }
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 };

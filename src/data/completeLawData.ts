@@ -14,8 +14,12 @@ export interface LawChapter {
     complianceRule: string; // मुख्य कानुनी निर्देशन
     practicalTip?: string; // व्यवहारिक सुझाव
     tags: string[];
+    relatedActSection?: string; // सम्बन्धित ऐनको दफा वा नियम
+    amendmentNote?: string; // १६औँ संशोधन लगायतका अद्यावधिक टिप्पणीहरू
   }[];
 }
+
+export { RULE_CHAPTERS } from './ruleLawData';
 
 export const ACT_CHAPTERS: LawChapter[] = [
   {

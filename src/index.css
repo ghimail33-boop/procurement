@@ -42,14 +42,60 @@
 }
 
 @media print {
-  .no-print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+
+  .no-print,
+  aside,
+  header,
+  footer,
+  nav {
     display: none !important;
   }
+
   .print-only {
     display: block !important;
   }
+
   body {
-    background: white !important;
-    color: black !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .lg\:pl-72 {
+    padding-left: 0 !important;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  td, th {
+    border: 1px solid #333333 !important;
+    padding: 6px 8px !important;
+    color: #000000 !important;
+  }
+
+  /* Remove box shadows and rounded borders on print */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 }
