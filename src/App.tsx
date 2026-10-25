@@ -209,7 +209,6 @@ function ProcurementApp({
           activeTab={activeTab}
           onToggleSidebarMobile={() => setIsSidebarMobileOpen(true)}
           onOpenSearch={() => setIsSearchOpen(true)}
-          onOpenNewProject={() => setIsNewProjectOpen(true)}
           onLogout={onLogout}
         />
 

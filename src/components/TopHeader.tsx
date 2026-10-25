@@ -1,20 +1,17 @@
 import React from 'react';
-import { 
-  Menu, 
-  Search, 
-  PlusCircle, 
-  Printer, 
+import {
+  Menu,
+  Search,
+  ExternalLink,
+  Printer,
   ChevronRight,
-  ShieldCheck,
-  Sparkles,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 
 interface TopHeaderProps {
   activeTab: string;
   onToggleSidebarMobile: () => void;
   onOpenSearch: () => void;
-  onOpenNewProject: () => void;
   onLogout: () => void;
 }
 
@@ -39,7 +36,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   activeTab,
   onToggleSidebarMobile,
   onOpenSearch,
-  onOpenNewProject,
   onLogout,
 }) => {
   const current = TAB_TITLES[activeTab] || { title: 'सार्वजनिक खरिद सहयोगी', category: 'प्रणाली' };
@@ -89,12 +85,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </button>
 
         <button
-          onClick={onOpenNewProject}
+          onClick={() => window.open('https://financial-procedures.vercel.app/', '_blank', 'noopener,noreferrer')}
           className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-700 hover:bg-red-800 rounded-lg shadow-xs transition-colors whitespace-nowrap"
+          aria-label="आर्थिक कार्यविधि पेज नयाँ window मा खोल्नुहोस्"
         >
-          <PlusCircle className="w-4 h-4" />
-          <span className="hidden sm:inline">नयाँ खरिद प्रक्रिया</span>
-          <span className="sm:hidden">नयाँ</span>
+          <ExternalLink className="w-4 h-4" />
+          <span>आर्थिक कार्यविधि पेज</span>
         </button>
 
         <button
