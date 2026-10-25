@@ -32,7 +32,7 @@ export const signUpWithEmail = async (
 ): Promise<AppUser | null> => {
   const client = requireSupabase();
   const normalizedEmail = email.trim();
-  const emailRedirectTo = 'https://procurement-pi-two.vercel.app/';
+  const emailRedirectTo = window.location.origin;
   const { data, error } = await client.auth.signUp({
     email: normalizedEmail,
     password,
