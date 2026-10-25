@@ -60,11 +60,13 @@ automatically. Use the password assigned in Supabase Dashboard. The login form
 accepts either the username or the account's exact email address, so an admin
 created with a real email in the Dashboard can sign in with that email.
 
-## 4. Deploy admin user management
+## 4. Deploy username login and admin user management
 
-Deploy the `manage-users` Edge Function. It uses the caller's authenticated
-session for authorization and the server-side `SUPABASE_SERVICE_ROLE_KEY`
-environment variable for Supabase Auth Admin API operations. Supabase provides
+Deploy the `manage-users` Edge Function. Username login uses the function to
+resolve the profile's linked Auth account without exposing email addresses.
+All user-management actions still require the caller's authenticated session
+and admin role. The function uses the server-side `SUPABASE_SERVICE_ROLE_KEY`
+for account lookup and Supabase Auth Admin API operations. Supabase provides
 this variable to Edge Functions. If it is not present for the project, set it
 as an Edge Function secret from Supabase Dashboard → **Edge Functions → Secrets**.
 Never expose this key to the frontend.
@@ -73,11 +75,15 @@ Never expose this key to the frontend.
 supabase functions deploy manage-users
 ```
 
-The function checks the caller's database role for every request. Only admins
-can list, create, edit, promote/demote, or delete accounts. New users are
-confirmed immediately and can log in using their username and the password
-assigned by the admin. Passwords are managed by Supabase Auth, never stored in
-the application profile table.
+The function's JWT verification is disabled so it can accept a username login
+before a session exists. Its login action authenticates the supplied password
+through Supabase Auth and returns only the resulting authenticated session.
+Every user-management action independently verifies the caller's session and
+database role. Only admins can create, edit, promote/demote, or delete accounts.
+The user list is read through the database's admin-only row-level security
+policy. New users are confirmed immediately and can log in using their username
+and the password assigned by the admin. Passwords are managed by Supabase Auth,
+never stored in the application profile table.
 
 These app-managed accounts use the reserved `.example` email domain and are
 auto-confirmed, so this workflow does not send verification emails. To deliver

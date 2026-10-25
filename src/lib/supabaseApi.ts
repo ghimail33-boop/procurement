@@ -1,7 +1,7 @@
 import { Session } from '@supabase/supabase-js';
 import { AppUser, ManagedUserInput, UserRole } from '../types/auth';
 import { TrackedProject } from '../types/procurement';
-import { Database, Json, supabase, usernameToEmail } from './supabase';
+import { Database, Json, supabase } from './supabase';
 
 const requireSupabase = () => {
   if (!supabase) throw new Error('Supabase सेटअप भएको छैन।');
@@ -17,11 +17,25 @@ const requireData = <T,>(data: T | null, error: { message: string } | null): T =
 export const signInWithUsername = async (username: string, password: string): Promise<AppUser> => {
   const client = requireSupabase();
   const login = username.trim();
-  const { data, error } = await client.auth.signInWithPassword({
-    email: login.includes('@') ? login.toLocaleLowerCase() : usernameToEmail(login),
-    password,
-  });
-  const authUser = requireData(data.user, error);
+  if (login.includes('@')) {
+    const { data, error } = await client.auth.signInWithPassword({
+      email: login.toLocaleLowerCase(),
+      password,
+    });
+    const authUser = requireData(data.user, error);
+    return getAppUser(authUser.id);
+  }
+
+  const { data, error } = await client.functions.invoke<{
+    session?: { access_token: string; refresh_token: string };
+  }>('manage-users', { body: { action: 'sign-in', username: login, password } });
+  if (error) throw new Error(await getFunctionErrorMessage(error));
+  if (!data?.session?.access_token || !data.session.refresh_token) {
+    throw new Error('लगइन सत्र प्राप्त भएन।');
+  }
+
+  const { data: sessionData, error: sessionError } = await client.auth.setSession(data.session);
+  const authUser = requireData(sessionData.user, sessionError);
   return getAppUser(authUser.id);
 };
 
@@ -169,19 +183,27 @@ interface UserFunctionResponse {
   user?: { id: string; username: string; role: UserRole; created_at: string };
 }
 
-const invokeUserFunction = async (body: Record<string, unknown>): Promise<UserFunctionResponse> => {
-  const { data, error } = await requireSupabase().functions.invoke('manage-users', { body });
-  if (error) {
-    const response = error.context;
-    if (response instanceof Response) {
-      const responseBody: unknown = await response.json();
+const getFunctionErrorMessage = async (error: { message: string; context?: unknown }): Promise<string> => {
+  if (error.context instanceof Response) {
+    try {
+      const responseBody: unknown = await error.context.json();
       if (responseBody && typeof responseBody === 'object' && 'error' in responseBody
         && typeof responseBody.error === 'string') {
-        throw new Error(responseBody.error);
+        return responseBody.error;
       }
+    } catch {
+      // Keep the Supabase SDK error when the function response is not JSON.
     }
-    throw new Error(error.message);
   }
+  if (error.message.includes('Failed to send a request to the Edge Function')) {
+    return 'manage-users Edge Function सँग सम्पर्क हुन सकेन। Supabase मा function deploy भएको र उपलब्ध रहेको जाँच गर्नुहोस्।';
+  }
+  return error.message;
+};
+
+const invokeUserFunction = async (body: Record<string, unknown>): Promise<UserFunctionResponse> => {
+  const { data, error } = await requireSupabase().functions.invoke('manage-users', { body });
+  if (error) throw new Error(await getFunctionErrorMessage(error));
   if (!data || typeof data !== 'object') throw new Error('User management response अमान्य छ।');
   return data as UserFunctionResponse;
 };
@@ -194,9 +216,16 @@ const mapUser = (user: NonNullable<UserFunctionResponse['user']>): AppUser => ({
 });
 
 export const listManagedUsers = async (): Promise<AppUser[]> => {
-  const response = await invokeUserFunction({ action: 'list' });
-  if (!response.users) throw new Error('प्रयोगकर्ता सूची प्राप्त भएन।');
-  return response.users.map(mapUser);
+  const { data, error } = await requireSupabase()
+    .from('user_profiles')
+    .select('id, username, role, created_at')
+    .order('created_at', { ascending: true });
+  return requireData(data, error).map((user) => ({
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    createdAt: user.created_at,
+  }));
 };
 
 export const createManagedUser = async (input: ManagedUserInput): Promise<AppUser> => {

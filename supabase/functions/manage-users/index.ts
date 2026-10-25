@@ -20,7 +20,6 @@ Deno.serve(async (request: Request) => {
   if (request.method !== 'POST') return jsonResponse(405, { error: 'Method not allowed.' });
 
   const authorization = request.headers.get('Authorization');
-  if (!authorization) return jsonResponse(401, { error: 'Authentication required.' });
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const publishableKey = Deno.env.get('SUPABASE_ANON_KEY');
@@ -30,14 +29,54 @@ Deno.serve(async (request: Request) => {
     return jsonResponse(500, { error: 'User management service is not configured.' });
   }
 
-  const callerClient = createClient(supabaseUrl, publishableKey, {
-    global: { headers: { Authorization: authorization } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
   const serviceClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse(400, { error: 'Invalid request body.' });
+  }
+
+  const action = body.action;
+  if (action === 'sign-in') {
+    const username = typeof body.username === 'string' ? body.username.trim().toLowerCase() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+    if (!username || !password) return jsonResponse(400, { error: 'Username and password are required.' });
+
+    const { data: profile, error: profileError } = await serviceClient
+      .from('user_profiles')
+      .select('id')
+      .eq('username', username)
+      .single();
+    if (profileError || !profile) return jsonResponse(401, { error: 'Invalid login credentials.' });
+
+    const { data: authData, error: authError } = await serviceClient.auth.admin.getUserById(profile.id);
+    if (authError || !authData.user?.email) {
+      console.error('Could not resolve the Auth account for a username login.');
+      return jsonResponse(401, { error: 'Invalid login credentials.' });
+    }
+
+    const loginClient = createClient(supabaseUrl, publishableKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data: loginData, error: loginError } = await loginClient.auth.signInWithPassword({
+      email: authData.user.email,
+      password,
+    });
+    if (loginError || !loginData.session) {
+      return jsonResponse(401, { error: 'Invalid login credentials.' });
+    }
+    return jsonResponse(200, { session: loginData.session });
+  }
+
+  if (!authorization) return jsonResponse(401, { error: 'Authentication required.' });
+  const callerClient = createClient(supabaseUrl, publishableKey, {
+    global: { headers: { Authorization: authorization } },
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
   const { data: callerData, error: callerError } = await callerClient.auth.getUser();
   if (callerError || !callerData.user) return jsonResponse(401, { error: 'Invalid session.' });
 
@@ -49,15 +88,6 @@ Deno.serve(async (request: Request) => {
   if (profileError || callerProfile?.role !== 'admin') {
     return jsonResponse(403, { error: 'Admin access required.' });
   }
-
-  let body: Record<string, unknown>;
-  try {
-    body = await request.json();
-  } catch {
-    return jsonResponse(400, { error: 'Invalid request body.' });
-  }
-
-  const action = body.action;
 
   if (action === 'list') {
     const { data, error } = await serviceClient
