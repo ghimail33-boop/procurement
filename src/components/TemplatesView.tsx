@@ -21,12 +21,14 @@ interface TemplatesViewProps {
   onSelectMethod?: (methodId: string) => void;
   initialTemplateId?: string | null;
   onBackToAdvisor?: () => void;
+  onBackToWorkflow?: () => void;
 }
 
 export const TemplatesView: React.FC<TemplatesViewProps> = ({
   onSelectMethod,
   initialTemplateId,
   onBackToAdvisor,
+  onBackToWorkflow,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -169,6 +171,44 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
           >
             <ArrowLeft className="w-4 h-4" />
             <span>← सिफारिस र कार्ययोजनामा फर्कनुहोस्</span>
+          </button>
+        </div>
+      )}
+
+      {/* Back to Workflow Wizard Banner */}
+      {onBackToWorkflow && (
+        <div className="bg-gradient-to-r from-red-50 via-white to-amber-50 border border-red-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onBackToWorkflow}
+              className="p-2.5 bg-red-700 hover:bg-red-800 text-white rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center cursor-pointer group"
+              title="चरणबद्ध गाइड (Wizard) का चरणहरूमा फर्कनुहोस्"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-bold text-slate-900">
+                  चरणबद्ध गाइड (Workflow Wizard) बाट खुलाइएको ढाँचा/टिप्पणी
+                </span>
+                <span className="text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-full">
+                  विधिगत कार्यप्रवाह
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 mt-0.5">
+                ढाँचा वा टिप्पणी अवलोकन पश्चात आफ्नो खरिद विधिको चरणबद्ध कार्य चेकलिस्ट तथा माइलस्टोनहरूमा फर्कन सक्नुहुन्छ।
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onBackToWorkflow}
+            className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md shrink-0 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← खरिद विधिको चरणहरूमा फर्कनुहोस्</span>
           </button>
         </div>
       )}
@@ -396,6 +436,17 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
                     <span>सिफारिसमा फर्कनुहोस्</span>
+                  </button>
+                )}
+                {onBackToWorkflow && (
+                  <button
+                    type="button"
+                    onClick={onBackToWorkflow}
+                    className="px-2.5 py-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-700 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs shrink-0 cursor-pointer"
+                    title="चरणबद्ध खरिद विधिको माइलस्टोनमा फर्कनुहोस्"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>चरणहरूमा फर्कनुहोस्</span>
                   </button>
                 )}
                 <div>

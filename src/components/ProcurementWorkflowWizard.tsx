@@ -48,16 +48,92 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
   onNavigateToTemplate,
   onNavigateToClause,
 }) => {
-  const [selectedPresetId, setSelectedPresetId] = useState<string>('ncb-works');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [customProjectTitle, setCustomProjectTitle] = useState<string>('रु ३ करोडको भवन/सडक निर्माण (NCB Works - राष्ट्रिय खुला बोलपत्र)');
-  const [customOfficeName, setCustomOfficeName] = useState<string>('शहरी विकास तथा भवन निर्माण विभाग');
-  const [customContractNo, setCustomContractNo] = useState<string>('OFFICE/WORKS/01-083/84');
-  const [customAmount, setCustomAmount] = useState<number>(30000000);
+  const [selectedPresetId, setSelectedPresetId] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_preset_id');
+      if (saved && WORKFLOW_PRESETS.some(p => p.id === saved)) return saved;
+    } catch {}
+    return 'ncb-works';
+  });
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_selected_category');
+      if (saved) return saved;
+    } catch {}
+    return 'all';
+  });
+  const [customProjectTitle, setCustomProjectTitle] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_project_title');
+      if (saved) return saved;
+    } catch {}
+    return 'रु ३ करोडको भवन/सडक निर्माण (NCB Works - राष्ट्रिय खुला बोलपत्र)';
+  });
+  const [customOfficeName, setCustomOfficeName] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_office_name');
+      if (saved) return saved;
+    } catch {}
+    return 'शहरी विकास तथा भवन निर्माण विभाग';
+  });
+  const [customContractNo, setCustomContractNo] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_contract_no');
+      if (saved) return saved;
+    } catch {}
+    return 'OFFICE/WORKS/01-083/84';
+  });
+  const [customAmount, setCustomAmount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_custom_amount');
+      if (saved) {
+        const parsed = Number(saved);
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    } catch {}
+    return 30000000;
+  });
 
   // Completed task ids
-  const [completedTaskIds, setCompletedTaskIds] = useState<Record<string, boolean>>({});
-  const [activeStepNo, setActiveStepNo] = useState<number>(1);
+  const [completedTaskIds, setCompletedTaskIds] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_completed_tasks');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {};
+  });
+  const [activeStepNo, setActiveStepNo] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('workflow_active_step_no');
+      if (saved) {
+        const num = parseInt(saved, 10);
+        if (num >= 1) return num;
+      }
+    } catch {}
+    return 1;
+  });
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('workflow_preset_id', selectedPresetId);
+      localStorage.setItem('workflow_selected_category', selectedCategory);
+      localStorage.setItem('workflow_active_step_no', String(activeStepNo));
+      localStorage.setItem('workflow_project_title', customProjectTitle);
+      localStorage.setItem('workflow_office_name', customOfficeName);
+      localStorage.setItem('workflow_contract_no', customContractNo);
+      localStorage.setItem('workflow_custom_amount', String(customAmount));
+      localStorage.setItem('workflow_completed_tasks', JSON.stringify(completedTaskIds));
+    } catch {}
+  }, [
+    selectedPresetId,
+    selectedCategory,
+    activeStepNo,
+    customProjectTitle,
+    customOfficeName,
+    customContractNo,
+    customAmount,
+    completedTaskIds,
+  ]);
 
   // Active preset
   const activePreset = useMemo(() => {
@@ -134,6 +210,10 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
     if (window.confirm('के तपाईं सम्पूर्ण कार्यप्रवाहको चेकलिस्ट सुरुदेखि पुनः रिसेट गर्न चाहनुहुन्छ?')) {
       setCompletedTaskIds({});
       setActiveStepNo(1);
+      try {
+        localStorage.removeItem('workflow_completed_tasks');
+        localStorage.setItem('workflow_active_step_no', '1');
+      } catch {}
     }
   };
 

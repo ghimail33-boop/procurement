@@ -67,12 +67,15 @@ function ProcurementApp({
   const [isNewProjectOpen, setIsNewProjectOpen] = useState<boolean>(false);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
-  const [isFromAdvisor, setIsFromAdvisor] = useState<boolean>(() => {
+  const [templateSource, setTemplateSource] = useState<'advisor' | 'workflow' | null>(() => {
     try {
-      return sessionStorage.getItem('is_from_advisor') === 'true';
+      const saved = sessionStorage.getItem('template_source');
+      if (saved === 'advisor' || saved === 'workflow') return saved;
+      if (sessionStorage.getItem('is_from_advisor') === 'true') return 'advisor';
     } catch {
-      return false;
+      return null;
     }
+    return null;
   });
   const [projects, setProjects] = useState<TrackedProject[]>([]);
   const [users, setUsers] = useState<AppUser[]>([]);
@@ -226,11 +229,15 @@ function ProcurementApp({
     setActiveTab('methods');
   };
 
-  const navigateToTemplate = (templateId: string, fromAdvisor: boolean = false) => {
+  const navigateToTemplate = (templateId: string, source: 'advisor' | 'workflow' | null = null) => {
     setSelectedTemplateId(templateId);
-    setIsFromAdvisor(fromAdvisor);
+    setTemplateSource(source);
     try {
-      sessionStorage.setItem('is_from_advisor', String(fromAdvisor));
+      if (source) {
+        sessionStorage.setItem('template_source', source);
+      } else {
+        sessionStorage.removeItem('template_source');
+      }
     } catch {
       // ignore storage errors
     }
@@ -238,13 +245,24 @@ function ProcurementApp({
   };
 
   const handleBackToAdvisor = () => {
-    setIsFromAdvisor(false);
+    setTemplateSource(null);
     try {
+      sessionStorage.removeItem('template_source');
       sessionStorage.removeItem('is_from_advisor');
     } catch {
       // ignore storage errors
     }
     setActiveTab('advisor');
+  };
+
+  const handleBackToWorkflow = () => {
+    setTemplateSource(null);
+    try {
+      sessionStorage.removeItem('template_source');
+    } catch {
+      // ignore storage errors
+    }
+    setActiveTab('workflow-wizard');
   };
 
   return (
@@ -305,13 +323,13 @@ function ProcurementApp({
           {activeTab === 'advisor' && (
             <ProcurementAdvisorWizard
               onSelectMethod={navigateToMethodWithId}
-              onNavigateToTemplate={(templateId) => navigateToTemplate(templateId, true)}
+              onNavigateToTemplate={(templateId) => navigateToTemplate(templateId, 'advisor')}
             />
           )}
 
           {activeTab === 'workflow-wizard' && (
             <ProcurementWorkflowWizard
-              onNavigateToTemplate={navigateToTemplate}
+              onNavigateToTemplate={(templateId) => navigateToTemplate(templateId, 'workflow')}
               onNavigateToClause={(clause) => setActiveTab('law-corpus')}
             />
           )}
@@ -361,7 +379,8 @@ function ProcurementApp({
             <TemplatesView
               initialTemplateId={selectedTemplateId}
               onSelectMethod={navigateToMethodWithId}
-              onBackToAdvisor={isFromAdvisor ? handleBackToAdvisor : undefined}
+              onBackToAdvisor={templateSource === 'advisor' ? handleBackToAdvisor : undefined}
+              onBackToWorkflow={templateSource === 'workflow' ? handleBackToWorkflow : undefined}
             />
           )}
 
