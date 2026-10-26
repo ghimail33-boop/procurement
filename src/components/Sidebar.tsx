@@ -22,6 +22,7 @@ import {
   FileCheck,
   BookA,
   Clock,
+  HardHat,
 } from 'lucide-react';
 import { UserRole } from '../types/auth';
 
@@ -35,6 +36,8 @@ interface SidebarProps {
   userRole: UserRole;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  userMode?: 'entity' | 'bidder';
+  onToggleUserMode?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -47,8 +50,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
   userRole,
   isCollapsed = false,
   onToggleCollapse,
+  userMode = 'entity',
+  onToggleUserMode,
 }) => {
   const navGroups = [
+    ...(userMode === 'bidder'
+      ? [
+          {
+            groupTitle: 'बोलपत्रदाता कर्नर (Bidder Hub)',
+            items: [
+              { id: 'bidder-hub', label: 'बोलपत्रदाता ड्यासबोर्ड', icon: HardHat, desc: ' ' },
+              { id: 'bidding-forms', label: 'बोलपत्र फाराम जेनेरेटर', icon: FileText, desc: ' ' },
+            ],
+          },
+        ]
+      : [
+          {
+            groupTitle: 'बोलपत्रदाता सहयोगी',
+            items: [
+              { id: 'bidder-hub', label: 'बोलपत्रदाता कर्नर (Bidder)', icon: HardHat, desc: ' ' },
+            ],
+          },
+        ]),
     {
       groupTitle: 'व्यवस्थापन तथा सल्लाह',
       items: [
@@ -185,6 +208,51 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </>
             )}
           </div>
+
+          {/* Mode Switcher inside Sidebar */}
+          {onToggleUserMode && (
+            <div className={`p-2.5 border-b border-[#31577b] bg-[#1a426e] ${isCollapsed ? 'flex justify-center' : ''}`}>
+              {isCollapsed ? (
+                <button
+                  type="button"
+                  onClick={onToggleUserMode}
+                  title={userMode === 'bidder' ? 'सार्वजनिक निकाय मोडमा जानुहोस्' : 'बोलपत्रदाता मोडमा जानुहोस्'}
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs transition-colors shadow-2xs cursor-pointer ${
+                    userMode === 'bidder'
+                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      : 'bg-blue-800 hover:bg-blue-700 text-blue-100'
+                  }`}
+                >
+                  {userMode === 'bidder' ? '👷' : '🏛️'}
+                </button>
+              ) : (
+                <div className="flex items-center bg-[#143355] p-1 rounded-xl border border-white/10 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => { if (userMode !== 'entity') onToggleUserMode(); }}
+                    className={`flex-1 py-1 px-2 rounded-lg font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      userMode === 'entity'
+                        ? 'bg-red-700 text-white shadow-2xs'
+                        : 'text-blue-200 hover:text-white'
+                    }`}
+                  >
+                    <span>🏛️ सार्वजनिक निकाय</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { if (userMode !== 'bidder') onToggleUserMode(); }}
+                    className={`flex-1 py-1 px-2 rounded-lg font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      userMode === 'bidder'
+                        ? 'bg-emerald-600 text-white shadow-2xs'
+                        : 'text-blue-200 hover:text-white'
+                    }`}
+                  >
+                    <span>👷 बोलपत्रदाता</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Quick Action Button: New Project */}
           <div className={`p-3 border-b border-[#31577b] bg-[#173b63] ${isCollapsed ? 'flex justify-center' : ''}`}>

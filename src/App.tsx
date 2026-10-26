@@ -26,6 +26,8 @@ import { SearchAndFilterModal } from './components/SearchAndFilterModal';
 import { NewProjectModal } from './components/NewProjectModal';
 import { LoginPage } from './components/LoginPage';
 import { UserManagementView } from './components/UserManagementView';
+import { BidderPortalView } from './components/BidderPortalView';
+import { BiddingFormsGenerator } from './components/BiddingFormsGenerator';
 import { TrackedProject } from './types/procurement';
 import { AppUser, ManagedUserInput } from './types/auth';
 import {
@@ -54,7 +56,22 @@ function ProcurementApp({
   onLogout: () => void;
   authError: string;
 }) {
-  const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [userMode, setUserMode] = useState<'entity' | 'bidder'>(() => {
+    try {
+      const saved = localStorage.getItem('app_user_mode');
+      if (saved === 'bidder' || saved === 'entity') return saved;
+    } catch {
+      return 'entity';
+    }
+    return 'entity';
+  });
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    try {
+      const savedMode = localStorage.getItem('app_user_mode');
+      if (savedMode === 'bidder') return 'bidder-hub';
+    } catch {}
+    return 'dashboard';
+  });
   const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState<boolean>(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
     try {
@@ -63,6 +80,21 @@ function ProcurementApp({
       return false;
     }
   });
+
+  const handleToggleUserMode = () => {
+    setUserMode((prev) => {
+      const next = prev === 'entity' ? 'bidder' : 'entity';
+      try {
+        localStorage.setItem('app_user_mode', next);
+      } catch {}
+      if (next === 'bidder') {
+        setActiveTab('bidder-hub');
+      } else {
+        setActiveTab('dashboard');
+      }
+      return next;
+    });
+  };
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isNewProjectOpen, setIsNewProjectOpen] = useState<boolean>(false);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
@@ -278,6 +310,8 @@ function ProcurementApp({
         onOpenNewProject={() => setIsNewProjectOpen(true)}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={handleToggleSidebarCollapse}
+        userMode={userMode}
+        onToggleUserMode={handleToggleUserMode}
       />
 
       {/* Main Content Area (offset by Sidebar width on desktop) */}
@@ -290,6 +324,8 @@ function ProcurementApp({
           onToggleSidebarCollapse={handleToggleSidebarCollapse}
           onOpenSearch={() => setIsSearchOpen(true)}
           onLogout={onLogout}
+          userMode={userMode}
+          onToggleUserMode={handleToggleUserMode}
         />
 
         {/* Viewport Content */}
@@ -306,18 +342,38 @@ function ProcurementApp({
             </p>
           )}
 
-          {isProjectsLoading && activeTab === 'dashboard' && (
+          {isProjectsLoading && activeTab === 'dashboard' && userMode !== 'bidder' && (
             <p role="status" className="mb-4 text-sm text-slate-600">आयोजना विवरण लोड हुँदैछ...</p>
           )}
 
           {activeTab === 'dashboard' && (
-            <DashboardView
-              projects={projects}
-              onUpdateProject={handleUpdateProject}
-              onOpenNewProjectModal={() => setIsNewProjectOpen(true)}
-              onSelectMethod={navigateToMethodWithId}
-              onSelectStage={() => setActiveTab('stages')}
+            userMode === 'bidder' ? (
+              <BidderPortalView
+                onSwitchToEntityMode={handleToggleUserMode}
+                onNavigateToLaw={() => setActiveTab('law-corpus')}
+                onNavigateToEgpGuidelines={() => setActiveTab('egp-guidelines')}
+              />
+            ) : (
+              <DashboardView
+                projects={projects}
+                onUpdateProject={handleUpdateProject}
+                onOpenNewProjectModal={() => setIsNewProjectOpen(true)}
+                onSelectMethod={navigateToMethodWithId}
+                onSelectStage={() => setActiveTab('stages')}
+              />
+            )
+          )}
+
+          {activeTab === 'bidder-hub' && (
+            <BidderPortalView
+              onSwitchToEntityMode={handleToggleUserMode}
+              onNavigateToLaw={() => setActiveTab('law-corpus')}
+              onNavigateToEgpGuidelines={() => setActiveTab('egp-guidelines')}
             />
+          )}
+
+          {activeTab === 'bidding-forms' && (
+            <BiddingFormsGenerator />
           )}
 
           {activeTab === 'advisor' && (

@@ -17,10 +17,14 @@ interface TopHeaderProps {
   onToggleSidebarCollapse?: () => void;
   onOpenSearch: () => void;
   onLogout: () => void;
+  userMode?: 'entity' | 'bidder';
+  onToggleUserMode?: () => void;
 }
 
 const TAB_TITLES: Record<string, { title: string; category: string }> = {
   dashboard: { title: 'ड्यासबोर्ड तथा आयोजना अनुगमन', category: 'व्यवस्थापन' },
+  'bidder-hub': { title: 'बोलपत्रदाता विशेष कर्नर (Bidder Portal)', category: 'बोलपत्रदाता' },
+  'bidding-forms': { title: 'बोलपत्र फाराम तथा ढाँचा जेनेरेटर', category: 'बोलपत्रदाता' },
   advisor: { title: 'खरिद सल्लाहकार (Wizard)', category: 'सल्लाहकार' },
   methods: { title: 'खरिदका सम्पूर्ण विधिहरू', category: 'विधिहरू' },
   'method-checklists': { title: 'विधि अनुसारको चेकलिस्ट', category: 'अनुपालन' },
@@ -43,6 +47,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   onToggleSidebarCollapse,
   onOpenSearch,
   onLogout,
+  userMode = 'entity',
+  onToggleUserMode,
 }) => {
   const current = TAB_TITLES[activeTab] || { title: 'सार्वजनिक खरिद सहयोगी', category: 'प्रणाली' };
 
@@ -85,6 +91,29 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
       {/* Right: Search, Print & Primary Action */}
       <div className="flex items-center gap-2">
+        {/* User Mode Switcher Pill */}
+        {onToggleUserMode && (
+          <button
+            type="button"
+            onClick={onToggleUserMode}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs border cursor-pointer ${
+              userMode === 'bidder'
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-400/60'
+                : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
+            }`}
+            title={userMode === 'bidder' ? 'सार्वजनिक निकाय मोडमा स्विच गर्नुहोस्' : 'बोलपत्रदाता मोडमा स्विच गर्नुहोस्'}
+            aria-label="मोड स्विच गर्नुहोस्"
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                userMode === 'bidder' ? 'bg-amber-300 animate-pulse' : 'bg-blue-300'
+              }`}
+            />
+            <span className="hidden sm:inline">मोड:</span>
+            <span>{userMode === 'bidder' ? '👷 बोलपत्रदाता' : '🏛️ सार्वजनिक निकाय'}</span>
+          </button>
+        )}
+
         <button
           onClick={onOpenSearch}
           className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-50 bg-white/10 hover:bg-white/15 rounded-lg transition-colors border border-white/15"
