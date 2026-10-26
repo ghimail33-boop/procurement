@@ -48,9 +48,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
       groupTitle: 'व्यवस्थापन तथा सल्लाह',
       items: [
         { id: 'dashboard', label: 'ड्यासबोर्ड', icon: Briefcase, desc: ' ' },
-        { id: 'advisor', label: 'खरिद सल्लाहकार', icon: Sparkles, desc: ' ', badge: ' ' },
-        { id: 'workflow-wizard', label: 'चरणबद्ध गाइड (Wizard)', icon: ClipboardList, desc: ' ', badge: 'नयाँ' },
-        { id: 'dilemma-solver', label: 'समस्या समाधान (FAQ)', icon: HelpCircle, desc: ' ', badge: 'नयाँ' },
+        { id: 'advisor', label: 'खरिद सल्लाहकार', icon: Sparkles, desc: ' ' },
+        { id: 'workflow-wizard', label: 'चरणबद्ध गाइड (Wizard)', icon: ClipboardList, desc: ' ' },
+        { id: 'dilemma-solver', label: 'समस्या समाधान (FAQ)', icon: HelpCircle, desc: ' ' },
         ...(userRole === 'admin'
           ? [{ id: 'user-management', label: 'प्रयोगकर्ता व्यवस्थापन', icon: Users, desc: ' ' }]
           : []),
@@ -75,9 +75,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
     {
       groupTitle: 'कानूनी संग्रह तथा संशोधन',
       items: [
-        { id: 'law-corpus', label: 'ऐन/नियमका व्यवस्थाहरु', icon: BookOpen, desc: ' ', badge: ' ' },
+        { id: 'law-corpus', label: 'ऐन/नियमका व्यवस्थाहरु', icon: BookOpen, desc: ' ' },
         { id: 'amendments', label: '१६औँ संशोधनका विशेषता', icon: ShieldCheck, desc:' ' },
-        { id: 'glossary', label: 'शब्दावली कोष (Glossary)', icon: BookA, desc: ' ', badge: 'नयाँ' },
+        { id: 'glossary', label: 'शब्दावली कोष (Glossary)', icon: BookA, desc: ' ' },
         { id: 'clauses', label: 'महत्वपूर्ण दफाहरू', icon: BookOpen, desc: ' ' },
         { id: 'schedules', label: 'अनुसूचीहरू (१–८)', icon: Scale, desc: ' ' },
       ],
@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       groupTitle: 'नमूना कागजात तथा क्याल्कुलेटर',
       items: [
         { id: 'templates', label: 'कागजात ढाँचाहरु', icon: FileText, desc: ' ' },
-        { id: 'timeline-calculator', label: 'कानूनी म्याद क्याल्कुलेटर', icon: Clock, desc: ' ', badge: 'नयाँ' },
+        { id: 'timeline-calculator', label: 'कानूनी म्याद क्याल्कुलेटर', icon: Clock, desc: ' ' },
         { id: 'calculator', label: 'थ्रेसहोल्ड क्याल्कुलेटर', icon: Calculator, desc: ' ' },
       ],
     },
@@ -200,11 +200,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         </div>
                       </div>
 
-                      {item.badge && (
-                        <span className="text-[9px] bg-blue-500 text-white px-1.5 py-0.2 rounded-full font-bold shrink-0 ml-1">
-                          {item.badge}
-                        </span>
-                      )}
                     </button>
                   );
                 })}

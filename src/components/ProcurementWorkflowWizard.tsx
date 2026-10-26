@@ -52,7 +52,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [customProjectTitle, setCustomProjectTitle] = useState<string>('रु ३ करोडको भवन/सडक निर्माण (NCB Works - राष्ट्रिय खुला बोलपत्र)');
   const [customOfficeName, setCustomOfficeName] = useState<string>('शहरी विकास तथा भवन निर्माण विभाग');
-  const [customContractNo, setCustomContractNo] = useState<string>('DUDBC/WORKS/NCB/02-081/82');
+  const [customContractNo, setCustomContractNo] = useState<string>('OFFICE/WORKS/01-083/84');
   const [customAmount, setCustomAmount] = useState<number>(30000000);
 
   // Completed task ids
@@ -81,7 +81,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
     setSelectedPresetId(preset.id);
     setCustomProjectTitle(preset.title);
     setCustomAmount(preset.defaultAmount);
-    setCustomContractNo(`OFFICE/${preset.category.toUpperCase()}/01-081/82`);
+    setCustomContractNo(`OFFICE/${preset.category.toUpperCase()}/01-083/84`);
     setActiveStepNo(1);
   };
 
