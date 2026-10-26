@@ -26,10 +26,51 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
   onSelectMethod,
   onNavigateToTemplate,
 }) => {
-  const [step, setStep] = useState<number>(1);
-  const [procurementType, setProcurementType] = useState<ProcurementType>('works');
-  const [amount, setAmount] = useState<number>(3500000); // 35 Lakhs default
-  const [specialCondition, setSpecialCondition] = useState<string>('normal');
+  const [step, setStep] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('advisor_step');
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (parsed >= 1 && parsed <= 3) return parsed;
+      }
+    } catch {}
+    return 1;
+  });
+  const [procurementType, setProcurementType] = useState<ProcurementType>(() => {
+    try {
+      const saved = localStorage.getItem('advisor_procurement_type');
+      if (saved && ['works', 'goods', 'consulting', 'services'].includes(saved)) {
+        return saved as ProcurementType;
+      }
+    } catch {}
+    return 'works';
+  });
+  const [amount, setAmount] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('advisor_amount');
+      if (saved) {
+        const parsed = Number(saved);
+        if (!isNaN(parsed) && parsed > 0) return parsed;
+      }
+    } catch {}
+    return 3500000;
+  });
+  const [specialCondition, setSpecialCondition] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('advisor_special_condition');
+      if (saved) return saved;
+    } catch {}
+    return 'normal';
+  });
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem('advisor_step', String(step));
+      localStorage.setItem('advisor_procurement_type', procurementType);
+      localStorage.setItem('advisor_amount', String(amount));
+      localStorage.setItem('advisor_special_condition', specialCondition);
+    } catch {}
+  }, [step, procurementType, amount, specialCondition]);
 
   // Quick budget range choices
   const budgetPresets = [
@@ -48,63 +89,624 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
     return analyzeProcurementThreshold(procurementType, Number(amount) || 0);
   }, [procurementType, amount]);
 
-  // Derived recommendation based on special condition and analysis
+  // Derived recommendation based on special condition, category, amount, and threshold analysis
   const finalRecommendation = useMemo(() => {
+    // 1. Emergency Procurement
     if (specialCondition === 'emergency') {
       return {
+        methodId: 'emergency',
         methodName: 'विशेष परिस्थितिमा खरिद (Emergency Procurement)',
         legalBasis: 'सार्वजनिक खरिद ऐन दफा ६६, नियमावली नियम १४५',
         summary: 'प्राकृतिक विपद्, महामारी वा आकस्मिक संकट आइपरेमा तत्काल हानि नोक्सानी रोक्न प्रतिस्पर्धा गराई वा एउटा मात्र व्यवसायीसँग लिखित दरभाउ लिई वार्ताबाट खरिद गर्न सकिन्छ।',
         authority: 'कार्यालय प्रमुख (१ तह माथिको अधिकारीलाई तुरुन्त विस्तृत जानकारी गराउनुपर्ने)',
         noticeDays: 'तत्काल / आवश्यकता अनुसार छोटो समय',
-        caution: '१० लाख भन्दा बढी रकमको खरिद गरेमा सार्वजनिक सूचना प्रकाशन गरी PPMO मा अनिवार्य जानकारी पठाउनुपर्छ (नियम १४५(३))।',
+        bidSecurityText: 'आवश्यक नपर्ने',
+        performanceSecurityText: 'परिस्थिति अनुसार कार्यालय प्रमुखको निर्णय बमोजिम',
+        caution: '१० लाख भन्दा बढी रकमको खरिद गरेमा सार्वजनिक सूचना प्रकाशन गरी PPMO मा अनिवार्य जानकारी पठाउनुपर्छ (नियम १४५(३))। खरिदको अभिलेख सुरक्षित राख्नुपर्छ।',
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'संकट र तत्काल आवश्यकता पहिचान:',
+            description: 'प्राकृतिक विपद् वा आकस्मिक संकट आइपरेको यकिन गरी थप हानि नोक्सानी रोक्न आवश्यक मालसामान, काम वा सेवाको परिमाण तत्काल यकिन गर्ने (ऐन दफा ६६)।',
+          },
+          {
+            stepNum: 2,
+            title: 'कार्यालय प्रमुखको निर्णय र माथिल्लो निकायमा जानकारी:',
+            description: 'विशेष परिस्थिति खुलाई खरिद गर्ने निर्णय गर्ने र १ तह माथिको अधिकारीलाई तुरुन्त विस्तृत जानकारी पठाउने (नियम १४५)।',
+          },
+          {
+            stepNum: 3,
+            title: 'दरभाउ वार्ता र तत्काल कार्यादेश:',
+            description: 'उपलब्ध फर्म वा व्यवसायीसँग लिखित दरभाउ लिई वार्ताबाट दर निश्चित गरी तुरुन्त कार्यादेश दिई कार्य/आपूर्ति सुरु गराउने।',
+          },
+          {
+            stepNum: 4,
+            title: 'सार्वजनिक सूचना र PPMO मा जानकारी:',
+            description: '१० लाख भन्दा बढीको खरिद भए सार्वजनिक सूचना प्रकाशन गरी PPMO मा विवरण पठाउने र सम्झौता तथा भुक्तानी फरफारक गर्ने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-direct-purchase-order', label: 'आपतकालीन खरिद माग तथा खरिद आदेश ढाँचा', isPrimary: true },
+          { id: 'tmpl-contract-agreement', label: 'खरिद सम्झौताको ढाँचा' },
+        ],
       };
     }
 
+    // 2. Single Source / Proprietary
     if (specialCondition === 'single-source') {
       return {
+        methodId: 'single-source',
         methodName: 'एक मात्र आपूर्तिकर्ता/प्रोप्राइट्री खरिद (Single Source / Proprietary)',
         legalBasis: 'सार्वजनिक खरिद ऐन दफा ४१(१)(ग, घ), नियम ८५(३, ५)',
         summary: 'वस्तु आपूर्ति गर्ने अधिकार एउटा मात्र आपूर्तिकर्तासँग भएको वा जडित मेशिनरीको पाटपूर्जा साविककै आपूर्तिकर्ताबाट मात्र लिनुपर्ने प्रमाणित भएमा सोझै खरिद गर्न सकिन्छ।',
         authority: 'कार्यालय प्रमुख (प्रोप्राइट्री मालसामान भए साविक सम्झौताको ३०% मूल्य सम्म, १ तह माथिको सहमति)',
         noticeDays: 'सूचना आवश्यक नपर्ने',
-        caution: 'उद्योगको उत्पादन लागत अस्वाभाविक देखिएमा अनुगमन कार्यालयले परीक्षण गरी कालोसूचीमा राख्न सक्नेछ।',
+        bidSecurityText: 'आवश्यक नपर्ने',
+        performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+        caution: 'उद्योगको उत्पादन लागत अस्वाभाविक देखिएमा अनुगमन कार्यालयले परीक्षण गरी कालोसूचीमा राख्न सक्नेछ। प्राविधिक समितिबाट प्रोप्राइट्री भएको प्रमाणित हुनुपर्छ।',
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'प्रोप्राइट्री प्राविधिक पुष्टीकरण:',
+            description: 'नेपालभित्र अर्को कुनै विकल्प नरहेको र साविककै उत्पादक वा अधिकृत विक्रेताबाट मात्र काम चल्ने प्राविधिक समितिबाट प्रमाणित गराउने (ऐन दफा ४१)।',
+          },
+          {
+            stepNum: 2,
+            title: 'लागत अनुमान र विधि स्वीकृति:',
+            description: 'साविक खरिद मूल्य, विदेशी मुद्रा विनिमय दर र बजार दर विश्लेषण गरी लागत अनुमान स्वीकृत गराउने।',
+          },
+          {
+            stepNum: 3,
+            title: 'एकल आपूर्तिकर्तासँग लिखित वार्ता:',
+            description: 'आधिकारिक उत्पादक वा एकल विक्रेतासँग दररेट, वारेन्टी र डेलिभरी सर्तहरूमा औपचारिक वार्ता गर्ने।',
+          },
+          {
+            stepNum: 4,
+            title: 'खरिद आदेश/सम्झौता, दाखिला र भुक्तानी:',
+            description: 'वार्ता निष्कर्ष अनुसार सम्झौता वा खरिद आदेश दिई सामान प्राप्त भएपछि प्राविधिक जाँचपास प्रतिवेदनका आधारमा भुक्तानी गर्ने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-direct-purchase-order', label: 'एकल स्रोत खरिद आदेश तथा दरभाउ ढाँचा', isPrimary: true },
+          { id: 'tmpl-contract-agreement', label: 'एकल स्रोत खरिद सम्झौता ढाँचा' },
+        ],
       };
     }
 
+    // 3. Catalog Shopping (Goods)
     if (specialCondition === 'heavy-vehicle' && procurementType === 'goods') {
       return {
+        methodId: 'catalog-shopping',
         methodName: 'उत्पादक/अधिकृत विक्रेता दरमा खरिद (क्याटलग सपिङ - Catalog Shopping)',
         legalBasis: 'सार्वजनिक खरिद ऐन दफा ८(१)(८), नियमावली नियम ३१ख',
         summary: 'सवारी साधन, हेभी इक्विपमेन्ट, एक्सरे वा स्वास्थ्य उपकरणको उत्पादकले ब्रोसर वा वेबसाइटमा सार्वजनिक गरेको दररेटमा छुट र सुविधामा प्रतिस्पर्धा गराई खरिद गर्ने।',
-        authority: 'स्वीकृत लागत अनुमान अनुसारको अधिकारी',
+        authority: analysis.approvingAuthorityCostEstimate,
         noticeDays: 'कम्तीमा ७ दिन देखि बढीमा १५ दिनको लिखित सूचना',
-        caution: 'बोलपत्र जमानत आवश्यक पर्दैन (नियम ३१ख(२)); बहुवर्षीय ठेक्कामा यो विधि प्रयोग गर्न पाइँदैन।',
+        bidSecurityText: 'आवश्यक नपर्ने (नियम ३१ख(२))',
+        performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+        caution: 'बोलपत्र जमानत आवश्यक पर्दैन (नियम ३१ख(२)); बहुवर्षीय ठेक्कामा यो विधि प्रयोग गर्न पाइँदैन। उत्पादकको सूचीकृत दररेट भन्दा बढी दर कबोल गर्न पाइँदैन।',
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'प्राविधिक स्पेसिफिकेसन र ब्रोसर दर संकलन:',
+            description: 'सवारी साधन वा हेभी उपकरणको स्पेसिफिकेसन तयार गरी आधिकारिक उत्पादकले वेबसाइट वा ब्रोसरमा सार्वजनिक गरेको दररेट संकलन गर्ने (नियम ३१ख)।',
+          },
+          {
+            stepNum: 2,
+            title: 'लागत अनुमान र विधि स्वीकृति:',
+            description: 'उत्पादकको दररेट अनुसार लागत अनुमान तयार गरी अधिकार प्राप्त अधिकारीबाट क्याटलग सपिङ विधि स्वीकृत गराउने।',
+          },
+          {
+            stepNum: 3,
+            title: 'अधिकृत विक्रेताहरूलाई लिखित सूचना (७-१५ दिन):',
+            description: 'नेपालस्थित आधिकारिक विक्रेताहरूलाई अधिकतम छुट, वारेन्टी र सुविधामा प्रतिस्पर्धा गर्न कम्तीमा ७ देखि १५ दिनको लिखित सूचना दिने।',
+          },
+          {
+            stepNum: 4,
+            title: 'मूल्याङ्कन, खरिद सम्झौता र आपूर्ति:',
+            description: 'सबैभन्दा बढी छुट र सुविधा दिने अधिकृत विक्रेता छनोट गरी ५% कार्यसम्पादन जमानत लिई सम्झौता गर्ने र सामान आपूर्ति लिने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-direct-purchase-order', label: 'क्याटलग सपिङ प्रस्ताव माग तथा खरिद आदेश ढाँचा', isPrimary: true },
+          { id: 'tmpl-contract-agreement', label: 'सवारी/उपकरण आपूर्ति सम्झौता ढाँचा' },
+        ],
       };
     }
 
+    // 4. User Committee (Works <= 1 Crore)
     if (specialCondition === 'user-committee' && procurementType === 'works' && amount <= 10000000) {
       return {
+        methodId: 'user-committee',
         methodName: 'उपभोक्ता समितिबाट निर्माण कार्य (User Committee)',
         legalBasis: 'सार्वजनिक खरिद ऐन दफा ४४, नियमावली नियम ९७',
-        summary: 'स्थानीय बासिन्दा प्रत्यक्ष लाभग्राही हुने र जटिल प्रविधि नचाहिने रु १ करोड सम्मको निर्माण कार्य।',
+        summary: 'स्थानीय बासिन्दा प्रत्यक्ष लाभग्राही हुने र जटिल प्रविधि नचाहिने रु १ करोड सम्मको निर्माण कार्य। जनसहभागिता र श्रममूलक प्रविधि अनिवार्य।',
         authority: 'स्थानीय तह वा सार्वजनिक निकायको प्रमुख',
         noticeDays: 'कम्तीमा ७ दिनको सूचना / आम भेला',
-        caution: 'डोजर/एक्साभेटर जस्ता हेभी मेसिन प्रयोग गर्न र ठेकेदारलाई काम दिन सख्त प्रतिबन्ध छ।',
+        bidSecurityText: 'आवश्यक नपर्ने (नियम ९७)',
+        performanceSecurityText: 'आवश्यक नपर्ने (अन्तिम बिल भुक्तानीबाट ५% मर्मत सम्भार धरौटी कट्टी)',
+        caution: 'डोजर, एक्साभेटर जस्ता हेभी मेसिन प्रयोग गर्न र ठेकेदारलाई काम सुम्पन सख्त प्रतिबन्ध छ। समिति पदाधिकारीमा सरकारी वा राजनीतिक पदमा रहेका व्यक्ति रहन पाउँदैनन्।',
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'लाभग्राही आमभेला र उपभोक्ता समिति गठन:',
+            description: 'प्रत्यक्ष लाभग्राही समुदायको आमभेला बोलाई कम्तीमा ३३% महिला सहितको उपभोक्ता समिति र छुट्टै अनुगमन समिति गठन गरी स्थानीय निकायमा दर्ता गर्ने (नियम ९७)।',
+          },
+          {
+            stepNum: 2,
+            title: 'प्राविधिक लागत अनुमान र श्रमदान अंश स्वीकृति:',
+            description: 'प्राविधिकबाट कार्यस्थलको नापजाँच गरी लागत अनुमान तयार गर्ने। जनसहभागिता/श्रमदान अंश कटाएर बाँकी सरकारी अनुदान रकम स्वीकृत गराउने।',
+          },
+          {
+            stepNum: 3,
+            title: 'खरिद सम्झौता र किस्ताबन्दी पेश्की निकासा:',
+            description: 'उपभोक्ता समितिसँग तोकिएको ढाँचामा सम्झौता गर्ने। कार्यतालिका र भौतिक प्रगति अनुसार बढीमा ३ किस्तामा रकम निकासा गर्ने।',
+          },
+          {
+            stepNum: 4,
+            title: 'सार्वजनिक परीक्षण (Public Audit), प्रतिवेदन र फरफारक:',
+            description: 'कार्यस्थलमा नागरिक सूचना पाटी राख्ने, काम सम्पन्न भएपछि सार्वजनिक परीक्षण सम्पन्न गरी अनुगमन समितिको प्रतिवेदन सहित फरफारक गर्ने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-user-committee-agreement', label: 'उपभोक्ता समिति योजना सम्झौता ढाँचा', isPrimary: true },
+          { id: 'tmpl-site-board', label: 'कार्यस्थल नागरिक सूचना पाटी ढाँचा (अनुसूची-८)' },
+        ],
       };
     }
 
-    // Default primary method from threshold analysis
-    const primary = analysis.recommendedMethods.find(m => m.isPrimary) || analysis.recommendedMethods[0];
+    // 5. Standard Goods Procurement
+    if (procurementType === 'goods') {
+      if (amount <= 1500000) {
+        // Direct Purchase Goods
+        return {
+          methodId: 'direct-procurement',
+          methodName: 'सोझै खरिद (Direct Purchase - Goods)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा ४१(१)(क), नियमावली नियम ८५(१)(क)',
+          summary: 'रु १५ लाख सम्मको मालसामान मौजुदा सूचीमा रहेका कम्तीमा ३ वटा आपूर्तिकर्ताबाट दरभाउ माग गरी सोझै खरिद गर्न सकिन्छ।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'सूचना आवश्यक नपर्ने (मौजुदा सूचीका ३ आपूर्तिकर्ताबाट दरभाउ माग)',
+          bidSecurityText: 'आवश्यक नपर्ने (नियम ८५)',
+          performanceSecurityText: 'सोझै खरिदमा सामान्यतया नपर्ने / खरिद आदेशका सर्त बमोजिम',
+          caution: 'एकै आपूर्तिकर्ताबाट एक आर्थिक वर्षमा तोकिएको सीमा (रु १५ लाख सम्म) भन्दा बढी सोझै खरिद गर्न पाइँदैन। प्रतिस्पर्धा छल्न खरिदलाई टुक्रा-टुक्रा पार्न सख्त निषेध छ (ऐन दफा ८(२))। मौजुदा सूचीका कम्तीमा ३ वटा आधिकारिक फर्मबाट दरभाउ लिई दर विश्लेषण गर्नुपर्छ।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'माग फाराम, स्पेसिफिकेसन र बजेट सुनिश्चितता:',
+              description: 'माग फाराम (Requisition) स्वीकृत गराउने, आवश्यक मालसामानको प्राविधिक स्पेसिफिकेसन र गुणस्तर मापदण्ड तयार गरी बजेट उपशीर्षक सुनिश्चित गर्ने (ऐन दफा ४ र ५)।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान र खरिद विधि स्वीकृति:',
+              description: 'बजार दररेट, साविकको खरिद दर वा आधिकारिक मूल्यसूचीका आधारमा मालसामानको लागत अनुमान तयार गरी अधिकार प्राप्त अधिकारीबाट सोझै खरिद गर्ने निर्णय/स्वीकृति गराउने (नियम १४ र नियम ८५)।',
+            },
+            {
+              stepNum: 3,
+              title: 'मौजुदा सूचीबाट दरभाउ माग र दर विश्लेषण:',
+              description: 'कार्यालयको मौजुदा सूची (Standing List) मा रहेका कम्तीमा ३ वटा आधिकारिक विक्रेता/फर्मबाट लिखित वा सिलबन्दी दरभाउ माग गरी तुलनात्मक दर विश्लेषण गर्ने (नियम ८५(१)(क))।',
+            },
+            {
+              stepNum: 4,
+              title: 'खरिद आदेश, गुणस्तर परीक्षण (दाखिला) र भुक्तानी:',
+              description: 'न्यूनतम दररेट पेस गर्ने फर्मलाई स्वीकृत स्पेसिफिकेसन अनुसारको खरिद आदेश (Purchase Order) दिने। सामान प्राप्त भएपछि दाखिला प्रतिवेदन (Goods Receipt) तयार गरी भुक्तानी दिने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-direct-purchase-order', label: 'सोझै खरिदको माग, दरभाउ माग र खरिद आदेश ढाँचा', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'खरिद सम्झौताको ढाँचा' },
+          ],
+        };
+      }
+
+      if (amount <= 2000000) {
+        // Sealed Quotation Goods
+        return {
+          methodId: 'sealed-quotation',
+          methodName: 'सिलबन्दी दरभाउपत्र (Sealed Quotation - Goods)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा ४०, नियमावली नियम ८४',
+          summary: 'रु २० लाख सम्मको मालसामान खरिदमा कम्तीमा ७ दिनको सूचना दिई सिलबन्दी दरभाउपत्र आह्वान गर्नुपर्छ।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'कम्तीमा ७ दिन',
+          bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
+          performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+          caution: 'कम्तीमा ३ वटा दरभाउपत्र दर्ता हुनैपर्छ। ३ वटा नपरेमा म्याद थप गरी पुनः सूचना गर्नुपर्छ (नियम ८४(३क))। दरभाउपत्र फारामको दस्तुर रु १,००० (फिर्ता नहुने) र जमानत ७५ दिन मान्य हुनुपर्छ।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'प्राविधिक स्पेसिफिकेसन र बजेट सुनिश्चितता:',
+              description: 'मालसामानको विस्तृत स्पेसिफिकेसन र ब्रान्ड-तटस्थ मापदण्ड तयार गरी बजेट सुनिश्चित गर्ने।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान र दरभाउपत्र कागजात स्वीकृति:',
+              description: 'अधिकार प्राप्त अधिकारीबाट लागत अनुमान र PPMO को नमूना दरभाउपत्र कागजात स्वीकृत गराउने (नियम ८४)।',
+            },
+            {
+              stepNum: 3,
+              title: 'दरभाउपत्र आह्वान (कम्तीमा ७ दिन):',
+              description: 'राष्ट्रिय वा स्थानीय पत्रिका, सूचना पाटी वा e-GP पोर्टलमा कम्तीमा ७ दिनको म्याद दिई सिलबन्दी दरभाउपत्र आह्वान गर्ने।',
+            },
+            {
+              stepNum: 4,
+              title: 'मूल्याङ्कन, खरिद आदेश/सम्झौता र आपूर्ति:',
+              description: 'दर्ता भएका दरभाउपत्र खोली न्यूनतम मूल्याङ्कित प्रभावग्राही दरभाउदातालाई ७ दिनभित्र कार्यसम्पादन जमानत लिई खरिद आदेश वा सम्झौता गर्ने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-sq-notice', label: 'सिलबन्दी दरभाउपत्र आह्वानको सूचना ढाँचा', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'दरभाउपत्र खरिद सम्झौता ढाँचा' },
+          ],
+        };
+      }
+
+      // NCB Goods (> 20 Lakhs)
+      return {
+        methodId: 'ncb-goods',
+        methodName: 'राष्ट्रिय स्तरको खुला बोलपत्र (NCB Goods)',
+        legalBasis: 'सार्वजनिक खरिद ऐन दफा ११, नियमावली नियम ३१, ३१ज',
+        summary: 'रु २० लाख भन्दा माथिको मालसामान खरिदमा २१ दिनको राष्ट्रिय सूचना दिई खुला बोलपत्र आह्वान गर्नुपर्छ। जटिल मालसामान भए दुई खाम।',
+        authority: analysis.approvingAuthorityCostEstimate,
+        noticeDays: `कम्तीमा ${analysis.minimumNoticeDays} दिन`,
+        bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
+        performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+        caution: "प्राविधिक स्पेसिफिकेसनमा कुनै खास ब्रान्ड, ट्रेडमार्क वा उत्पादक उल्लेख गर्न पाइँदैन ('वा सो सरह' अनिवार्य)। स्वदेशी मालसामानलाई १५% सम्म मूल्य प्राथमिकता दिन सकिन्छ (ऐन दफा ११)।",
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'स्पेसिफिकेसन, डेलिभरी तालिका र बजेट सुनिश्चितता:',
+            description: 'मालसामानको तटस्थ प्राविधिक स्पेसिफिकेसन, निरीक्षण विधि, आपूर्ति तालिका र बजेट सुनिश्चित गर्ने (ऐन दफा ४ र ५)।',
+          },
+          {
+            stepNum: 2,
+            title: 'लागत अनुमान र SBD Goods कागजात स्वीकृति:',
+            description: 'बजार दर विश्लेषणका आधारमा लागत अनुमान र PPMO को स्वीकृत नमूना बोलपत्र कागजात स्वीकृत गराउने (नियम १४)।',
+          },
+          {
+            stepNum: 3,
+            title: 'e-GP पोर्टलमा बोलपत्र आह्वान (कम्तीमा २१ दिन):',
+            description: 'PPMO को e-GP प्रणाली मार्फत कम्तीमा २१ दिनको म्याद दिई राष्ट्रिय दैनिक पत्रिकामा बोलपत्र आह्वानको सूचना प्रकाशन गर्ने।',
+          },
+          {
+            stepNum: 4,
+            title: 'प्राविधिक/आर्थिक मूल्याङ्कन, LOI र सम्झौता:',
+            description: 'स्पेसिफिकेसन अनुपालन जाँच गरी न्यूनतम मूल्याङ्कन गरिएको बोलपत्रदातालाई ७ दिनको LOI दिने, कार्यसम्पादन जमानत लिई १५ दिनभित्र सम्झौता गर्ने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-ifb-ncb', label: 'बोलपत्र आह्वानको सूचना ढाँचा (e-GP / राष्ट्रिय दैनिक)', isPrimary: true },
+          { id: 'tmpl-contract-agreement', label: 'सार्वजनिक खरिद सम्झौताको ढाँचा' },
+        ],
+      };
+    }
+
+    // 6. Standard Works Procurement
+    if (procurementType === 'works') {
+      if (amount <= 1500000) {
+        // Direct Purchase Works
+        return {
+          methodId: 'direct-procurement',
+          methodName: 'सोझै खरिद (Direct Purchase - Works)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा ४१(१)(क), नियम ८५(१)(क)',
+          summary: 'रु १५ लाख सम्मको साना निर्माण वा मर्मत कार्य मौजुदा सूचीका कम्तीमा ३ वटा निर्माण व्यवसायीबाट दरभाउ लिई सोझै गराउन सकिन्छ।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'सूचना आवश्यक नपर्ने (मौजुदा सूचीका ३ व्यवसायीबाट दरभाउ माग)',
+          bidSecurityText: 'आवश्यक नपर्ने (नियम ८५)',
+          performanceSecurityText: 'सोझै खरिदमा सामान्यतया नपर्ने / कार्यादेश अनुसार',
+          caution: 'एक आर्थिक वर्षमा एउटै निर्माण व्यवसायीबाट नियम ८५ को सीमा भन्दा बढी काम लिन पाइँदैन। कामलाई टुक्रा-टुक्रा पारी सोझै खरिद गर्न सख्त निषेध छ।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'पूर्वतयारी, नापजाँच र बजेट सुनिश्चितता:',
+              description: 'निर्माणस्थलको अवस्था यकिन गर्ने, कुनै विवाद नरहेको सुनिश्चित गर्ने र सम्बन्धित बजेट उपशीर्षकमा रकम सुनिश्चित गर्ने।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान, ड्रइङ र खरिद विधि स्वीकृति:',
+              description: 'जिल्ला दररेट र सरकारी नर्म्स अनुसार प्राविधिकबाट लागत अनुमान तयार गरी अधिकार प्राप्त अधिकारीबाट सोझै खरिद विधि स्वीकृत गराउने।',
+            },
+            {
+              stepNum: 3,
+              title: 'मौजुदा सूचीका निर्माण व्यवसायीबाट दरभाउ माग:',
+              description: 'कार्यालयमा सूचीकृत कम्तीमा ३ वटा स्थानीय निर्माण व्यवसायीबाट दरभाउ माग गरी तुलनात्मक दर विश्लेषण गर्ने।',
+            },
+            {
+              stepNum: 4,
+              title: 'कार्यादेश, कार्यसम्पादन र नापी किताब अनुसार भुक्तानी:',
+              description: 'सबैभन्दा कम दर कबोल गर्ने व्यवसायीलाई कार्यादेश (Work Order) जारी गर्ने। काम सम्पन्न भएपछि नापी किताब र कार्यसम्पन्न प्रतिवेदन अनुसार भुक्तानी दिने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-direct-purchase-order', label: 'सोझै निर्माण कार्यादेश तथा दरभाउ माग ढाँचा', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'निर्माण खरिद सम्झौता ढाँचा' },
+          ],
+        };
+      }
+
+      if (amount <= 2000000) {
+        // Sealed Quotation Works
+        return {
+          methodId: 'sealed-quotation',
+          methodName: 'सिलबन्दी दरभाउपत्र (Sealed Quotation - Works)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा ४०, नियमावली नियम ८४',
+          summary: 'रु २० लाख सम्मको निर्माण कार्यमा कम्तीमा ७ दिनको सूचना दिई सिलबन्दी दरभाउपत्र आह्वान गर्नुपर्छ।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'कम्तीमा ७ दिन',
+          bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
+          performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+          caution: 'कम्तीमा ३ वटा दरभाउपत्र दर्ता हुनैपर्छ (नियम ८४(३क))। दरभाउ जमानत ७५ दिन मान्य हुनुपर्छ।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'पूर्वतयारी, डिजाइन र बजेट सुनिश्चितता:',
+              description: 'निर्माणस्थलको उपलब्धता, ड्रइङ, डिजाइन, BOQ र बजेट सुनिश्चित गर्ने।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान र SQ कागजात स्वीकृति:',
+              description: 'सरकारी नर्म्स अनुसार लागत अनुमान र PPMO को नमूना दरभाउपत्र कागजात स्वीकृत गराउने।',
+            },
+            {
+              stepNum: 3,
+              title: 'दरभाउपत्र आह्वान (कम्तीमा ७ दिन):',
+              description: 'राष्ट्रिय वा स्थानीय पत्रिका, सूचना पाटी वा e-GP पोर्टलमा कम्तीमा ७ दिनको म्याद दिई दरभाउपत्र आह्वान गर्ने।',
+            },
+            {
+              stepNum: 4,
+              title: 'मूल्याङ्कन, सम्झौता र कार्यादेश:',
+              description: 'दरभाउपत्र मूल्याङ्कन गरी न्यूनतम मूल्याङ्कित प्रभावग्राही व्यवसायीलाई ७ दिनभित्र कार्यसम्पादन जमानत लिई सम्झौता गर्ने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-sq-notice', label: 'सिलबन्दी दरभाउपत्र आह्वानको सूचना ढाँचा', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'निर्माण सम्झौताको ढाँचा' },
+          ],
+        };
+      }
+
+      if (amount <= 20000000) {
+        // Single Stage 1-Envelope NCB Works
+        return {
+          methodId: 'ncb-works',
+          methodName: 'एक खाम खुला बोलपत्र (Single Stage NCB Works)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा ११(४), नियम ३१क',
+          summary: 'रु २ करोड सम्मको निर्माण कार्यमा योग्यता मापदण्ड नचाहिने भए १ खाम प्रणालीबाट २१ दिनको सूचनामा खुला बोलपत्र आह्वान गर्नुपर्छ।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'कम्तीमा २१ दिन',
+          bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
+          performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+          caution: 'लागत अनुमान भन्दा ३०% भन्दा बढी घटेर आउने बोलपत्र स्वतः खारेज हुनेछ। ५ वटा भन्दा बढी चालू ठेक्का भएका व्यवसायी सहभागी हुन पाउँदैनन्।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'पूर्वतयारी, साइट उपलब्धता र वातावरणीय स्वीकृति:',
+              description: 'साइट उपलब्धता, रुख कटान सहमति, जग्गा प्राप्ति र वातावरणीय प्रतिवेदन स्वीकृत भएको सुनिश्चित गर्ने (ऐन दफा ४क)।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान र १ खाम बोलपत्र कागजात स्वीकृति:',
+              description: 'जिल्ला दररेट र सरकारी नर्म्स अनुसार दर विश्लेषण गरी लागत अनुमान र १ खाम बोलपत्र कागजात स्वीकृत गराउने (नियम १४ र ३१क)।',
+            },
+            {
+              stepNum: 3,
+              title: 'e-GP पोर्टलमा बोलपत्र आह्वान (कम्तीमा २१ दिन):',
+              description: 'PPMO को e-GP प्रणाली मार्फत कम्तीमा २१ दिनको म्याद दिई राष्ट्रिय दैनिकमा सूचना प्रकाशन गर्ने।',
+            },
+            {
+              stepNum: 4,
+              title: 'मूल्याङ्कन, LOI र सम्झौता:',
+              description: '३०% भन्दा घटेको बोलपत्र खारेज गरी औसत कबोल अङ्कको नजिकको सारभूत बोलपत्र छनोट गर्ने, ७ दिनको LOI दिएर १५ दिनभित्र सम्झौता सम्पन्न गर्ने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-ifb-ncb', label: 'बोलपत्र आह्वानको सूचना ढाँचा (e-GP / राष्ट्रिय दैनिक)', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'सार्वजनिक खरिद सम्झौताको ढाँचा' },
+          ],
+        };
+      }
+
+      // Two-Envelope NCB Works (> 2 Crore)
+      return {
+        methodId: 'two-envelope',
+        methodName: 'दुई खाम प्रणाली खुला बोलपत्र (Two-Envelope NCB Works)',
+        legalBasis: 'सार्वजनिक खरिद ऐन दफा ११(५), नियम ३१ज, ३१ङ',
+        summary: 'रु २ करोड माथिका निर्माण कार्यमा प्राविधिक र आर्थिक प्रस्ताव छुट्टै खाममा माग गरी २ खाम प्रणाली अवलम्बन गर्नुपर्छ। रु ५ अर्ब सम्म स्वदेशी व्यवसायी बीच मात्र प्रतिस्पर्धा।',
+        authority: analysis.approvingAuthorityCostEstimate,
+        noticeDays: `कम्तीमा ${analysis.minimumNoticeDays} दिन`,
+        bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
+        performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)}) (८५% भन्दा घटी कबोल गरे थप धरौटी)`,
+        caution: 'रु २ करोड माथिको निर्माण भएकाले अनिवार्य दुई खाम प्रणाली अवलम्बन गर्नुपर्छ। लागत अनुमान भन्दा ३०% भन्दा बढी घटेर आउने बोलपत्र स्वतः खारेज हुनेछ। ५ वटा भन्दा बढी चालू ठेक्का भएका व्यवसायी अयोग्य हुनेछन्।',
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'पूर्वतयारी, साइट उपलब्धता र अनिवार्य वातावरणीय प्रतिवेदन:',
+            description: 'निर्माणस्थलको जग्गा प्राप्ति, वातावरणीय अध्ययन (IEE/EIA) स्वीकृत भएको र बजेट सुनिश्चित भएको प्रमाणीकरण गर्ने (ऐन दफा ४क)।',
+          },
+          {
+            stepNum: 2,
+            title: 'लागत अनुमान र दुई खाम बोलपत्र कागजात स्वीकृति:',
+            description: 'प्राविधिक योग्यता मापदण्ड (Turnover, Experience, Equipment) सहितको लागत अनुमान र २ खाम बोलपत्र कागजात स्वीकृत गराउने (नियम ३१ज)।',
+          },
+          {
+            stepNum: 3,
+            title: 'e-GP पोर्टलमा बोलपत्र आह्वान (कम्तीमा २१ दिन):',
+            description: 'राष्ट्रिय दैनिक र e-GP प्रणालीमा प्राविधिक र आर्थिक प्रस्ताव छुट्टाछुट्टै खाममा पेस गर्ने गरी सूचना आह्वान गर्ने।',
+          },
+          {
+            stepNum: 4,
+            title: 'प्राविधिक प्रस्ताव मूल्याङ्कन, आर्थिक प्रस्ताव खोल्ने, LOI र सम्झौता:',
+            description: 'पहिले प्राविधिक प्रस्ताव मूल्याङ्कन गरी योग्य बोलपत्रदाताको मात्र आर्थिक प्रस्ताव सार्वजनिक रूपमा खोल्ने, ७ दिनको LOI दिई सम्झौता गर्ने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-ifb-ncb', label: 'बोलपत्र आह्वानको सूचना ढाँचा (दुई खाम प्रणाली)', isPrimary: true },
+          { id: 'tmpl-contract-agreement', label: 'सार्वजनिक खरिद सम्झौताको ढाँचा' },
+        ],
+      };
+    }
+
+    // 7. Consulting Services
+    if (procurementType === 'consulting') {
+      if (amount <= 500000) {
+        // Direct Consulting
+        return {
+          methodId: 'direct-procurement',
+          methodName: 'सोझै परामर्श सेवा खरिद (Direct Consulting)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा ४१, नियमावली नियम ८२(१)',
+          summary: 'रु ५ लाख सम्मको तालिम, गोष्ठी वा परामर्श सेवा कार्यालय प्रमुखले सोझै वार्ता गरी खरिद गर्न सक्ने।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'सूचना आवश्यक नपर्ने (सोझै वार्ता)',
+          bidSecurityText: 'आवश्यक नपर्ने (ऐन दफा ३०)',
+          performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+          caution: 'परामर्शदाताको कार्यक्षेत्रगत सर्त (TOR) र योग्यता अनिवार्य यकिन गर्नुपर्छ। एउटै व्यक्ति वा संस्थाबाट वर्षमा ५ लाख भन्दा बढी सोझै लिन पाइँदैन।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'कार्यक्षेत्रगत सर्त (TOR) र बजेट सुनिश्चितता:',
+              description: 'अध्ययन, तालिम वा गोष्ठीको संक्षिप्त TOR, समयावधि र बजेट सुनिश्चित गर्ने।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान र सोझै खरिद विधि स्वीकृति:',
+              description: 'विज्ञको योग्यता, पारिश्रमिक दर र समयावधि यकिन गरी कार्यालय प्रमुखबाट लागत अनुमान र सोझै खरिद गर्ने निर्णय गराउने (नियम ८२(१))।',
+            },
+            {
+              stepNum: 3,
+              title: 'योग्य विज्ञ/परामर्शदातासँग वार्ता र कार्य प्रस्ताव:',
+              description: 'सम्बन्धित विषयको विज्ञ व्यक्ति वा संस्थासँग लिखित कार्य प्रस्ताव र दरभाउ लिई वार्ता गर्ने।',
+            },
+            {
+              stepNum: 4,
+              title: 'कार्यादेश, कार्यसम्पादन र प्रतिवेदन स्वीकृति पश्चात भुक्तानी:',
+              description: 'विज्ञलाई कार्यादेश दिने। तोकिएको समयावधिभित्र अन्तिम प्रतिवेदन वा कार्य सम्पन्न भएको प्रमाणीकरण गरी भुक्तानी दिने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-direct-purchase-order', label: 'सोझै परामर्श सेवा कार्यादेश तथा माग ढाँचा', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'परामर्श सेवा सम्झौता ढाँचा' },
+          ],
+        };
+      }
+
+      // EOI / RFP Consulting (> 5 Lakhs)
+      return {
+        methodId: 'rfp-consulting',
+        methodName: 'प्रतिस्पर्धात्मक परामर्श सेवा (EOI & RFP Consulting)',
+        legalBasis: 'सार्वजनिक खरिद ऐन दफा २९-३८, नियमावली नियम ६८-७८',
+        summary: 'रु ५ लाख माथिका परामर्श सेवामा कम्तीमा १५ दिनको सूचना दिई EOI आह्वान गरी संक्षिप्त सूची तयार गर्ने र RFP माग गरी छनोट गर्ने।',
+        authority: analysis.approvingAuthorityCostEstimate,
+        noticeDays: 'EOI १५ दिन / RFP कम्तीमा २१ देखि ३० दिन',
+        bidSecurityText: 'आवश्यक नपर्ने (ऐन दफा ३०)',
+        performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+        caution: 'गुणस्तर तथा लागत विधि (QCBS) मा प्राविधिक प्रस्तावलाई कम्तीमा ७०-८०% भार र आर्थिक प्रस्तावलाई २०-३०% भार दिनुपर्छ। प्राविधिकमा अनुत्तीर्णको आर्थिक प्रस्ताव खोल्न पाइँदैन।',
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'कार्यक्षेत्रगत सर्त (TOR), जनशक्ति र लागत अनुमान स्वीकृति:',
+            description: 'परामर्श सेवाको विस्तृत कार्यक्षेत्र (TOR), आवश्यक जनशक्ति (Man-months) र बजार दर अनुसार लागत अनुमान स्वीकृत गराउने।',
+          },
+          {
+            stepNum: 2,
+            title: 'आशयपत्र आह्वान (EOI - कम्तीमा १५ दिन):',
+            description: 'योग्यताका आधारमा ३ देखि ६ वटा परामर्शदाताको संक्षिप्त सूची (Shortlist) तयार गर्न कम्तीमा १५ दिनको सूचना दिई EOI आह्वान गर्ने (नियम ६९)।',
+          },
+          {
+            stepNum: 3,
+            title: 'प्रस्ताव माग (RFP - कम्तीमा २१ वा ३० दिन):',
+            description: 'संक्षिप्त सूचीमा परेका परामर्शदाताहरूबाट प्राविधिक र आर्थिक प्रस्ताव छुट्टाछुट्टै खाममा माग गर्ने (नियम ७०)।',
+          },
+          {
+            stepNum: 4,
+            title: 'गुणस्तर र लागत मूल्याङ्कन (QCBS), वार्ता र सम्झौता:',
+            description: 'प्राविधिक प्रस्तावमा न्यूनतम उत्तीर्ण अङ्क प्राप्त गर्नेको आर्थिक प्रस्ताव खोली संयुक्त मूल्याङ्कनमा पहिलो हुने फर्मसँग वार्ता गरी सम्झौता गर्ने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-eoi-notice', label: 'परामर्श सेवा EOI आशयपत्र आह्वान ढाँचा', isPrimary: true },
+          { id: 'tmpl-contract-agreement', label: 'परामर्श सेवा सम्झौता ढाँचा' },
+        ],
+      };
+    }
+
+    // 8. Other Non-Consulting Services
+    if (amount <= 1500000) {
+      // Direct Services
+      return {
+        methodId: 'direct-procurement',
+        methodName: 'सोझै सेवा खरिद (Direct Services / Rent)',
+        legalBasis: 'सार्वजनिक खरिद ऐन दफा ४१, नियमावली नियम ८५',
+        summary: 'रु १५ लाख सम्मको सवारी भाडा, ढुवानी वा अन्य सेवा मौजुदा सूचीका ३ सेवा प्रदायकबाट दरभाउ लिई सोझै खरिद गर्न सकिने।',
+        authority: analysis.approvingAuthorityCostEstimate,
+        noticeDays: 'सूचना आवश्यक नपर्ने (मौजुदा सूचीबाट दरभाउ माग)',
+        bidSecurityText: 'आवश्यक नपर्ने',
+        performanceSecurityText: 'सेवा आदेश वा सम्झौता अनुसार',
+        caution: 'श्रम ऐनले तोकेको न्यूनतम पारिश्रमिक भन्दा कम दरमा सम्झौता गर्न पाइँदैन। सेवा टुक्रा पारी सोझै खरिद गर्न निषेध छ।',
+        nextSteps: [
+          {
+            stepNum: 1,
+            title: 'सेवाको विवरण, जनशक्ति र बजेट सुनिश्चितता:',
+            description: 'सवारी वा घरजग्गा भाडा, ढुवानी वा सरसफाइको आवश्यकता र सेवा सर्तहरू यकिन गरी बजेट सुनिश्चित गर्ने।',
+          },
+          {
+            stepNum: 2,
+            title: 'लागत अनुमान र खरिद विधि स्वीकृति:',
+            description: 'सरकारी दररेट र बजार दर विश्लेषण गरी लागत अनुमान र सोझै खरिद विधि स्वीकृत गराउने।',
+          },
+          {
+            stepNum: 3,
+            title: 'मौजुदा सूचीबाट दरभाउ माग र दर विश्लेषण:',
+            description: 'सूचीकृत कम्तीमा ३ वटा सेवा प्रदायकबाट दरभाउ माग गरी तुलनात्मक दर विश्लेषण गर्ने।',
+          },
+          {
+            stepNum: 4,
+            title: 'सम्झौता, कार्यादेश र मासिक भुक्तानी:',
+            description: 'न्यूनतम मूल्याङ्कन गरिएको सेवा प्रदायकसँग सम्झौता गरी सेवा सम्पन्न भएको प्रमाणीकरणका आधारमा भुक्तानी दिने।',
+          },
+        ],
+        templates: [
+          { id: 'tmpl-rent-service-agreement', label: 'घरजग्गा भाडा तथा बाह्य सेवा करार सम्झौता ढाँचा', isPrimary: true },
+          { id: 'tmpl-direct-purchase-order', label: 'सोझै सेवा खरिद आदेश ढाँचा' },
+        ],
+      };
+    }
+
+    // Competitive Services (> 15 Lakhs)
+    const isSqServices = amount <= 2000000;
     return {
-      methodName: primary?.name || 'खुला बोलपत्र (Open Bidding)',
-      legalBasis: primary?.legalClause || 'सार्वजनिक खरिद ऐन दफा ११',
-      summary: primary?.reason || 'नियम अनुसार खुला प्रतिस्पर्धा गराउनुपर्ने।',
+      methodId: isSqServices ? 'sealed-quotation' : 'ncb-goods',
+      methodName: isSqServices ? 'सिलबन्दी दरभाउपत्र (Sealed Quotation - Services)' : 'खुला बोलपत्र (Open Bidding - Services)',
+      legalBasis: isSqServices ? 'सार्वजनिक खरिद ऐन दफा ४०, नियमावली नियम ८४' : 'सार्वजनिक खरिद ऐन दफा ११, नियमावली नियम ३१',
+      summary: isSqServices ? 'रु २० लाख सम्मको सेवा खरिदमा ७ दिनको सूचना दिई सिलबन्दी दरभाउपत्र आह्वान गर्नुपर्छ।' : 'रु २० लाख माथिको सेवा खरिदमा २१ दिनको राष्ट्रिय सूचना दिई खुला बोलपत्र आह्वान गर्नुपर्छ।',
       authority: analysis.approvingAuthorityCostEstimate,
-      noticeDays: `कम्तीमा ${analysis.minimumNoticeDays} दिन`,
-      caution: analysis.isTwoEnvelopeRequired
-        ? 'रु २ करोड माथिको निर्माण भएकाले अनिवार्य दुई खाम प्रणाली (Two-Envelope) अवलम्बन गर्नुपर्छ।'
-        : 'लागत अनुमान भन्दा ३०% भन्दा बढी घटेर आउने बोलपत्र स्वतः खारेज हुनेछ।',
+      noticeDays: isSqServices ? 'कम्तीमा ७ दिन' : `कम्तीमा ${analysis.minimumNoticeDays} दिन`,
+      bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
+      performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+      caution: 'श्रम ऐन, २०७४ र योगदानमा आधारित सामाजिक सुरक्षा कोष सम्बन्धी कानूनको पूर्ण परिपालना भएको सुनिश्चित गर्नुपर्छ। जनशक्ति आपूर्तिको हकमा इजाजतपत्र प्राप्त संस्था हुनुपर्छ।',
+      nextSteps: [
+        {
+          stepNum: 1,
+          title: 'सेवाको कार्यक्षेत्र, जनशक्ति संख्या र बजेट सुनिश्चितता:',
+          description: 'सेवाको विस्तृत विवरण (Scope of Services), कामदार संख्या, न्यूनतम पारिश्रमिक र बजेट सुनिश्चित गर्ने।',
+        },
+        {
+          stepNum: 2,
+          title: 'लागत अनुमान र सेवा कागजात स्वीकृति:',
+          description: 'सरकारी दररेट र श्रम ऐन अनुसार लागत अनुमान र सेवा कागजात स्वीकृत गराउने।',
+        },
+        {
+          stepNum: 3,
+          title: isSqServices ? 'दरभाउपत्र आह्वान (कम्तीमा ७ दिन):' : 'e-GP पोर्टलमा बोलपत्र आह्वान (कम्तीमा २१ दिन):',
+          description: isSqServices ? 'पत्रिका वा e-GP प्रणाली मार्फत ७ दिनको म्याद दिई दरभाउपत्र आह्वान गर्ने।' : 'राष्ट्रिय दैनिक र e-GP प्रणाली मार्फत २१ दिनको म्याद दिई खुला बोलपत्र आह्वान गर्ने।',
+        },
+        {
+          stepNum: 4,
+          title: 'मूल्याङ्कन, कार्यसम्पादन जमानत र सम्झौता:',
+          description: 'न्यूनतम मूल्याङ्कन गरिएको सेवा प्रदायकसँग ५% जमानत लिई सम्झौता गर्ने र मासिक कार्यसम्पादनका आधारमा भुक्तानी दिने।',
+        },
+      ],
+      templates: [
+        { id: 'tmpl-rent-service-agreement', label: 'सेवा करार सम्झौता ढाँचा', isPrimary: true },
+        { id: isSqServices ? 'tmpl-sq-notice' : 'tmpl-ifb-ncb', label: isSqServices ? 'दरभाउपत्र आह्वान सूचना ढाँचा' : 'बोलपत्र आह्वानको सूचना ढाँचा' },
+      ],
     };
   }, [specialCondition, procurementType, amount, analysis]);
 
@@ -113,6 +715,12 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
     setProcurementType('works');
     setAmount(3500000);
     setSpecialCondition('normal');
+    try {
+      localStorage.removeItem('advisor_step');
+      localStorage.removeItem('advisor_procurement_type');
+      localStorage.removeItem('advisor_amount');
+      localStorage.removeItem('advisor_special_condition');
+    } catch {}
   };
 
   return (
@@ -134,7 +742,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
 
         <button
           onClick={handleReset}
-          className="px-3.5 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-1.5 transition-colors shrink-0"
+          className="px-3.5 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 rounded-lg flex items-center gap-1.5 transition-colors shrink-0 cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           <span>सुरुबाट रोज्नुहोस्</span>
@@ -143,15 +751,41 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
 
       {/* Stepper Navigation */}
       <div className="grid grid-cols-3 gap-2 text-xs">
-        <div className={`p-3 rounded-xl border text-center transition-all ${step === 1 ? 'bg-red-700 text-white font-bold' : step > 1 ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold' : 'bg-white text-slate-500'}`}>
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+            step === 1
+              ? 'bg-red-700 text-white font-bold shadow-xs'
+              : 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold hover:bg-emerald-100'
+          }`}
+        >
           १. खरिदको प्रकार
-        </div>
-        <div className={`p-3 rounded-xl border text-center transition-all ${step === 2 ? 'bg-red-700 text-white font-bold' : step > 2 ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold' : 'bg-white text-slate-500'}`}>
+        </button>
+        <button
+          type="button"
+          onClick={() => setStep(2)}
+          className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+            step === 2
+              ? 'bg-red-700 text-white font-bold shadow-xs'
+              : step > 2
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold hover:bg-emerald-100'
+              : 'bg-white text-slate-600 hover:bg-slate-50'
+          }`}
+        >
           २. बजेट र अवस्था
-        </div>
-        <div className={`p-3 rounded-xl border text-center transition-all ${step === 3 ? 'bg-red-700 text-white font-bold' : 'bg-white text-slate-500'}`}>
+        </button>
+        <button
+          type="button"
+          onClick={() => setStep(3)}
+          className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
+            step === 3
+              ? 'bg-red-700 text-white font-bold shadow-xs'
+              : 'bg-white text-slate-600 hover:bg-slate-50'
+          }`}
+        >
           ३. सिफारिस र कार्ययोजना
-        </div>
+        </button>
       </div>
 
       {/* Step 1: Select Type */}
@@ -440,16 +1074,16 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
             </div>
 
             <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-slate-500 block mb-0.5">बोलपत्र जमानत (२-३%):</span>
+              <span className="text-slate-500 block mb-0.5">बोलपत्र/दरभाउ जमानत:</span>
               <span className="font-bold text-slate-900 text-sm block font-mono">
-                {formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ {formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)}
+                {finalRecommendation.bidSecurityText}
               </span>
             </div>
 
             <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-slate-500 block mb-0.5">कार्यसम्पादन जमानत (५%):</span>
+              <span className="text-slate-500 block mb-0.5">कार्यसम्पादन जमानत:</span>
               <span className="font-bold text-slate-900 text-sm block font-mono">
-                {formatNepaliCurrency(analysis.minimumPerformanceSecurity)}
+                {finalRecommendation.performanceSecurityText}
               </span>
             </div>
           </div>
@@ -459,7 +1093,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
             <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <span className="font-bold block mb-0.5">सावधानी तथा अनिवार्य शर्तहरू:</span>
-              <p>{finalRecommendation.caution}</p>
+              <p className="leading-relaxed">{finalRecommendation.caution}</p>
             </div>
           </div>
 
@@ -471,53 +1105,42 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
             </h4>
 
             <div className="space-y-2.5 text-xs sm:text-sm">
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                <span className="w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center shrink-0">१</span>
-                <div>
-                  <span className="font-bold text-slate-900 block">पूर्वतयारी र बजेट सुनिश्चितता:</span>
-                  <p className="text-slate-600 mt-0.5">साइट उपलब्ध गराउने, रुख कटान सहमति र वातावरणीय प्रतिवेदन स्वीकृत भएको सुनिश्चित गर्ने (ऐन दफा ४क)।</p>
+              {finalRecommendation.nextSteps.map((s) => (
+                <div key={s.stepNum} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
+                  <span className="w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                    {s.stepNum}
+                  </span>
+                  <div>
+                    <span className="font-bold text-slate-900 block">{s.title}</span>
+                    <p className="text-slate-600 mt-0.5 leading-relaxed">{s.description}</p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                <span className="w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center shrink-0">२</span>
-                <div>
-                  <span className="font-bold text-slate-900 block">लागत अनुमान र स्पेसिफिकेसन स्वीकृति:</span>
-                  <p className="text-slate-600 mt-0.5">जिल्ला दररेट र सरकारी नर्म्स अनुसार दर विश्लेषण गरी अधिकार प्राप्त अधिकारीबाट लागत अनुमान स्वीकृत गराउने (नियम १४)।</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                <span className="w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center shrink-0">३</span>
-                <div>
-                  <span className="font-bold text-slate-900 block">कागजात तयारी र सूचना आह्वान:</span>
-                  <p className="text-slate-600 mt-0.5">PPMO को स्वीकृत नमूना बोलपत्र कागजात प्रयोग गरी {finalRecommendation.noticeDays} को म्याद दिई e-GP पोर्टल र राष्ट्रिय दैनिकमा सूचना प्रकाशन गर्ने।</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                <span className="w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center shrink-0">४</span>
-                <div>
-                  <span className="font-bold text-slate-900 block">मूल्याङ्कन, LOI र सम्झौता:</span>
-                  <p className="text-slate-600 mt-0.5">मूल्याङ्कन समितिबाट ३०% घटेको खारेजी र औसत अङ्क नजिकको बोलपत्र छनोट गरी ७ दिनको LOI दिएर १५ दिनभित्र सम्झौता सम्पन्न गर्ने।</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
           {/* Action Links to Templates & Checklists */}
           <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <span className="text-slate-600 font-medium">यस प्रक्रियाका लागि आवश्यक कागजात ढाँचा डाउनलोड गर्नुहोस्:</span>
-            <div className="flex items-center gap-2">
-              {onNavigateToTemplate && (
+            <div className="space-y-0.5">
+              <span className="text-slate-900 font-bold block">यस प्रक्रियाका लागि आवश्यक नमूना कागजात तथा सम्झौता ढाँचा:</span>
+              <span className="text-slate-500 text-[11px] block">छनोट गरिएको विधि र बजेट अनुसार उपयुक्त नमूना ढाँचा खोल्नुहोस्</span>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {onNavigateToTemplate && finalRecommendation.templates.map((tmpl) => (
                 <button
-                  onClick={() => onNavigateToTemplate('tmpl-ifb-ncb')}
-                  className="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+                  key={tmpl.id}
+                  onClick={() => onNavigateToTemplate(tmpl.id)}
+                  className={`px-3.5 py-2 font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs ${
+                    tmpl.isPrimary
+                      ? 'bg-red-700 hover:bg-red-800 text-white'
+                      : 'bg-white hover:bg-slate-100 text-slate-800 border border-slate-300'
+                  }`}
+                  title={`${tmpl.label} खोल्नुहोस्`}
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>बोलपत्र सूचना / सम्झौता ढाँचा</span>
+                  <span>{tmpl.label}</span>
                 </button>
-              )}
+              ))}
             </div>
           </div>
         </div>

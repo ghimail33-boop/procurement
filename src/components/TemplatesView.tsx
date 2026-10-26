@@ -11,7 +11,8 @@ import {
   Edit3,
   Layers,
   Sparkles,
-  BookOpen
+  BookOpen,
+  ArrowLeft
 } from 'lucide-react';
 import { PROCUREMENT_TEMPLATES, ProcurementTemplate } from '../data/templatesData';
 import { PROCUREMENT_METHODS } from '../data/procurementData';
@@ -19,11 +20,13 @@ import { PROCUREMENT_METHODS } from '../data/procurementData';
 interface TemplatesViewProps {
   onSelectMethod?: (methodId: string) => void;
   initialTemplateId?: string | null;
+  onBackToAdvisor?: () => void;
 }
 
 export const TemplatesView: React.FC<TemplatesViewProps> = ({
   onSelectMethod,
   initialTemplateId,
+  onBackToAdvisor,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -35,6 +38,16 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
     return PROCUREMENT_TEMPLATES[0];
   });
   const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (initialTemplateId) {
+      const found = PROCUREMENT_TEMPLATES.find(t => t.id === initialTemplateId);
+      if (found) {
+        setActiveTemplate(found);
+        setSelectedCategory('all');
+      }
+    }
+  }, [initialTemplateId]);
 
   // Customization fields for the active template
   const [customOffice, setCustomOffice] = useState('राष्ट्रिय सतर्कता केन्द्र');
@@ -122,6 +135,44 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Back to Procurement Advisor Banner */}
+      {onBackToAdvisor && (
+        <div className="bg-gradient-to-r from-red-50 via-white to-amber-50 border border-red-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onBackToAdvisor}
+              className="p-2.5 bg-red-700 hover:bg-red-800 text-white rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center cursor-pointer group"
+              title="सिफारिस र कार्ययोजनामा फर्कनुहोस्"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-bold text-slate-900">
+                  खरिद सल्लाहकार (Procurement Advisor) बाट खुलाइएको ढाँचा
+                </span>
+                <span className="text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-full">
+                  चरण ३: सिफारिस
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 mt-0.5">
+                ढाँचा अवलोकन पश्चात आफ्नो सिफारिस, कानूनी कार्यविधि तथा चरणबद्ध कदमहरू (Next Steps) मा फर्कन सक्नुहुन्छ।
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onBackToAdvisor}
+            className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md shrink-0 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← सिफारिस र कार्ययोजनामा फर्कनुहोस्</span>
+          </button>
+        </div>
+      )}
+
       {/* Intro Header */}
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -335,13 +386,26 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
             {/* Toolbar for the active template */}
             <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                  {activeTemplate.titleNepali}
-                </h3>
-                <span className="text-xs text-slate-500 font-mono">
-                  कानूनी आधार: {activeTemplate.legalReference}
-                </span>
+              <div className="flex items-center gap-2.5">
+                {onBackToAdvisor && (
+                  <button
+                    type="button"
+                    onClick={onBackToAdvisor}
+                    className="px-2.5 py-1.5 bg-white border border-red-200 hover:bg-red-50 text-red-700 text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs shrink-0 cursor-pointer"
+                    title="खरिद सल्लाहकारको सिफारिस र कार्ययोजनामा फर्कनुहोस्"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>सिफारिसमा फर्कनुहोस्</span>
+                  </button>
+                )}
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                    {activeTemplate.titleNepali}
+                  </h3>
+                  <span className="text-xs text-slate-500 font-mono">
+                    कानूनी आधार: {activeTemplate.legalReference}
+                  </span>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">

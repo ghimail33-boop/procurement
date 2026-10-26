@@ -67,6 +67,13 @@ function ProcurementApp({
   const [isNewProjectOpen, setIsNewProjectOpen] = useState<boolean>(false);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [isFromAdvisor, setIsFromAdvisor] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('is_from_advisor') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [projects, setProjects] = useState<TrackedProject[]>([]);
   const [users, setUsers] = useState<AppUser[]>([]);
   const [isProjectsLoading, setIsProjectsLoading] = useState(true);
@@ -219,9 +226,25 @@ function ProcurementApp({
     setActiveTab('methods');
   };
 
-  const navigateToTemplate = (templateId: string) => {
+  const navigateToTemplate = (templateId: string, fromAdvisor: boolean = false) => {
     setSelectedTemplateId(templateId);
+    setIsFromAdvisor(fromAdvisor);
+    try {
+      sessionStorage.setItem('is_from_advisor', String(fromAdvisor));
+    } catch {
+      // ignore storage errors
+    }
     setActiveTab('templates');
+  };
+
+  const handleBackToAdvisor = () => {
+    setIsFromAdvisor(false);
+    try {
+      sessionStorage.removeItem('is_from_advisor');
+    } catch {
+      // ignore storage errors
+    }
+    setActiveTab('advisor');
   };
 
   return (
@@ -282,7 +305,7 @@ function ProcurementApp({
           {activeTab === 'advisor' && (
             <ProcurementAdvisorWizard
               onSelectMethod={navigateToMethodWithId}
-              onNavigateToTemplate={navigateToTemplate}
+              onNavigateToTemplate={(templateId) => navigateToTemplate(templateId, true)}
             />
           )}
 
@@ -338,6 +361,7 @@ function ProcurementApp({
             <TemplatesView
               initialTemplateId={selectedTemplateId}
               onSelectMethod={navigateToMethodWithId}
+              onBackToAdvisor={isFromAdvisor ? handleBackToAdvisor : undefined}
             />
           )}
 
