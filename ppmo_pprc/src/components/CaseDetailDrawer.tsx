@@ -298,7 +298,7 @@ export const CaseDetailDrawer: React.FC<CaseDetailDrawerProps> = ({
                       </button>
                     </div>
                     <div className="text-xs text-slate-600">
-                      <strong>पक्षहरू:</strong> {dec.app} बनाम {dec.resp}
+                      <strong>पक्षहरू:</strong> {dec.app} विरुद्ध {dec.resp}
                     </div>
                     <p className="text-xs font-medium text-slate-900">{dec.subject}</p>
                     <p className="text-xs text-slate-700 bg-indigo-50/40 p-2.5 rounded border-l-2 border-indigo-600">
