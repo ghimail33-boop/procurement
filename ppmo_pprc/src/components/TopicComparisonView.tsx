@@ -64,6 +64,7 @@ export const TopicComparisonView: React.FC<TopicComparisonViewProps> = ({
   const [opsLimit, setOpsLimit] = useState(8);
   const [ppLimit, setPpLimit] = useState(8);
   const [outcomeFilter, setOutcomeFilter] = useState<string>('ALL');
+  const [isPrinciplesExpanded, setIsPrinciplesExpanded] = useState<boolean>(false);
 
   const filteredOpinions = useMemo(() => {
     const q = globalSearch.trim().toLowerCase();
@@ -235,50 +236,82 @@ export const TopicComparisonView: React.FC<TopicComparisonViewProps> = ({
 
       {/* Key Legal Principles Summary Banner (PPMO Stance vs PPRC Stance) */}
       {relevantPrinciples.length > 0 && (
-        <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <div>
-              <h3 className="text-base font-bold text-slate-900">
-                मुख्य कानूनी मार्गदर्शन र स्थापित नजिर सारसंक्षेप
-              </h3>
-              <p className="text-xs text-slate-500">
-                यस विषयमा सार्वजनिक खरिद अनुगमन कार्यालय (PPMO) को राय र पुनरावलोकन समिति (PPRC) को निर्णयको तुलनात्मक निष्कर्ष
-              </p>
-            </div>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {relevantPrinciples.map((principle, idx) => (
-              <div key={idx} className="py-3.5 first:pt-0 last:pb-0 space-y-2.5">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h4 className="text-sm font-bold text-slate-900">{principle.title}</h4>
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <span>{principle.topic}</span>
-                    <span aria-hidden="true">·</span>
-                    <span className="font-mono">{principle.sectionRef}</span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="pl-3 border-l-2 border-slate-400">
-                    <div className="text-xs font-semibold text-slate-700 mb-0.5">
-                      PPMO को नीतिगत राय:
-                    </div>
-                    <p className="text-slate-700 leading-relaxed text-xs sm:text-sm">
-                      {principle.ppmoStance}
-                    </p>
-                  </div>
-                  <div className="pl-3 border-l-2 border-red-700">
-                    <div className="text-xs font-semibold text-red-800 mb-0.5">
-                      PPRC को स्थापित निर्णय/नजिर:
-                    </div>
-                    <p className="text-slate-700 leading-relaxed text-xs sm:text-sm">
-                      {principle.pprcStance}
-                    </p>
-                  </div>
-                </div>
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden transition-all">
+          <button
+            type="button"
+            onClick={() => setIsPrinciplesExpanded((prev) => !prev)}
+            className={`w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left hover:bg-slate-50/80 transition-colors cursor-pointer ${
+              isPrinciplesExpanded ? 'border-b border-slate-100' : ''
+            }`}
+            aria-expanded={isPrinciplesExpanded}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-red-50 text-red-700 flex items-center justify-center shrink-0">
+                <Scale className="w-4 h-4" />
               </div>
-            ))}
-          </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-base font-bold text-slate-900">
+                    मुख्य कानूनी मार्गदर्शन र स्थापित नजिर सारसंक्षेप
+                  </h3>
+                  <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {relevantPrinciples.length} विषय
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  यस विषयमा सार्वजनिक खरिद अनुगमन कार्यालय (PPMO) को राय र पुनरावलोकन समिति (PPRC) को निर्णयको तुलनात्मक निष्कर्ष
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-medium text-slate-600 hidden sm:inline">
+                {isPrinciplesExpanded ? 'लुकाउनुहोस्' : 'हेर्नुहोस् (विस्तार)'}
+              </span>
+              <div className="p-1 rounded-md text-slate-500 hover:text-slate-800">
+                {isPrinciplesExpanded ? (
+                  <ChevronUp className="w-5 h-5 text-slate-600" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-slate-600" />
+                )}
+              </div>
+            </div>
+          </button>
+
+          {isPrinciplesExpanded && (
+            <div className="p-5 pt-3 divide-y divide-slate-100">
+              {relevantPrinciples.map((principle, idx) => (
+                <div key={idx} className="py-3.5 first:pt-2 last:pb-0 space-y-2.5">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h4 className="text-sm font-bold text-slate-900">{principle.title}</h4>
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <span>{principle.topic}</span>
+                      <span aria-hidden="true">·</span>
+                      <span className="font-mono">{principle.sectionRef}</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="pl-3 border-l-2 border-slate-400">
+                      <div className="text-xs font-semibold text-slate-700 mb-0.5">
+                        PPMO को नीतिगत राय:
+                      </div>
+                      <p className="text-slate-700 leading-relaxed text-xs sm:text-sm">
+                        {principle.ppmoStance}
+                      </p>
+                    </div>
+                    <div className="pl-3 border-l-2 border-red-700">
+                      <div className="text-xs font-semibold text-red-800 mb-0.5">
+                        PPRC को स्थापित निर्णय/नजिर:
+                      </div>
+                      <p className="text-slate-700 leading-relaxed text-xs sm:text-sm">
+                        {principle.pprcStance}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
