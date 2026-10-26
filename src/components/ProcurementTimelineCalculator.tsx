@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import procDeadlineImage from '../../proc-deadline.png';
 import { 
   Clock, 
   Calendar, 
@@ -325,17 +326,30 @@ export const ProcurementTimelineCalculator: React.FC = () => {
   return (
     <div className="space-y-6 text-left">
       {/* Header Banner */}
-      <div className="bg-linear-to-r from-blue-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-sm print:hidden">
-        <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 uppercase tracking-wide mb-1">
-          <Clock className="w-4 h-4 text-blue-300" />
-          <span>सार्वजनिक खरिद दिन-गणना तथा माइलस्टोन क्याल्कुलेटर</span>
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden print:hidden">
+        <div className="relative z-10 max-w-[58%]">
+          <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 uppercase tracking-wide mb-1">
+            <Clock className="w-4 h-4 text-blue-300" />
+            <span>सार्वजनिक खरिद दिन-गणना तथा माइलस्टोन क्याल्कुलेटर</span>
+          </div>
+          <h2 className="text-xl sm:text-3xl font-extrabold text-white">
+            कानूनी म्याद र क्यालेन्डर क्याल्कुलेटर (Procurement Deadline Calculator)
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
+            सूचना प्रकाशित मिति र खरिद विधि छान्नासाथ बोलपत्र पेस गर्ने, खोल्ने, प्रि-बिड, बोलपत्र मान्य अवधि, बैंक ग्यारेन्टी, LOI, सम्झौता र २१ दिन अगावै म्याद थपको निवेदन दिने सबै मितिहरू कानून अनुसार स्वतः गणना गर्नुहोस्।
+          </p>
         </div>
-        <h2 className="text-xl sm:text-3xl font-extrabold text-white">
-          कानूनी म्याद र क्यालेन्डर क्याल्कुलेटर (Procurement Deadline Calculator)
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
-          सूचना प्रकाशित मिति र खरिद विधि छान्नासाथ बोलपत्र पेस गर्ने, खोल्ने, प्रि-बिड, बोलपत्र मान्य अवधि, बैंक ग्यारेन्टी, LOI, सम्झौता र २१ दिन अगावै म्याद थपको निवेदन दिने सबै मितिहरू कानुन अनुसार स्वतः गणना गर्नुहोस्।
-        </p>
+
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[42%]">
+          <img
+            src={procDeadlineImage}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover object-right"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/35 via-indigo-950/50 to-slate-900/65" />
+          <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-indigo-950 via-indigo-950/40 to-transparent" />
+        </div>
       </div>
 
       {/* Input Form Card */}

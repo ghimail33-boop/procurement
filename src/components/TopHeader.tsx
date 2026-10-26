@@ -6,11 +6,15 @@ import {
   Printer,
   ChevronRight,
   LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 
 interface TopHeaderProps {
   activeTab: string;
   onToggleSidebarMobile: () => void;
+  isSidebarCollapsed?: boolean;
+  onToggleSidebarCollapse?: () => void;
   onOpenSearch: () => void;
   onLogout: () => void;
 }
@@ -35,6 +39,8 @@ const TAB_TITLES: Record<string, { title: string; category: string }> = {
 export const TopHeader: React.FC<TopHeaderProps> = ({
   activeTab,
   onToggleSidebarMobile,
+  isSidebarCollapsed = false,
+  onToggleSidebarCollapse,
   onOpenSearch,
   onLogout,
 }) => {
@@ -42,8 +48,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-30 bg-[#173b63]/95 text-white backdrop-blur-md border-b border-[#31577b] h-16 flex items-center justify-between px-4 sm:px-6 shadow-2xs">
-      {/* Left: Mobile hamburger menu toggle + Breadcrumb trail */}
-      <div className="flex items-center gap-3">
+      {/* Left: Mobile hamburger menu toggle + Desktop collapse toggle + Breadcrumb trail */}
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={onToggleSidebarMobile}
           className="p-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 lg:hidden transition-colors"
@@ -51,6 +57,21 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         >
           <Menu className="w-5 h-5" />
         </button>
+
+        {onToggleSidebarCollapse && (
+          <button
+            onClick={onToggleSidebarCollapse}
+            className="hidden lg:flex p-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-colors items-center justify-center"
+            title={isSidebarCollapsed ? 'साइडबार विस्तार गर्नुहोस् (Ctrl+B)' : 'साइडबार संकुचित गर्नुहोस् (Ctrl+B)'}
+            aria-label={isSidebarCollapsed ? 'साइडबार विस्तार गर्नुहोस्' : 'साइडबार संकुचित गर्नुहोस्'}
+          >
+            {isSidebarCollapsed ? (
+              <PanelLeftOpen className="w-5 h-5" />
+            ) : (
+              <PanelLeftClose className="w-5 h-5" />
+            )}
+          </button>
+        )}
 
         {/* Breadcrumb Trail */}
         <div className="flex items-center gap-1.5 text-xs text-blue-100/80 font-medium truncate">

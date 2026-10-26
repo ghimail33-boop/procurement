@@ -777,7 +777,7 @@ export const METHOD_WORKFLOWS: Record<string, WorkflowMilestone[]> = {
         'सोझै खरिदको औचित्य टिप्पणी तथा आदेश',
       ],
       redFlags: [
-        'प्रतिस्पर्धा छल्न खरिदलाई टुक्रा-टुक्रा पारेर सोझै खरिद गर्न सख्त कानुन विपरीत छ।',
+        'प्रतिस्पर्धा छल्न खरिदलाई टुक्रा-टुक्रा पारेर सोझै खरिद गर्न सख्त कानून विपरीत छ।',
       ],
       templateId: 'tmpl-notesheet-estimate',
       templateLabel: 'लागत अनुमान स्वीकृत गर्ने टिप्पणी तथा आदेश ढाँचा',
@@ -1102,7 +1102,7 @@ export const METHOD_WORKFLOWS: Record<string, WorkflowMilestone[]> = {
         'वार्ताको आधिकारिक माइन्युट (Minutes of Negotiation)',
       ],
       redFlags: [
-        'QCBS विधिमा परामर्शदाताको पारिश्रमिक दर घटाउने गरी वार्ता गर्न सख्त कानुन विपरीत छ।',
+        'QCBS विधिमा परामर्शदाताको पारिश्रमिक दर घटाउने गरी वार्ता गर्न सख्त कानून विपरीत छ।',
       ],
       templateId: 'tmpl-notesheet-evaluation',
       templateLabel: 'मूल्याङ्कन तथा वार्ता सम्बन्धी टिप्पणी ढाँचा',

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import procDictImage from '../../proc-dict.webp';
 import {
   BookA,
   Search,
@@ -87,36 +88,49 @@ export const ProcurementGlossaryView: React.FC = () => {
   return (
     <div className="space-y-6 text-left">
       {/* Header Banner */}
-      <div className="bg-linear-to-r from-slate-900 via-blue-950 to-indigo-950 text-white p-6 sm:p-8 rounded-2xl shadow-sm">
-        <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 uppercase tracking-wide mb-1">
-          <BookA className="w-4 h-4 text-blue-300" />
-          <span>सार्वजनिक खरिद पारिभाषिक शब्दावली तथा व्यवहारिक शब्दकोश</span>
-        </div>
-        <h2 className="text-xl sm:text-3xl font-extrabold text-white">
-          खरिद शब्दावली कोष (Procurement Layman Dictionary)
-        </h2>
-        <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
-          खरिद प्रक्रियामा बारम्बार प्रयोग हुने जटिल कानुनी, वित्तीय र प्राविधिक शब्दहरू (जस्तै: Substantially Responsive, Front Loading, Two-Envelope, Liquidated Damages आदि) को सरल नेपाली व्याख्या, व्यवहारिक उदाहरण र कानुनी आधार।
-        </p>
+      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white p-6 sm:p-8 rounded-2xl shadow-sm relative overflow-hidden">
+        <div className="relative z-10 max-w-[58%]">
+          <div className="flex items-center gap-2 text-xs font-semibold text-blue-300 uppercase tracking-wide mb-1">
+            <BookA className="w-4 h-4 text-blue-300" />
+            <span>सार्वजनिक खरिद पारिभाषिक शब्दावली तथा व्यवहारिक शब्दकोश</span>
+          </div>
+          <h2 className="text-xl sm:text-3xl font-extrabold text-white">
+            खरिद शब्दावली कोष (Procurement Layman Dictionary)
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-300 mt-2 max-w-3xl leading-relaxed">
+            खरिद प्रक्रियामा बारम्बार प्रयोग हुने जटिल कानूनी, वित्तीय र प्राविधिक शब्दहरू (जस्तै: Substantially Responsive, Front Loading, Two-Envelope, Liquidated Damages आदि) को सरल नेपाली व्याख्या, व्यवहारिक उदाहरण र कानूनी आधार।
+          </p>
 
-        {/* Quick Search */}
-        <div className="mt-5 relative max-w-xl">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="अंग्रेजी वा नेपाली शब्द, दफा वा विषय खोज्नुहोस् (उदा: Substantially Responsive, Front Loading, LD)..."
-            className="w-full pl-10 pr-10 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
+          {/* Quick Search */}
+          <div className="mt-5 relative max-w-xl">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="अंग्रेजी वा नेपाली शब्द, दफा वा विषय खोज्नुहोस् (उदा: Substantially Responsive, Front Loading, LD)..."
+              className="w-full pl-10 pr-10 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-400"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-[42%]">
+          <img
+            src={procDictImage}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover object-right"
           />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/35 via-blue-950/50 to-indigo-950/65" />
+          <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-blue-950 via-blue-950/40 to-transparent" />
         </div>
       </div>
 

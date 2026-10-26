@@ -72,7 +72,8 @@
     padding: 0 !important;
   }
 
-  .lg\:pl-72 {
+  .lg\:pl-72,
+  .lg\:pl-20 {
     padding-left: 0 !important;
   }
 

@@ -56,6 +56,13 @@ function ProcurementApp({
 }) {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [isSidebarMobileOpen, setIsSidebarMobileOpen] = useState<boolean>(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('sidebar_collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isNewProjectOpen, setIsNewProjectOpen] = useState<boolean>(false);
   const [selectedMethodId, setSelectedMethodId] = useState<string | null>(null);
@@ -66,6 +73,18 @@ function ProcurementApp({
   const [isUsersLoading, setIsUsersLoading] = useState(false);
   const [dataError, setDataError] = useState('');
   const [userManagementError, setUserManagementError] = useState('');
+
+  const handleToggleSidebarCollapse = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('sidebar_collapsed', String(next));
+      } catch {
+        // ignore storage error
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     let isCurrent = true;
@@ -112,15 +131,18 @@ function ProcurementApp({
     }
   }, [activeTab, currentUser.role]);
 
-  // Global keyboard shortcut: "/" or "Ctrl+K" to open search
+  // Global keyboard shortcuts: "/" or "Ctrl+K" for search, "Ctrl+B" for sidebar collapse toggle
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && !isSearchOpen) {
-        const target = e.target as HTMLElement;
-        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-          e.preventDefault();
-          setIsSearchOpen(true);
-        }
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+      if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && !isSearchOpen && !isInput) {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b' && !isInput) {
+        e.preventDefault();
+        handleToggleSidebarCollapse();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -213,14 +235,18 @@ function ProcurementApp({
         onCloseMobile={() => setIsSidebarMobileOpen(false)}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenNewProject={() => setIsNewProjectOpen(true)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleSidebarCollapse}
       />
 
       {/* Main Content Area (offset by Sidebar width on desktop) */}
-      <div className="lg:pl-72 flex flex-col min-h-screen">
+      <div className={`${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'} flex flex-col min-h-screen transition-all duration-200 ease-in-out`}>
         {/* Top Header with Breadcrumbs & Actions */}
         <TopHeader
           activeTab={activeTab}
           onToggleSidebarMobile={() => setIsSidebarMobileOpen(true)}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebarCollapse={handleToggleSidebarCollapse}
           onOpenSearch={() => setIsSearchOpen(true)}
           onLogout={onLogout}
         />
