@@ -106,7 +106,6 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
         >
           <Clock className="w-4 h-4" />
           <span>कानूनी म्याद र क्यालेन्डर क्याल्कुलेटर</span>
-          <span className="text-[10px] bg-red-800 text-white px-2 py-0.5 rounded-full font-bold">नयाँ</span>
         </button>
       </div>
 
