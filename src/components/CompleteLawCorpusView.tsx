@@ -1,13 +1,13 @@
 import React, { useRef, useState } from 'react';
-import { 
-  BookOpen, 
-  Search, 
-  Filter, 
-  ChevronRight, 
-  Scale, 
-  ShieldAlert, 
-  Lightbulb, 
-  Layers, 
+import {
+  BookOpen,
+  Search,
+  Filter,
+  ChevronRight,
+  Scale,
+  ShieldAlert,
+  Lightbulb,
+  Layers,
   FileText,
   CheckCircle2,
   X,
@@ -246,8 +246,8 @@ export const CompleteLawCorpusView: React.FC = () => {
             {activeLaw === 'rules' ? 'सार्वजनिक खरिद नियमावली, २०६४ (१६औँ संशोधनसहित)' : 'सार्वजनिक खरिद ऐन, २०६३ (संशोधनसहित)'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-3xl leading-relaxed">
-            {activeLaw === 'rules' 
-              ? 'नियमावलीका प्रमुख ६०+ नियमहरूको सरल नेपाली व्याख्या, अनिवार्य कानुनी सर्त, १६औँ संशोधनका विशेषता, व्यवहारिक सुझावहरू र १,२९५+ PPMO राय तथा २२१+ PPRC पुनरावलोकन फैसलाहरू।'
+            {activeLaw === 'rules'
+              ? 'नियमावलीका प्रमुख ६०+ नियमहरूको सरल नेपाली व्याख्या, अनिवार्य कानूनी सर्त, १६औँ संशोधनका विशेषता, व्यवहारिक सुझावहरू र १,२९५+ PPMO राय तथा २२१+ PPRC पुनरावलोकन फैसलाहरू।'
               : 'ऐनका सबै दफाहरूको आधिकारिक सारांश, सरल व्याख्या, नियमावलीका नियमहरूसँगको अन्तरसम्बन्ध र सम्बन्धित PPMO राय तथा PPRC फैसलाहरू।'}
           </p>
           <div className="flex flex-wrap items-center gap-2 mt-2.5">
@@ -292,11 +292,10 @@ export const CompleteLawCorpusView: React.FC = () => {
             role="tab"
             aria-selected={activeLaw === 'rules'}
             onClick={() => selectLaw('rules')}
-            className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-              activeLaw === 'rules'
+            className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${activeLaw === 'rules'
                 ? 'bg-red-700 text-white shadow-md shadow-red-700/20'
                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-            }`}
+              }`}
           >
             <Sparkles className="w-4 h-4" />
             <span>नियमावलीका नियम र सरल गाइड (१६औँ संशोधन)</span>
@@ -307,11 +306,10 @@ export const CompleteLawCorpusView: React.FC = () => {
             role="tab"
             aria-selected={activeLaw === 'act'}
             onClick={() => selectLaw('act')}
-            className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
-              activeLaw === 'act'
+            className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${activeLaw === 'act'
                 ? 'bg-red-700 text-white shadow-md shadow-red-700/20'
                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-            }`}
+              }`}
           >
             <Scale className="w-4 h-4" />
             <span>ऐनका सबै दफा र सरल गाइड</span>
@@ -324,27 +322,24 @@ export const CompleteLawCorpusView: React.FC = () => {
           <button
             type="button"
             onClick={() => setViewMode('all')}
-            className={`px-3 py-1.5 rounded-lg transition-colors ${
-              viewMode === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-3 py-1.5 rounded-lg transition-colors ${viewMode === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             दुवै सँगै हेर्नुहोस्
           </button>
           <button
             type="button"
             onClick={() => setViewMode('guide')}
-            className={`px-3 py-1.5 rounded-lg transition-colors ${
-              viewMode === 'guide' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-3 py-1.5 rounded-lg transition-colors ${viewMode === 'guide' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             सरल गाइड मात्र
           </button>
           <button
             type="button"
             onClick={() => setViewMode('bare-law')}
-            className={`px-3 py-1.5 rounded-lg transition-colors ${
-              viewMode === 'bare-law' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-            }`}
+            className={`px-3 py-1.5 rounded-lg transition-colors ${viewMode === 'bare-law' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+              }`}
           >
             मूल कानूनी पाठ
           </button>
@@ -390,17 +385,15 @@ export const CompleteLawCorpusView: React.FC = () => {
                         setSelectedSourceNumber(provision.number);
                         provisionViewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
-                      className={`px-2.5 py-1 rounded-md border text-xs font-semibold transition-colors inline-flex items-center gap-1 ${
-                        isSelected
+                      className={`px-2.5 py-1 rounded-md border text-xs font-semibold transition-colors inline-flex items-center gap-1 ${isSelected
                           ? 'bg-red-700 border-red-700 text-white shadow-xs'
                           : 'bg-white border-slate-200 text-slate-700 hover:border-red-300 hover:text-red-800'
-                      }`}
+                        }`}
                     >
                       <span>{activeLaw === 'act' ? 'दफा' : 'नियम'} {formatProvisionNumber(provision.number)}</span>
                       {totalPrecedents > 0 && (
-                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                          isSelected ? 'bg-white/30 text-white' : 'bg-indigo-100 text-indigo-800'
-                        }`}>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isSelected ? 'bg-white/30 text-white' : 'bg-indigo-100 text-indigo-800'
+                          }`}>
                           {totalPrecedents}
                         </span>
                       )}
@@ -437,7 +430,7 @@ export const CompleteLawCorpusView: React.FC = () => {
                     </span>
                   )}
                   <span className="text-xs text-slate-500">
-                    {activeLaw === 'act' ? 'नेपाल कानुन आयोग / राजपत्र' : '१६औँ संशोधन समावेश भएको मूल पाठ'}
+                    {activeLaw === 'act' ? 'नेपाल कानून आयोग / राजपत्र' : '१६औँ संशोधन समावेश भएको मूल पाठ'}
                   </span>
                 </div>
               </div>
@@ -557,11 +550,10 @@ export const CompleteLawCorpusView: React.FC = () => {
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-xs font-medium">
             <button
               onClick={() => setSelectedChapterId('all')}
-              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-                selectedChapterId === 'all'
+              className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${selectedChapterId === 'all'
                   ? 'bg-slate-900 text-white font-semibold shadow-xs'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
+                }`}
             >
               सबै परिच्छेदहरू ({currentChapters.length})
             </button>
@@ -569,11 +561,10 @@ export const CompleteLawCorpusView: React.FC = () => {
               <button
                 key={ch.id}
                 onClick={() => setSelectedChapterId(ch.id)}
-                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
-                  selectedChapterId === ch.id
+                className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${selectedChapterId === ch.id
                     ? 'bg-red-700 text-white font-semibold shadow-xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
+                  }`}
               >
                 {ch.chapterTitleNepali.split(':')[0]} ({ch.sections.length} व्यवस्था)
               </button>
@@ -585,9 +576,8 @@ export const CompleteLawCorpusView: React.FC = () => {
             <span className="text-slate-500 font-medium whitespace-nowrap mr-1">मुख्य विषयवस्तु:</span>
             <button
               onClick={() => setActiveTag('all')}
-              className={`px-2 py-0.5 rounded-md transition-colors whitespace-nowrap ${
-                activeTag === 'all' ? 'bg-amber-100 text-amber-900 font-semibold' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-              }`}
+              className={`px-2 py-0.5 rounded-md transition-colors whitespace-nowrap ${activeTag === 'all' ? 'bg-amber-100 text-amber-900 font-semibold' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                }`}
             >
               सबै विषय
             </button>
@@ -595,9 +585,8 @@ export const CompleteLawCorpusView: React.FC = () => {
               <button
                 key={t}
                 onClick={() => setActiveTag(t)}
-                className={`px-2 py-0.5 rounded-md transition-colors whitespace-nowrap ${
-                  activeTag === t ? 'bg-amber-100 text-amber-900 font-semibold' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
+                className={`px-2 py-0.5 rounded-md transition-colors whitespace-nowrap ${activeTag === t ? 'bg-amber-100 text-amber-900 font-semibold' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
               >
                 #{t}
               </button>
@@ -634,171 +623,171 @@ export const CompleteLawCorpusView: React.FC = () => {
                     const { opinions: secOpinions, decisions: secDecisions } = getPrecedentsForSection(sec.sectionNo, activeLaw);
                     const amendmentComp = activeLaw === 'rules' ? getAmendmentComparisonForRule(sec.sectionNo) : undefined;
                     return (
-                    <div key={sec.sectionNo} className="p-5 sm:p-6 hover:bg-slate-50/50 transition-colors text-left space-y-3">
-                      {/* Title & Section Tag */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="text-xs font-bold text-slate-900 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-sm font-mono">
-                            {sec.sectionNo}
-                          </span>
-                          <h4 className="text-base font-bold text-slate-900">
-                            {sec.title}
-                          </h4>
-                          {sec.relatedActSection && (
-                            <span className="text-[11px] font-semibold text-red-700 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md">
-                              {sec.relatedActSection}
+                      <div key={sec.sectionNo} className="p-5 sm:p-6 hover:bg-slate-50/50 transition-colors text-left space-y-3">
+                        {/* Title & Section Tag */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <span className="text-xs font-bold text-slate-900 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-sm font-mono">
+                              {sec.sectionNo}
                             </span>
-                          )}
-                          {amendmentComp && (
-                            <span className="text-[11px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
-                              ✨ १६औँ संशोधन भिन्नता
-                            </span>
-                          )}
-                          {secOpinions.length > 0 && (
-                            <span className="text-[11px] font-bold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
-                              🏛️ राय: {secOpinions.length}
-                            </span>
-                          )}
-                          {secDecisions.length > 0 && (
-                            <span className="text-[11px] font-bold text-purple-900 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-md flex items-center gap-1">
-                              ⚖️ फैसला: {secDecisions.length}
-                            </span>
-                          )}
+                            <h4 className="text-base font-bold text-slate-900">
+                              {sec.title}
+                            </h4>
+                            {sec.relatedActSection && (
+                              <span className="text-[11px] font-semibold text-red-700 bg-red-50 border border-red-100 px-2 py-0.5 rounded-md">
+                                {sec.relatedActSection}
+                              </span>
+                            )}
+                            {amendmentComp && (
+                              <span className="text-[11px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
+                                ✨ १६औँ संशोधन भिन्नता
+                              </span>
+                            )}
+                            {secOpinions.length > 0 && (
+                              <span className="text-[11px] font-bold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                🏛️ राय: {secOpinions.length}
+                              </span>
+                            )}
+                            {secDecisions.length > 0 && (
+                              <span className="text-[11px] font-bold text-purple-900 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                ⚖️ फैसला: {secDecisions.length}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5 flex-wrap shrink-0">
+                            {sec.tags.map((t: string) => (
+                              <span key={t} className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-sm">
+                                #{t}
+                              </span>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => openBareLawProvision(sec.sectionNo)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 transition-colors ml-1"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-slate-600" />
+                              मूल पाठ
+                            </button>
+                          </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 flex-wrap shrink-0">
-                          {sec.tags.map((t: string) => (
-                            <span key={t} className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-sm">
-                              #{t}
-                            </span>
-                          ))}
-                          <button
-                            type="button"
-                            onClick={() => openBareLawProvision(sec.sectionNo)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md border border-slate-200 transition-colors ml-1"
-                          >
-                            <FileText className="w-3.5 h-3.5 text-slate-600" />
-                            मूल पाठ
-                          </button>
-                        </div>
-                      </div>
+                        {/* 16th Amendment Comparison or Alert */}
+                        {amendmentComp ? (
+                          <AmendmentComparisonCard comparison={amendmentComp} />
+                        ) : (
+                          sec.amendmentNote && (
+                            <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                              <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                              <div>
+                                <span className="font-bold text-amber-900 block">१६औँ संशोधनको विशेष व्यवस्था:</span>
+                                <p className="leading-relaxed">{sec.amendmentNote}</p>
+                              </div>
+                            </div>
+                          )
+                        )}
 
-                      {/* 16th Amendment Comparison or Alert */}
-                      {amendmentComp ? (
-                        <AmendmentComparisonCard comparison={amendmentComp} />
-                      ) : (
-                        sec.amendmentNote && (
-                          <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-                            <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                        {/* 1. Official Summary */}
+                        <div className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+                          <span className="font-bold text-slate-900 block mb-0.5">कानूनी व्यवस्था (Legal Provision):</span>
+                          {sec.officialSummary}
+                        </div>
+
+                        {/* 2. Plain Language Breakdown (सरल व्याख्या) */}
+                        <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-100 text-xs sm:text-sm text-blue-950 flex items-start gap-2.5">
+                          <Lightbulb className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold text-blue-900 block mb-0.5">सरल जानकारी (What this means in plain words):</span>
+                            <p className="leading-relaxed">{sec.simpleExplanation}</p>
+                          </div>
+                        </div>
+
+                        {/* 3. Mandatory Rule / Caution */}
+                        <div className="p-3 bg-red-50/40 rounded-xl border border-red-100 text-xs text-red-950 flex items-start gap-2.5">
+                          <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold text-red-900 block mb-0.5">अनिवार्य पालना गर्नुपर्ने कानूनी सर्त (Compliance Rule):</span>
+                            <p>{sec.complianceRule}</p>
+                          </div>
+                        </div>
+
+                        {/* 4. Practical Tip / Audit Red Flag */}
+                        {sec.practicalTip && (
+                          <div className="text-xs text-emerald-950 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex items-start gap-2">
+                            <CheckCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                             <div>
-                              <span className="font-bold text-amber-900 block">१६औँ संशोधनको विशेष व्यवस्था:</span>
-                              <p className="leading-relaxed">{sec.amendmentNote}</p>
+                              <span className="font-bold text-emerald-900 block mb-0.5">व्यवहारिक सुझाव तथा लेखापरीक्षण/अख्तियार सतर्कता:</span>
+                              <p className="leading-relaxed">{sec.practicalTip}</p>
                             </div>
                           </div>
-                        )
-                      )}
+                        )}
 
-                      {/* 1. Official Summary */}
-                      <div className="text-xs sm:text-sm text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200/80">
-                        <span className="font-bold text-slate-900 block mb-0.5">कानूनी व्यवस्था (Legal Provision):</span>
-                        {sec.officialSummary}
-                      </div>
+                        {/* Cross references */}
+                        {activeLaw === 'act' && (() => {
+                          const actNumbers = sec.sectionNo.match(/[०-९0-9]+[क-ह]?/g) ?? [];
+                          const relatedRules = Array.from(new Set<string>(
+                            actNumbers.flatMap((number: string) =>
+                              RULES_BY_ACT_PROVISION[normalizeProvisionNumber(number)] ?? []
+                            )
+                          ));
+                          if (relatedRules.length === 0) return null;
+                          return (
+                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                              <span className="text-xs font-semibold text-slate-600">नियमावलीको व्यवस्था हेर्नुहोस्:</span>
+                              {relatedRules.map((number) => (
+                                <button
+                                  key={number}
+                                  type="button"
+                                  onClick={() => openRuleProvision(number)}
+                                  className="px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-900 hover:bg-amber-100"
+                                >
+                                  नियम {formatProvisionNumber(number)} हेर्नुहोस्
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })()}
 
-                      {/* 2. Plain Language Breakdown (सरल व्याख्या) */}
-                      <div className="p-3.5 bg-blue-50/60 rounded-xl border border-blue-100 text-xs sm:text-sm text-blue-950 flex items-start gap-2.5">
-                        <Lightbulb className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold text-blue-900 block mb-0.5">सरल जानकारी (What this means in plain words):</span>
-                          <p className="leading-relaxed">{sec.simpleExplanation}</p>
-                        </div>
-                      </div>
+                        {activeLaw === 'rules' && (() => {
+                          const ruleNumbers = sec.sectionNo.match(/[०-९0-9]+[क-ह]?/g) ?? [];
+                          const relatedActs = Array.from(new Set<string>(
+                            ruleNumbers.flatMap((number: string) =>
+                              ACT_BY_RULE_PROVISION[normalizeProvisionNumber(number)] ?? []
+                            )
+                          ));
+                          if (relatedActs.length === 0) return null;
+                          return (
+                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                              <span className="text-xs font-semibold text-slate-600">ऐनको मूल दफा हेर्नुहोस्:</span>
+                              {relatedActs.map((number) => (
+                                <button
+                                  key={number}
+                                  type="button"
+                                  onClick={() => openActProvision(number)}
+                                  className="px-2 py-1 rounded-md bg-red-50 border border-red-200 text-xs font-semibold text-red-900 hover:bg-red-100"
+                                >
+                                  दफा {formatProvisionNumber(number)} हेर्नुहोस्
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })()}
 
-                      {/* 3. Mandatory Rule / Caution */}
-                      <div className="p-3 bg-red-50/40 rounded-xl border border-red-100 text-xs text-red-950 flex items-start gap-2.5">
-                        <ShieldAlert className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                        <div>
-                          <span className="font-bold text-red-900 block mb-0.5">अनिवार्य पालना गर्नुपर्ने कानूनी सर्त (Compliance Rule):</span>
-                          <p>{sec.complianceRule}</p>
-                        </div>
-                      </div>
-
-                      {/* 4. Practical Tip / Audit Red Flag */}
-                      {sec.practicalTip && (
-                        <div className="text-xs text-emerald-950 bg-emerald-50/60 p-3 rounded-xl border border-emerald-100 flex items-start gap-2">
-                          <CheckCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                          <div>
-                            <span className="font-bold text-emerald-900 block mb-0.5">व्यवहारिक सुझाव तथा लेखापरीक्षण/अख्तियार सतर्कता:</span>
-                            <p className="leading-relaxed">{sec.practicalTip}</p>
+                        {/* Linked Precedents: PPMO Opinions and PPRC Decisions */}
+                        {(secOpinions.length > 0 || secDecisions.length > 0) && (
+                          <div className="pt-2">
+                            <PrecedentsSection
+                              provisionNumber={sec.sectionNo}
+                              provisionTitle={sec.title}
+                              lawType={activeLaw === 'act' ? 'act' : 'rule'}
+                              opinions={secOpinions}
+                              decisions={secDecisions}
+                              defaultExpanded={false}
+                            />
                           </div>
-                        </div>
-                      )}
-
-                      {/* Cross references */}
-                      {activeLaw === 'act' && (() => {
-                        const actNumbers = sec.sectionNo.match(/[०-९0-9]+[क-ह]?/g) ?? [];
-                        const relatedRules = Array.from(new Set<string>(
-                          actNumbers.flatMap((number: string) =>
-                            RULES_BY_ACT_PROVISION[normalizeProvisionNumber(number)] ?? []
-                          )
-                        ));
-                        if (relatedRules.length === 0) return null;
-                        return (
-                          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                            <span className="text-xs font-semibold text-slate-600">नियमावलीको व्यवस्था हेर्नुहोस्:</span>
-                            {relatedRules.map((number) => (
-                              <button
-                                key={number}
-                                type="button"
-                                onClick={() => openRuleProvision(number)}
-                                className="px-2 py-1 rounded-md bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-900 hover:bg-amber-100"
-                              >
-                                नियम {formatProvisionNumber(number)} हेर्नुहोस्
-                              </button>
-                            ))}
-                          </div>
-                        );
-                      })()}
-
-                      {activeLaw === 'rules' && (() => {
-                        const ruleNumbers = sec.sectionNo.match(/[०-९0-9]+[क-ह]?/g) ?? [];
-                        const relatedActs = Array.from(new Set<string>(
-                          ruleNumbers.flatMap((number: string) =>
-                            ACT_BY_RULE_PROVISION[normalizeProvisionNumber(number)] ?? []
-                          )
-                        ));
-                        if (relatedActs.length === 0) return null;
-                        return (
-                          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                            <span className="text-xs font-semibold text-slate-600">ऐनको मूल दफा हेर्नुहोस्:</span>
-                            {relatedActs.map((number) => (
-                              <button
-                                key={number}
-                                type="button"
-                                onClick={() => openActProvision(number)}
-                                className="px-2 py-1 rounded-md bg-red-50 border border-red-200 text-xs font-semibold text-red-900 hover:bg-red-100"
-                              >
-                                दफा {formatProvisionNumber(number)} हेर्नुहोस्
-                              </button>
-                            ))}
-                          </div>
-                        );
-                      })()}
-
-                      {/* Linked Precedents: PPMO Opinions and PPRC Decisions */}
-                      {(secOpinions.length > 0 || secDecisions.length > 0) && (
-                        <div className="pt-2">
-                          <PrecedentsSection
-                            provisionNumber={sec.sectionNo}
-                            provisionTitle={sec.title}
-                            lawType={activeLaw === 'act' ? 'act' : 'rule'}
-                            opinions={secOpinions}
-                            decisions={secDecisions}
-                            defaultExpanded={false}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  );
+                        )}
+                      </div>
+                    );
                   })}
                 </div>
               </div>

@@ -37,7 +37,7 @@ export const AMENDMENT_16_COMPARISONS: AmendmentComparison[] = [
     actSection: 'दफा २५(७ख)',
     topic: '३०% भन्दा बढी घटेको बोलपत्र स्वतः खारेज (30% Cut-off Rule)',
     badge: 'न्यून बिडिङ अन्त्य गर्ने कडा प्रावधान',
-    beforeText: 'लागत अनुमान भन्दा जतिसुकै कम कबोल (उदा: ४०-५०% घटेर) गरे पनि थप कार्यसम्पादन जमानत (Additional Performance Security) लिएर ठेक्का सम्झौता गर्नुपर्ने कानुनी बाध्यता थियो।',
+    beforeText: 'लागत अनुमान भन्दा जतिसुकै कम कबोल (उदा: ४०-५०% घटेर) गरे पनि थप कार्यसम्पादन जमानत (Additional Performance Security) लिएर ठेक्का सम्झौता गर्नुपर्ने कानूनी बाध्यता थियो।',
     afterText: 'स्वीकृत लागत अनुमान भन्दा ३० प्रतिशत भन्दा बढी घटेर कबोल गर्ने बोलपत्रदातालाई मूल्याङ्कन प्रक्रियाबाटै स्वतः हटाइनेछ (Disqualified)। त्यस्ता बोलपत्रहरूको दररेट विश्लेषण वा धरौटी थप्ने प्रक्रियामा प्रवेश नै गरिँदैन।',
     auditRisk: '३०% भन्दा बढी घटेको बोलपत्रलाई मूल्याङ्कनमा समावेश गरी औसत निकाल्दा वा ठेक्का स्वीकृत गरेमा सार्वजनिक खरिद ऐनको दफा २५(७ख) को प्रत्यक्ष उल्लंघन भई सम्पूर्ण प्रक्रिया बदर हुन्छ।',
     thresholds: [
@@ -132,7 +132,7 @@ export const AMENDMENT_16_COMPARISONS: AmendmentComparison[] = [
     thresholds: [
       { label: 'अधिकतम लागत अनुमान', oldValue: 'रु १ करोड सम्म', newValue: 'रु १ करोड सम्म (श्रममूलक प्रकृतिको मात्र)' },
       { label: 'हेभी मेसिनरी प्रयोग', oldValue: 'अस्पष्ट/विवादास्पद', newValue: 'पूर्ण रूपमा निषेध (मिक्स्चर/भाइब्रेटर बाहेक)' },
-      { label: 'उप-ठेक्का (Sub-contract)', oldValue: 'अनौपचारिक हुने गरेको', newValue: 'सम्झौता तत्काल रद्द र कानुनी कारबाही' }
+      { label: 'उप-ठेक्का (Sub-contract)', oldValue: 'अनौपचारिक हुने गरेको', newValue: 'सम्झौता तत्काल रद्द र कानूनी कारबाही' }
     ],
     practicalTakeaway: 'डोजर चलाउनुपर्ने सडक वा कटिङको काम उपभोक्ता समितिलाई नदिई अनिवार्य रूपमा खुला बोलपत्रबाट निर्माण व्यवसायी मार्फत गराउनुहोस्।'
   },
@@ -188,7 +188,7 @@ export const AMENDMENT_16_COMPARISONS: AmendmentComparison[] = [
 export const getAmendmentComparisonForRule = (ruleNo: string): AmendmentComparison | undefined => {
   const cleanRule = ruleNo.replace(/[^०-९0-9क-ह]/g, '');
   const normRule = cleanRule.replace(/[०-९]/g, (d) => String('०१२३४५६७८९'.indexOf(d)));
-  
+
   return AMENDMENT_16_COMPARISONS.find((c) => {
     const compClean = c.ruleNumber.replace(/[०-९]/g, (d) => String('०१२३४५६७८९'.indexOf(d)));
     return compClean === normRule || normRule.startsWith(compClean);

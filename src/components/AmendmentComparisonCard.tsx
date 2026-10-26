@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  Sparkles, 
-  ArrowRight, 
-  AlertTriangle, 
-  CheckCircle2, 
-  XCircle, 
-  Scale, 
+import {
+  Sparkles,
+  ArrowRight,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Scale,
   HelpCircle,
   FileCheck2,
   TrendingDown
@@ -53,7 +53,7 @@ export const AmendmentComparisonCard: React.FC<AmendmentComparisonCardProps> = (
             </p>
           </div>
           <div className="mt-2.5 pt-2 border-t border-rose-200/60 text-[11px] text-rose-700 font-medium italic">
-            ⚠️ यो पुरानो अभ्यास अब कानुन विपरित भइसकेको छ।
+            ⚠️ यो पुरानो अभ्यास अब कानून विपरित भइसकेको छ।
           </div>
         </div>
 
