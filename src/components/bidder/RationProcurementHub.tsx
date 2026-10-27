@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import {
-  UtensilsCrossed,
   AlertTriangle,
   CheckCircle2,
   Calculator,
@@ -133,32 +132,6 @@ export const RationProcurementHub: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-amber-800 via-orange-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-300 mb-1.5">
-              <UtensilsCrossed className="w-4 h-4" />
-              <span>विशेष खरिद मार्गदर्शन • Ration Procurement Guide</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
-              <span>राशन खरिद तथा सिदा आपूर्ति व्यवस्था</span>
-              <span className="text-xs bg-amber-600/80 text-white px-2.5 py-0.5 rounded-full font-medium">
-                ऐन दफा ४२ • नियम ८८–९३
-              </span>
-            </h2>
-            <p className="text-xs sm:text-sm text-amber-100/90 mt-1 max-w-3xl leading-relaxed">
-              नेपाली सेना, नेपाल प्रहरी, सशस्त्र प्रहरी बल, कारागारका कैदीबन्दी, अस्पतालका बिरामी र पशुपन्छीका लागि खाद्यान्न आपूर्ति सम्बन्धी विशेष कानुनी व्यवस्था, वार्षिक चक्र (माघ १ देखि लागू), २५% गोदाम पेश्की र नियम ८९(६) बमोजिम १००% बढी दररेटमा बोलपत्र रद्द हुने जोखिम सिमुलेटर।
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-xs border border-white/20 p-3.5 rounded-xl text-center shrink-0">
-            <span className="text-xs text-amber-200 block font-medium">वार्षिक खरिद चक्र</span>
-            <span className="text-base font-bold text-white">माघ १ – पौष मसान्त</span>
-            <span className="text-[11px] text-amber-300 block mt-0.5">मूल्यवृद्धि नदिइने (Fixed Price)</span>
-          </div>
-        </div>
-      </div>
-
       {/* Navigation Sub-Tabs */}
       <div className="bg-white p-1.5 sm:p-2 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
