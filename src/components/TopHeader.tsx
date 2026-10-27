@@ -53,12 +53,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   const current = TAB_TITLES[activeTab] || { title: 'सार्वजनिक खरिद सहयोगी', category: 'प्रणाली' };
 
   return (
-    <header className="sticky top-0 z-30 bg-[#173b63]/95 text-white backdrop-blur-md border-b border-[#31577b] h-16 flex items-center justify-between px-4 sm:px-6 shadow-2xs">
+    <header className="sticky top-0 z-30 bg-[#173b63]/95 text-white backdrop-blur-md border-b border-[#31577b] h-16 flex items-center justify-between px-3 sm:px-6 shadow-2xs max-w-full">
       {/* Left: Mobile hamburger menu toggle + Desktop collapse toggle + Breadcrumb trail */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <button
           onClick={onToggleSidebarMobile}
-          className="p-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 lg:hidden transition-colors"
+          className="p-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 lg:hidden transition-colors shrink-0"
           title="मेनु खोल्नुहोस्"
         >
           <Menu className="w-5 h-5" />
@@ -67,7 +67,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         {onToggleSidebarCollapse && (
           <button
             onClick={onToggleSidebarCollapse}
-            className="hidden lg:flex p-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-colors items-center justify-center"
+            className="hidden lg:flex p-2 rounded-lg text-blue-100 hover:text-white hover:bg-white/10 transition-colors items-center justify-center shrink-0"
             title={isSidebarCollapsed ? 'साइडबार विस्तार गर्नुहोस् (Ctrl+B)' : 'साइडबार संकुचित गर्नुहोस् (Ctrl+B)'}
             aria-label={isSidebarCollapsed ? 'साइडबार विस्तार गर्नुहोस्' : 'साइडबार संकुचित गर्नुहोस्'}
           >
@@ -80,23 +80,23 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         )}
 
         {/* Breadcrumb Trail */}
-        <div className="flex items-center gap-1.5 text-xs text-blue-100/80 font-medium truncate">
-          <span className="hidden sm:inline hover:text-white transition-colors">खरिद निर्देशिका</span>
-          <ChevronRight className="w-3.5 h-3.5 text-blue-200/60 hidden sm:inline" />
-          <span className="text-blue-100/80 hidden md:inline">{current.category}</span>
-          <ChevronRight className="w-3.5 h-3.5 text-blue-200/60 hidden md:inline" />
+        <div className="flex items-center gap-1.5 text-xs text-blue-100/80 font-medium truncate min-w-0">
+          <span className="hidden sm:inline hover:text-white transition-colors shrink-0">खरिद निर्देशिका</span>
+          <ChevronRight className="w-3.5 h-3.5 text-blue-200/60 hidden sm:inline shrink-0" />
+          <span className="text-blue-100/80 hidden md:inline shrink-0">{current.category}</span>
+          <ChevronRight className="w-3.5 h-3.5 text-blue-200/60 hidden md:inline shrink-0" />
           <span className="font-bold text-white truncate text-xs sm:text-sm">{current.title}</span>
         </div>
       </div>
 
       {/* Right: Search, Print & Primary Action */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         {/* User Mode Switcher Pill */}
         {onToggleUserMode && (
           <button
             type="button"
             onClick={onToggleUserMode}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs border cursor-pointer ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs border cursor-pointer shrink-0 ${
               userMode === 'bidder'
                 ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-400/60'
                 : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
@@ -116,7 +116,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
         <button
           onClick={onOpenSearch}
-          className="flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-50 bg-white/10 hover:bg-white/15 rounded-lg transition-colors border border-white/15"
+          className="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-50 bg-white/10 hover:bg-white/15 rounded-lg transition-colors border border-white/15 shrink-0"
           title="खोज तथा फिल्टर (Ctrl + K वा /)"
         >
           <Search className="w-4 h-4 text-blue-200" />
@@ -128,7 +128,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
         <button
           onClick={() => window.print()}
-          className="p-2 text-blue-100 hover:text-white hover:bg-white/10 rounded-lg transition-colors no-print"
+          className="p-1.5 sm:p-2 text-blue-100 hover:text-white hover:bg-white/10 rounded-lg transition-colors no-print shrink-0"
           title="प्रिन्ट गर्नुहोस्"
         >
           <Printer className="w-4 h-4" />
@@ -136,16 +136,17 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
         <button
           onClick={() => window.open('https://financial-procedures.vercel.app/', '_blank', 'noopener,noreferrer')}
-          className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-700 hover:bg-red-800 rounded-lg shadow-xs transition-colors whitespace-nowrap"
+          className="flex items-center justify-center gap-1.5 p-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-700 hover:bg-red-800 rounded-lg shadow-xs transition-colors shrink-0"
           aria-label="आर्थिक कार्यविधि पेज नयाँ window मा खोल्नुहोस्"
+          title="आर्थिक कार्यविधि पेज (नयाँ window मा खोल्नुहोस्)"
         >
-          <ExternalLink className="w-4 h-4" />
-          <span>आर्थिक कार्यविधि पेज</span>
+          <ExternalLink className="w-4 h-4 shrink-0" />
+          <span className="hidden sm:inline whitespace-nowrap">आर्थिक कार्यविधि पेज</span>
         </button>
 
         <button
           onClick={onLogout}
-          className="p-2 text-blue-100 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+          className="p-1.5 sm:p-2 text-blue-100 hover:text-white hover:bg-white/10 rounded-lg transition-colors shrink-0"
           title="लगआउट"
           aria-label="लगआउट"
         >
