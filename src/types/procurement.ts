@@ -29,6 +29,52 @@ export interface ProcurementMethod {
   badgeTag: string;
 }
 
+export interface StatutoryRule {
+  clauseOrRule: string;
+  title: string;
+  provision: string;
+  mandatoryAction: string;
+  penaltyOrRisk?: string;
+}
+
+export interface PpmoOpinionItem {
+  id: string;
+  dateOrRef?: string;
+  topic: string;
+  questionOrContext: string;
+  directive: string;
+  entityAction: string;
+}
+
+export interface PprcPrecedentItem {
+  id: string;
+  caseNoOrRef: string;
+  appellantVsResp?: string;
+  disputedIssue: string;
+  rulingOrPrecedent: string;
+  entityLesson: string;
+}
+
+export interface AuditRiskItem {
+  riskTitle: string;
+  authority: 'CIAA' | 'OAG' | 'BOTH';
+  commonIrregularity: string;
+  preventiveMeasure: string;
+}
+
+export interface StageChecklistItem {
+  id: string;
+  title: string;
+  legalBasis: string;
+  responsibleRole: string;
+  tip: string;
+}
+
+export interface StageDosAndDonts {
+  dos: string[];
+  donts: string[];
+}
+
 export interface ProcurementStage {
   id: string;
   stageNo: number;
@@ -41,6 +87,12 @@ export interface ProcurementStage {
   timeframeNotes: string;
   responsibleOfficial: string;
   criticalComplianceNotes: string[];
+  statutoryRules?: StatutoryRule[];
+  ppmoOpinions?: PpmoOpinionItem[];
+  pprcDecisions?: PprcPrecedentItem[];
+  auditRisks?: AuditRiskItem[];
+  entityChecklist?: StageChecklistItem[];
+  dosAndDonts?: StageDosAndDonts;
 }
 
 export interface ChecklistItem {
