@@ -51,12 +51,16 @@ interface IcbProcurementHubProps {
   initialUserMode?: 'entity' | 'bidder';
   onNavigateToLaw?: () => void;
   onNavigateToEgpGuidelines?: () => void;
+  onNavigateToMethod?: (methodId: string) => void;
+  onNavigateToStages?: () => void;
 }
 
 export const IcbProcurementHub: React.FC<IcbProcurementHubProps> = ({
   initialUserMode = 'entity',
   onNavigateToLaw,
   onNavigateToEgpGuidelines,
+  onNavigateToMethod,
+  onNavigateToStages,
 }) => {
   // Perspective Mode: Public Entity vs Bidder
   const [viewPerspective, setViewPerspective] = useState<'entity' | 'bidder'>(initialUserMode);

@@ -18,6 +18,7 @@ export interface IcbStage {
   timelineDays: string;
   legalBasisAct: string;
   legalBasisRule: string;
+  legalRuleSection?: string;
   sbdClauses: string;
   
   // Public Entity View
@@ -252,7 +253,7 @@ export const ICB_WORKFLOW_STAGES: IcbStage[] = [
     responsibleEntity: 'खरिद महाशाखा/एकाइ र सूचना प्रकाशन शाखा',
     timelineDays: 'अन्तर्राष्ट्रिय बोलपत्र (ICB) मा कम्तीमा ३० दिन (PPR नियम ३१ङ(१)); पुनः आह्वान भए कम्तीमा १५ दिन',
     legalBasisAct: 'सार्वजनिक खरिद ऐन, २०६३ को दफा १४ (बोलपत्र आह्वानको सूचना), दफा ६५ (विद्युतीय खरिद)',
-    legalRuleSection: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ३१ङ (अन्तर्राष्ट्रिय बोलपत्रको सूचना), नियम ४९क, ५२ (प्रि-बिड)',
+    legalBasisRule: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ३१ङ (अन्तर्राष्ट्रिय बोलपत्रको सूचना), नियम ४९क, ५२ (प्रि-बिड)',
     sbdClauses: 'Goods ICB SBD: ITB 7, 8 (Clarification & Amendment of Bidding Documents), ITB 22 (Submission Deadline)',
     entityDuties: [
       'PPMO को आधिकारिक e-GP प्रणाली (www.bolpatra.gov.np/egp) मा ICB टेन्डर सिर्जना गरी बोलपत्र कागजात अपलोड गर्ने।',
@@ -326,7 +327,7 @@ export const ICB_WORKFLOW_STAGES: IcbStage[] = [
     responsibleEntity: 'मूल्याङ्कन समिति (Evaluation Committee - PPA Sec 10), खरिद एकाइ',
     timelineDays: 'बोलपत्र खोलेको सामान्यतया ३० देखि ४५ दिनभित्र मूल्याङ्कन प्रतिवेदन स्वीकृत गराउनुपर्ने',
     legalBasisAct: 'सार्वजनिक खरिद ऐन, २०६३ को दफा १० (समिति), दफा २३ (परीक्षण र स्पष्टीकरण), दफा २५ (मूल्याङ्कन)',
-    legalRuleSection: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ६०, ६१, ६२, ६३, ६४, ६५ (मूल्याङ्कनका नियमहरू)',
+    legalBasisRule: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ६०, ६१, ६२, ६३, ६४, ६५ (मूल्याङ्कनका नियमहरू)',
     sbdClauses: 'Goods ICB SBD Section I (ITB 26 to 37) & Section III (Evaluation & Qualification Criteria - EQC)',
     entityDuties: [
       'ऐनको दफा १० बमोजिम गठित मूल्याङ्कन समितिले e-GP प्रणालीबाट बोलपत्र अनलाइन डिक्रिप्ट गरी खोल्ने।',
@@ -399,7 +400,7 @@ export const ICB_WORKFLOW_STAGES: IcbStage[] = [
     responsibleEntity: 'कार्यालय प्रमुख, खरिद एकाइ, सार्वजनिक खरिद पुनरावलोकन समिति (PPRC)',
     timelineDays: 'LOI अवधि ७ दिन (Standstill Period); LOA पछि सम्झौताका लागि १५ दिनको म्याद (ऐन दफा २७)',
     legalBasisAct: 'सार्वजनिक खरिद ऐन, २०६३ को दफा २७ (बोलपत्र स्वीकृति), दफा ४७ (कार्यालय प्रमुख समक्ष उजुरी), दफा ४९ (PPRC मा पुनरावलोकन)',
-    legalRuleSection: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ११० (सम्झौता), नियम १११, नियम ११०क (कार्यसम्पादन जमानत)',
+    legalBasisRule: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ११० (सम्झौता), नियम १११, नियम ११०क (कार्यसम्पादन जमानत)',
     sbdClauses: 'Goods ICB SBD Section I (ITB 40 to 44) & Section VIII (Contract Forms - LOI, LOA, Agreement)',
     entityDuties: [
       'मूल्याङ्कन समितिको सिफारिस अधिकार प्राप्त अधिकारीबाट स्वीकृत भएपछि ७ दिनको Letter of Intent (LOI) जारी गर्ने (ऐन दफा २७(२))।',
@@ -471,7 +472,7 @@ export const ICB_WORKFLOW_STAGES: IcbStage[] = [
     responsibleEntity: 'आयोजना प्रमुख, खरिद एकाइ, निरीक्षण तथा जाँचपास समिति, बैंक',
     timelineDays: 'सम्झौतामा तोकिएको डेलिभरी अवधि (सामान्यतया ६० देखि १२० दिन)',
     legalBasisAct: 'सार्वजनिक खरिद ऐन, २०६३ को दफा ५२ (सम्झौता संशोधन/भेरिएसन), दफा ५६ (निरीक्षण र दाखिला)',
-    legalRuleSection: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ११५ (निरीक्षण), नियम ११८ (भेरिएसन), नियम १२१ (ढिलाइ र LD)',
+    legalBasisRule: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम ११५ (निरीक्षण), नियम ११८ (भेरिएसन), नियम १२१ (ढिलाइ र LD)',
     sbdClauses: 'Goods ICB SBD Section VII (GCC 12, 13, 15, 26, 27 - Delivery, Inspections, Liquidated Damages, Warranty)',
     entityDuties: [
       'सम्झौता भएपछि आपूर्तिकर्ताको नाममा irrevocable Letter of Credit (L/C) नेपाल राष्ट्र बैंकको निर्देशन अनुसार खोल्ने।',
@@ -547,7 +548,7 @@ export const ICB_WORKFLOW_STAGES: IcbStage[] = [
     responsibleEntity: 'लेखा शाखा, खरिद एकाइ, कार्यालय प्रमुख, बैंक',
     timelineDays: 'दाखिला र स्वीकारोक्ति भएको ३० दिनभित्र अन्तिम भुक्तानी (नियम १२३)',
     legalBasisAct: 'सार्वजनिक खरिद ऐन, २०६३ को दफा ५६ (भुक्तानी), दफा ५८ (विवाद समाधान)',
-    legalRuleSection: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम १२३ (भुक्तानीको समयसीमा), नियम १२५ (विवाद समाधान)',
+    legalBasisRule: 'सार्वजनिक खरिद नियमावली, २०६४ को नियम १२३ (भुक्तानीको समयसीमा), नियम १२५ (विवाद समाधान)',
     sbdClauses: 'Goods ICB SBD Section VII (GCC 16 - Payment, GCC 28 - Warranty, GCC 32 - Force Majeure, GCC 33 - Disputes)',
     entityDuties: [
       'स्वीकृत Acceptance Certificate र दाखिला प्रतिवेदनका आधारमा L/C मार्फत वा सिधै बैंक ट्रान्सफरबाट भुक्तानी प्रक्रिया अघि बढाउने।',
