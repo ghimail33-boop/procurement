@@ -36,6 +36,8 @@ import {
   PackageCheck,
   ShieldAlert,
   FileWarning,
+  Globe,
+  Tag,
 } from 'lucide-react';
 import { BiddingFormsGenerator } from './BiddingFormsGenerator';
 import {
@@ -57,16 +59,18 @@ interface BidderPortalViewProps {
   onNavigateToLaw?: () => void;
   onNavigateToEgpGuidelines?: () => void;
   initialSubTab?:
-    | 'overview'
-    | 'eligibility'
-    | 'goods-guide'
-    | 'services-guide'
-    | 'fatal-mistakes'
-    | 'forms'
-    | 'checklist'
-    | 'egp-guide'
-    | 'review'
-    | 'sbd-hub';
+  | 'overview'
+  | 'eligibility'
+  | 'goods-procurement'
+  | 'goods-guide'
+  | 'catalogue-shopping'
+  | 'services-guide'
+  | 'fatal-mistakes'
+  | 'forms'
+  | 'checklist'
+  | 'egp-guide'
+  | 'review'
+  | 'sbd-hub';
 }
 
 export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
@@ -75,7 +79,9 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
   onNavigateToEgpGuidelines,
   initialSubTab = 'overview',
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<string>(initialSubTab);
+  const [activeSubTab, setActiveSubTab] = useState<string>(
+    initialSubTab === 'goods-guide' ? 'goods-procurement' : initialSubTab
+  );
 
   // -------------------------------------------------------------
   // 1. Eligibility & Capacity Self-Assessment Calculator State
@@ -164,17 +170,78 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
     isBidCapacityEligible;
 
   // -------------------------------------------------------------
-  // 1B. Goods & Catalogue Shopping Calculator State
+  // 1B. Goods Procurement Simulator State
+  // -------------------------------------------------------------
+  const [goodsEstAmount, setGoodsEstAmount] = useState<number>(8000000); // रु ८० लाख
+  const [goodsTurnoverReq, setGoodsTurnoverReq] = useState<number>(6400000); // ८०%
+  const [goodsSupplierTurnover, setGoodsSupplierTurnover] = useState<number>(7500000);
+  const [goodsExpReq, setGoodsExpReq] = useState<number>(5000000);
+  const [goodsSupplierExp, setGoodsSupplierExp] = useState<number>(6200000);
+  const [goodsLiquidReq, setGoodsLiquidReq] = useState<number>(2500000);
+  const [goodsSupplierLiquid, setGoodsSupplierLiquid] = useState<number>(3000000);
+  const [goodsMafRequired, setGoodsMafRequired] = useState<boolean>(true);
+  const [goodsHasValidMaf, setGoodsHasValidMaf] = useState<boolean>(true);
+
+  const isGoodsTurnoverOk = goodsSupplierTurnover >= goodsTurnoverReq;
+  const isGoodsExpOk = goodsSupplierExp >= goodsExpReq;
+  const isGoodsLiquidOk = goodsSupplierLiquid >= goodsLiquidReq;
+  const isGoodsMafOk = !goodsMafRequired || goodsHasValidMaf;
+  const isGoodsOverallEligible = isGoodsTurnoverOk && isGoodsExpOk && isGoodsLiquidOk && isGoodsMafOk;
+
+  // Domestic Preference Simulator (PPA Sec 52 & PPR Rule 97: 15% margin)
+  const [dpDomesticQuote, setDpDomesticQuote] = useState<number>(1120000);
+  const [dpForeignQuote, setDpForeignQuote] = useState<number>(1000000);
+  const [dpMarginPercent, setDpMarginPercent] = useState<number>(15);
+
+  const dpEvaluatedForeign = useMemo(() => {
+    return dpForeignQuote * (1 + dpMarginPercent / 100);
+  }, [dpForeignQuote, dpMarginPercent]);
+
+  const isDomesticWinning = useMemo(() => {
+    return dpDomesticQuote <= dpEvaluatedForeign;
+  }, [dpDomesticQuote, dpEvaluatedForeign]);
+
+  const dpPriceDifference = useMemo(() => {
+    return Math.abs(dpEvaluatedForeign - dpDomesticQuote);
+  }, [dpEvaluatedForeign, dpDomesticQuote]);
+
+  // Technical Spec Deviation Filter
+  const [specDeviationFilter, setSpecDeviationFilter] = useState<'all' | 'minor' | 'major'>('all');
+
+  // Goods Liquidated Damages (LD) Calculator
+  const [goodsContractAmount, setGoodsContractAmount] = useState<number>(5000000); // रु ५० लाख
+  const [goodsDelayDays, setGoodsDelayDays] = useState<number>(20); // २० दिन
+
+  // LD Calculations (0.05% per day, max 10%)
+  const goodsLdDaily = useMemo(() => {
+    return goodsContractAmount * 0.0005;
+  }, [goodsContractAmount]);
+
+  const goodsLdTotalRaw = useMemo(() => {
+    return goodsLdDaily * goodsDelayDays;
+  }, [goodsLdDaily, goodsDelayDays]);
+
+  const goodsLdMaxCap = useMemo(() => {
+    return goodsContractAmount * 0.10;
+  }, [goodsContractAmount]);
+
+  const goodsLdEffective = useMemo(() => {
+    return Math.min(goodsLdTotalRaw, goodsLdMaxCap);
+  }, [goodsLdTotalRaw, goodsLdMaxCap]);
+
+  const goodsLdPercent = useMemo(() => {
+    return goodsContractAmount > 0 ? (goodsLdEffective / goodsContractAmount) * 100 : 0;
+  }, [goodsLdEffective, goodsContractAmount]);
+
+  // -------------------------------------------------------------
+  // 1B-2. Catalogue Shopping State (PPA Sec 41A, PPR Rule 85A)
   // -------------------------------------------------------------
   const [catOriginalPrice, setCatOriginalPrice] = useState<number>(3500000); // रु ३५ लाख
   const [catDiscountPercent, setCatDiscountPercent] = useState<number>(8.5); // ८.५%
   const [catQuantity, setCatQuantity] = useState<number>(2); // २ थान
   const [catDeliveryCost, setCatDeliveryCost] = useState<number>(45000); // ढुवानी
   const [catApplyVat, setCatApplyVat] = useState<boolean>(true);
-
-  // Goods Liquidated Damages (LD) Calculator
-  const [goodsContractAmount, setGoodsContractAmount] = useState<number>(5000000); // रु ५० लाख
-  const [goodsDelayDays, setGoodsDelayDays] = useState<number>(20); // २० दिन
+  const [catCategoryType, setCatCategoryType] = useState<string>('vehicles');
 
   const catDiscountAmountPerUnit = useMemo(() => {
     return (catOriginalPrice * catDiscountPercent) / 100;
@@ -199,27 +266,6 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
   const catTotalSavings = useMemo(() => {
     return catDiscountAmountPerUnit * catQuantity;
   }, [catDiscountAmountPerUnit, catQuantity]);
-
-  // LD Calculations (0.05% per day, max 10%)
-  const goodsLdDaily = useMemo(() => {
-    return goodsContractAmount * 0.0005;
-  }, [goodsContractAmount]);
-
-  const goodsLdTotalRaw = useMemo(() => {
-    return goodsLdDaily * goodsDelayDays;
-  }, [goodsLdDaily, goodsDelayDays]);
-
-  const goodsLdMaxCap = useMemo(() => {
-    return goodsContractAmount * 0.10;
-  }, [goodsContractAmount]);
-
-  const goodsLdEffective = useMemo(() => {
-    return Math.min(goodsLdTotalRaw, goodsLdMaxCap);
-  }, [goodsLdTotalRaw, goodsLdMaxCap]);
-
-  const goodsLdPercent = useMemo(() => {
-    return goodsContractAmount > 0 ? (goodsLdEffective / goodsContractAmount) * 100 : 0;
-  }, [goodsLdEffective, goodsContractAmount]);
 
   // -------------------------------------------------------------
   // 1C. Consulting & Services Calculator State
@@ -468,7 +514,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
     try {
       const saved = localStorage.getItem('bidder_prebid_risk_audit');
       if (saved) return JSON.parse(saved);
-    } catch {}
+    } catch { }
     return {
       'audit-1': true,
       'audit-2': true,
@@ -482,7 +528,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       const next = { ...prev, [id]: !prev[id] };
       try {
         localStorage.setItem('bidder_prebid_risk_audit', JSON.stringify(next));
-      } catch {}
+      } catch { }
       return next;
     });
   };
@@ -492,7 +538,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       setAuditCheckedItems({});
       try {
         localStorage.removeItem('bidder_prebid_risk_audit');
-      } catch {}
+      } catch { }
     }
   };
 
@@ -543,20 +589,20 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       );
     };
 
-    if (activeSubTab === 'goods-guide') {
+    if (activeSubTab === 'goods-procurement' || activeSubTab === 'goods-guide') {
       return (
-        <div className="bg-gradient-to-r from-teal-900 via-emerald-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
+        <div className="bg-gradient-to-r from-blue-950 via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-300 mb-1.5">
                 <ShoppingBag className="w-4 h-4" />
-                <span>मालसामान खरिद तथा क्याटलग सपिङ सहयोगी • Goods & Catalogue Shopping Hub</span>
+                <span>मालसामान खरिद तथा आपूर्ति सहयोगी • Goods Procurement & Supply Hub</span>
               </div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-                मालसामान आपूर्ति तथा क्याटलग सपिङ (दफा ४१क र नियम ८५क)
+                मालसामान खरिद (खुला बोलपत्र, शिलबन्दी दरभाउ र सोझै खरिद)
               </h1>
               <p className="text-xs sm:text-sm text-teal-100/90 mt-1 max-w-3xl leading-relaxed">
-                उत्पादक तथा अधिकृत बिक्रेताहरूका लागि क्याटलग सूचीकरण, अधिकतम छुट रणनीति, प्राविधिक स्पेसिफिकेसन कम्प्लायन्स, उत्पादकको आधिकारिकता पत्र (MAF), र डेलिभरी/LD क्याल्कुलेटर।
+                सार्वजनिक खरिद ऐन २०६३, नियमावली २०६४ (१६औँ संशोधन) र PPMO SBDs अनुसार आपूर्तिकर्ताको योग्यता स्व-मूल्याङ्कन, MAF नियम, स्पेसिफिकेसन कम्प्लायन्स, स्वदेशी उत्पादनलाई प्राथमिकता (१५%), र डेलिभरी/LD क्याल्कुलेटर।
               </p>
             </div>
 
@@ -567,7 +613,40 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                 className="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
                 <FileText className="w-4 h-4" />
-                <span>क्याटलग र MAF फाराम भर्नुहोस्</span>
+                <span>मालसामान SBD फारामहरू (Sec IV)</span>
+              </button>
+              {renderSwitchBtn()}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubTab === 'catalogue-shopping') {
+      return (
+        <div className="bg-gradient-to-r from-teal-900 via-emerald-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-1.5">
+                <PackageCheck className="w-4 h-4" />
+                <span>क्याटलग सपिङ विशेष कर्नर • Catalogue Shopping Hub (PPA दफा ४१क र PPR नियम ८५क)</span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                क्याटलग सपिङ विधिबाट मालसामान खरिद तथा आपूर्ति
+              </h1>
+              <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-3xl leading-relaxed">
+                उत्पादक तथा अधिकृत बिक्रेताहरूका लागि क्याटलग सूचीकरण प्रक्रिया, अधिकतम छुट रणनीति क्याल्कुलेटर, खरिद आदेश कार्यान्वयन, आपूर्ति समयसीमा, र निरीक्षण तथा दाखिला प्रक्रिया।
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('forms')}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-400 hover:bg-emerald-300 text-slate-950 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <FileText className="w-4 h-4" />
+                <span>क्याटलग सूचीकरण फाराम (SBD Sec IV)</span>
               </button>
               {renderSwitchBtn()}
             </div>
@@ -705,7 +784,8 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
           {[
             { id: 'overview', label: 'ड्यासबोर्ड मुख्य पृष्ठ', icon: Layers },
             { id: 'eligibility', label: 'के म योग्य छु? (निर्माण कार्य)', icon: Calculator },
-            { id: 'goods-guide', label: 'मालसामान तथा क्याटलग सपिङ', icon: ShoppingBag },
+            { id: 'goods-procurement', label: 'मालसामान खरिद (Goods)', icon: ShoppingBag },
+            { id: 'catalogue-shopping', label: 'क्याटलग सपिङ (Catalogue)', icon: PackageCheck },
             { id: 'services-guide', label: 'परामर्श तथा सेवा खरिद', icon: Award },
             { id: 'fatal-mistakes', label: 'घातक गल्तीहरू र जोखिम अडिट', icon: ShieldAlert },
             { id: 'forms', label: 'बोलपत्र फाराम जेनेरेटर (SBD Sec IV)', icon: FileText },
@@ -760,22 +840,42 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               </div>
             </div>
 
-            {/* Card 2: Goods & Catalogue Shopping */}
+            {/* Card 2: Goods Procurement */}
             <div
-              onClick={() => setActiveSubTab('goods-guide')}
+              onClick={() => setActiveSubTab('goods-procurement')}
               className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-teal-300 transition-all cursor-pointer group"
             >
               <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <h3 className="text-sm font-bold text-slate-900 group-hover:text-teal-800 transition-colors">
-                मालसामान तथा क्याटलग सपिङ
+                मालसामान खरिद (Goods)
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                दफा ४१(क) क्याटलग छुट रणनीति, MAF नियम, प्राविधिक स्पेसिफिकेसन र LD।
+                आपूर्तिकर्ता योग्यता स्व-मूल्याङ्कन, MAF नियम, स्पेसिफिकेसन कम्प्लायन्स, स्वदेशी प्राथमिकता र LD।
               </p>
               <div className="mt-3 flex items-center text-xs font-semibold text-teal-700">
-                <span>सपिङ गाइड र क्याल्कुलेटर</span>
+                <span>योग्यता तथा नियमहरू</span>
+                <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Card 3: Catalogue Shopping */}
+            <div
+              onClick={() => setActiveSubTab('catalogue-shopping')}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-emerald-300 transition-all cursor-pointer group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                <PackageCheck className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition-colors">
+                क्याटलग सपिङ (Catalogue)
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                दफा ४१(क) क्याटलग सूचीकरण, अधिकतम छुट रणनीति, खरिद आदेश र दाखिला प्रतिवेदन।
+              </p>
+              <div className="mt-3 flex items-center text-xs font-semibold text-emerald-700">
+                <span>छुट क्याल्कुलेटर र गाइड</span>
                 <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -1334,215 +1434,444 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       {/* ------------------------------------------------------------- */}
       {/* TAB: GOODS & CATALOGUE SHOPPING HUB */}
       {/* ------------------------------------------------------------- */}
-      {activeSubTab === 'goods-guide' && (
+      {/* ------------------------------------------------------------- */}
+      {/* TAB: GOODS PROCUREMENT HUB */}
+      {/* ------------------------------------------------------------- */}
+      {(activeSubTab === 'goods-procurement' || activeSubTab === 'goods-guide') && (
         <div className="space-y-8">
-          {/* 1. Catalogue Shopping Law, Listing & Discount Calculator */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800">
-                  <Sparkles className="w-4 h-4" />
-                  <span>खण्ड १: क्याटलग सपिङ कानूनी कार्यविधि (PPA दफा ४१क र PPR नियम ८५क)</span>
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  उत्पादक वा अधिकृत बिक्रेताको सूचीकरण र छुट प्रस्ताव रणनीति
-                </h3>
-              </div>
-              <span className="text-xs bg-teal-50 text-teal-800 border border-teal-200 px-3 py-1 rounded-full font-semibold">
-                PPR नियम ८५ (क)
-              </span>
-            </div>
-
-            {/* Explanatory cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs leading-relaxed">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
-                <div className="font-bold text-slate-900 flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">
-                    १
-                  </span>
-                  <span>क्याटलग सपिङ के हो?</span>
-                </div>
-                <p className="text-slate-600">
-                  सवारी साधन, हेभी इक्विपमेन्ट, कम्प्युटर/ल्यापटप, स्वास्थ्य उपकरण, फर्निचर, औजार आदि उत्पादकले बजारमा सार्वजनिक मूल्य सूची (MRP/Price List) कायम गरेका सामानहरूमा छुट लिएर गरिने विशेष खरिद विधि हो।
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
-                <div className="font-bold text-slate-900 flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">
-                    २
-                  </span>
-                  <span>सूचीकरण (Listing) प्रक्रिया</span>
-                </div>
-                <p className="text-slate-600">
-                  सार्वजनिक निकायले राष्ट्रिय पत्रिका वा e-GP मा कम्तीमा १५/२१ दिनको म्याद दिई सूचीकरण आह्वान गर्दा आधिकारिक डिलरशिप, अद्यावधिक क्याटलग र उत्पादकद्वारा प्रमाणित आधिकारिक मूल्य सूचीसहित निवेदन पेश गर्नुपर्छ।
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
-                <div className="font-bold text-slate-900 flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">
-                    ३
-                  </span>
-                  <span>छनौटको सिद्धान्त (Maximum Discount)</span>
-                </div>
-                <p className="text-slate-600">
-                  नियम ८५क(४) बमोजिम सार्वजनिक निकायले क्याटलग मूल्यमा <strong className="text-slate-900">सबैभन्दा बढी प्रतिशत छुट (Maximum Discount)</strong> कबुल गर्ने सूचीकृत बिक्रेतासँग खरिद सम्झौता गर्नुपर्छ। मूल्य सूची आर्थिक वर्षभरि बढाउन पाइँदैन।
-                </p>
-              </div>
-            </div>
-
-            {/* Interactive Catalogue Shopping Discount Calculator */}
-            <div className="mt-6 pt-6 border-t border-slate-100 space-y-4">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-                <Calculator className="w-4 h-4 text-teal-700" />
-                <span>क्याटलग सपिङ छुट, खुद लागत तथा कर क्याल्कुलेटर (Interactive Simulator)</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 block">
-                    क्याटलग / MRP मूल्य प्रति इकाई (रु.)
-                  </label>
-                  <input
-                    type="number"
-                    value={catOriginalPrice}
-                    onChange={(e) => setCatOriginalPrice(Number(e.target.value))}
-                    className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
-                  />
-                  <span className="text-[10px] text-slate-500">
-                    रु. {catOriginalPrice.toLocaleString('ne-NP')}
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 block">
-                    प्रस्तावित छुट प्रतिशत (%)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={catDiscountPercent}
-                    onChange={(e) => setCatDiscountPercent(Number(e.target.value))}
-                    className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
-                  />
-                  <span className="text-[10px] text-slate-500">
-                    छुट: {catDiscountPercent}% (प्रति इकाई रु. {Math.round(catDiscountAmountPerUnit).toLocaleString('ne-NP')})
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 block">
-                    माग संख्या / परिमाण (Quantity)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={catQuantity}
-                    onChange={(e) => setCatQuantity(Math.max(1, Number(e.target.value)))}
-                    className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
-                  />
-                  <span className="text-[10px] text-slate-500">
-                    कुल परिमाण: {catQuantity} थान/सेट
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 block">
-                    ढुवानी/जडान लागत (रु.)
-                  </label>
-                  <input
-                    type="number"
-                    value={catDeliveryCost}
-                    onChange={(e) => setCatDeliveryCost(Number(e.target.value))}
-                    className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
-                  />
-                  <label className="flex items-center gap-1.5 text-[11px] text-slate-600 mt-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={catApplyVat}
-                      onChange={(e) => setCatApplyVat(e.target.checked)}
-                      className="rounded-sm text-teal-700"
-                    />
-                    <span>१३% भ्याट लागू हुने</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Calculator Output Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200">
-                  <span className="text-[11px] font-semibold text-teal-800 block">
-                    प्रति इकाई खुद मूल्य (Net Unit Price)
-                  </span>
-                  <span className="text-base sm:text-lg font-bold text-teal-950 mt-0.5 block">
-                    रु. {Math.round(catNetUnitPrice).toLocaleString('ne-NP')}
-                  </span>
-                  <span className="text-[10px] text-teal-700">
-                    (क्याटलग मूल्यमा {catDiscountPercent}% छुट पश्चात)
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
-                  <span className="text-[11px] font-semibold text-emerald-800 block">
-                    निकायलाई कुल छुट/बचत (Total Savings)
-                  </span>
-                  <span className="text-base sm:text-lg font-bold text-emerald-950 mt-0.5 block">
-                    रु. {Math.round(catTotalSavings).toLocaleString('ne-NP')}
-                  </span>
-                  <span className="text-[10px] text-emerald-700">
-                    (कुल {catQuantity} थानमा प्राप्त छुट रकम)
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-[11px] font-semibold text-slate-600 block">
-                    करयोग्य रकम र १३% भ्याट
-                  </span>
-                  <span className="text-base sm:text-lg font-bold text-slate-900 mt-0.5 block">
-                    रु. {Math.round(catVatAmount).toLocaleString('ne-NP')}
-                  </span>
-                  <span className="text-[10px] text-slate-500">
-                    (करयोग्य रकम: रु. {Math.round(catTotalTaxable).toLocaleString('ne-NP')})
-                  </span>
-                </div>
-
-                <div className="p-4 rounded-xl bg-slate-900 text-white shadow-sm">
-                  <span className="text-[11px] font-medium text-teal-300 block">
-                    अन्तिम भुक्तानी योग्य मूल्य (Grand Total)
-                  </span>
-                  <span className="text-base sm:text-lg font-bold text-white mt-0.5 block">
-                    रु. {Math.round(catGrandTotal).toLocaleString('ne-NP')}
-                  </span>
-                  <span className="text-[10px] text-slate-300">
-                    (सामान, ढुवानी र १३% भ्याट सहित)
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. Technical Specifications Compliance & Common Pitfalls */}
+          {/* Section 1: Goods Qualification Self-Assessment Calculator */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-800">
-                  <FileSpreadsheet className="w-4 h-4" />
-                  <span>खण्ड २: प्राविधिक स्पेसिफिकेसन कम्प्लायन्स (Technical Specifications Compliance)</span>
+                  <Calculator className="w-4 h-4 text-blue-600" />
+                  <span>खण्ड १: आपूर्तिकर्ता योग्यता तथा वित्तीय क्षमता स्व-मूल्याङ्कन</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  आपूर्तिकर्ता प्राविधिक मूल्याङ्कनमा असफल हुनबाट जोगिने सुनौला नियमहरू
+                  PPMO Goods SBD (Section III) बमोजिम योग्यता परीक्षण क्याल्कुलेटर
                 </h3>
               </div>
-              <button
-                type="button"
-                onClick={() => setActiveSubTab('forms')}
-                className="text-xs text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 cursor-pointer"
+              <div
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 ${isGoodsOverallEligible
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300'
+                  }`}
               >
-                <span>Compliance Sheet ढाँचा प्रयोग गर्नुहोस्</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+                {isGoodsOverallEligible ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                    <span>प्रारम्भिक रूपमा योग्य देखिनुहुन्छ</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="w-4 h-4 text-amber-700" />
+                    <span>केही शर्तहरू सुधार गर्नुपर्ने देखिन्छ</span>
+                  </>
+                )}
+              </div>
             </div>
+
+            {/* Inputs Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  बोलपत्रको लागत अनुमान (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={goodsEstAmount}
+                  onChange={(e) => {
+                    const est = Number(e.target.value);
+                    setGoodsEstAmount(est);
+                    setGoodsTurnoverReq(Math.round(est * 0.8));
+                    setGoodsExpReq(Math.round(est * 0.5));
+                    setGoodsLiquidReq(Math.round(est * 0.3));
+                  }}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-blue-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  रु. {goodsEstAmount.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  वार्षिक कारोबार आवश्यकता (८०% रु.)
+                </label>
+                <input
+                  type="number"
+                  value={goodsTurnoverReq}
+                  onChange={(e) => setGoodsTurnoverReq(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-blue-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  न्यूनतम रु. {goodsTurnoverReq.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  आपूर्तिकर्ताको औसत वार्षिक कारोबार (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={goodsSupplierTurnover}
+                  onChange={(e) => setGoodsSupplierTurnover(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-blue-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  ३ आर्थिक वर्षको औसत: रु. {goodsSupplierTurnover.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  समान आपूर्ति अनुभव आवश्यकता (५०% रु.)
+                </label>
+                <input
+                  type="number"
+                  value={goodsExpReq}
+                  onChange={(e) => setGoodsExpReq(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-blue-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  एकल सम्झौता: रु. {goodsExpReq.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  सम्पन्न भएको समान सम्झौता रकम (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={goodsSupplierExp}
+                  onChange={(e) => setGoodsSupplierExp(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-blue-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  सम्पन्न रकम: रु. {goodsSupplierExp.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  चालु पुँजी/लाइन अफ क्रेडिट आवश्यकता (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={goodsLiquidReq}
+                  onChange={(e) => setGoodsLiquidReq(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-blue-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  न्यूनतम रु. {goodsLiquidReq.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  आपूर्तिकर्ताको उपलब्ध मौज्दात/क्रेडिट (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={goodsSupplierLiquid}
+                  onChange={(e) => setGoodsSupplierLiquid(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-blue-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  उपलब्ध स्रोत: रु. {goodsSupplierLiquid.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-2 p-2.5 rounded-xl bg-white border border-slate-200 flex flex-col justify-center">
+                <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={goodsMafRequired}
+                    onChange={(e) => setGoodsMafRequired(e.target.checked)}
+                    className="rounded-sm text-blue-700"
+                  />
+                  <span>MAF पत्र यस खरिदमा अनिवार्य छ</span>
+                </label>
+                {goodsMafRequired && (
+                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={goodsHasValidMaf}
+                      onChange={(e) => setGoodsHasValidMaf(e.target.checked)}
+                      className="rounded-sm text-emerald-700"
+                    />
+                    <span>उत्पादकको आधिकारिक MAF प्राप्त छ</span>
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Live Result Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div
+                className={`p-4 rounded-xl border ${isGoodsTurnoverOk
+                  ? 'bg-emerald-50/70 border-emerald-200'
+                  : 'bg-red-50/70 border-red-200'
+                  }`}
+              >
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span>१. औसत वार्षिक कारोबार</span>
+                  <span className={isGoodsTurnoverOk ? 'text-emerald-700' : 'text-red-700'}>
+                    {isGoodsTurnoverOk ? 'योग्य ✓' : 'अपुग ✗'}
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-slate-900">
+                  रु. {goodsSupplierTurnover.toLocaleString('ne-NP')}
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1">
+                  माग: रु. {goodsTurnoverReq.toLocaleString('ne-NP')}
+                </p>
+              </div>
+
+              <div
+                className={`p-4 rounded-xl border ${isGoodsExpOk
+                  ? 'bg-emerald-50/70 border-emerald-200'
+                  : 'bg-red-50/70 border-red-200'
+                  }`}
+              >
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span>२. समान आपूर्ति अनुभव</span>
+                  <span className={isGoodsExpOk ? 'text-emerald-700' : 'text-red-700'}>
+                    {isGoodsExpOk ? 'योग्य ✓' : 'अपुग ✗'}
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-slate-900">
+                  रु. {goodsSupplierExp.toLocaleString('ne-NP')}
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1">
+                  माग: रु. {goodsExpReq.toLocaleString('ne-NP')}
+                </p>
+              </div>
+
+              <div
+                className={`p-4 rounded-xl border ${isGoodsLiquidOk
+                  ? 'bg-emerald-50/70 border-emerald-200'
+                  : 'bg-red-50/70 border-red-200'
+                  }`}
+              >
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span>३. वित्तीय स्रोत / क्रेडिट</span>
+                  <span className={isGoodsLiquidOk ? 'text-emerald-700' : 'text-red-700'}>
+                    {isGoodsLiquidOk ? 'योग्य ✓' : 'अपुग ✗'}
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-slate-900">
+                  रु. {goodsSupplierLiquid.toLocaleString('ne-NP')}
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1">
+                  माग: रु. {goodsLiquidReq.toLocaleString('ne-NP')}
+                </p>
+              </div>
+
+              <div
+                className={`p-4 rounded-xl border ${isGoodsMafOk
+                  ? 'bg-emerald-50/70 border-emerald-200'
+                  : 'bg-red-50/70 border-red-200'
+                  }`}
+              >
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span>४. उत्पादकको MAF</span>
+                  <span className={isGoodsMafOk ? 'text-emerald-700' : 'text-red-700'}>
+                    {isGoodsMafOk ? 'मान्य ✓' : 'अपुग ✗'}
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-slate-900">
+                  {goodsMafRequired ? (goodsHasValidMaf ? 'सक्कल संलग्न' : 'छुटेको छ') : 'आवश्यक छैन'}
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1">
+                  {goodsMafRequired ? 'सवारी/उपकरणमा अनिवार्य' : 'सामान्य खरिदमा ऐच्छिक'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Domestic Preference Calculator */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-800">
+                  <Globe className="w-4 h-4 text-emerald-600" />
+                  <span>खण्ड २: स्वदेशी उत्पादनलाई प्राथमिकता क्याल्कुलेटर (Domestic Preference)</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  सार्वजनिक खरिद ऐन दफा ५२ र नियमावली नियम ९७ अनुसार १५% सम्मको मूल्य लाभ
+                </h3>
+              </div>
+              <span className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full font-semibold">
+                १५% सम्म प्राथमिकता मार्जिन
+              </span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-200 text-xs text-slate-700 leading-relaxed">
+              <strong>कानूनी व्यवस्था:</strong> राष्ट्रिय वा अन्तर्राष्ट्रिय खुला बोलपत्रमा नेपालमा उत्पादित मालसामानलाई विदेशी सामान भन्दा <strong>१५% सम्म बढी मूल्य परे पनि</strong> मूल्याङ्कनमा स्वदेशी उत्पादनलाई प्राथमिकता दिइनेछ। मूल्याङ्कन प्रयोजनका लागि विदेशी सामानको कबुल दरमा १५% थप गरी तुलनात्मक मूल्याङ्कन रकम निकालिन्छ।
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  स्वदेशी सामानको प्रस्तावित दर (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={dpDomesticQuote}
+                  onChange={(e) => setDpDomesticQuote(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-emerald-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  नेपाली उत्पादन: रु. {dpDomesticQuote.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  विदेशी सामानको प्रस्तावित दर (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={dpForeignQuote}
+                  onChange={(e) => setDpForeignQuote(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-emerald-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  आयातित सामान: रु. {dpForeignQuote.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  प्राथमिकता मार्जिन (%)
+                </label>
+                <input
+                  type="number"
+                  value={dpMarginPercent}
+                  onChange={(e) => setDpMarginPercent(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-emerald-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  तोकिएको दर: {dpMarginPercent}% (नियम ९७)
+                </span>
+              </div>
+            </div>
+
+            {/* Domestic Preference Output Result */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[11px] font-semibold text-slate-600 block">
+                  विदेशी सामानको मूल्याङ्कन मूल्य (Evaluated Price):
+                </span>
+                <span className="text-base font-bold text-slate-900 block">
+                  रु. {Math.round(dpEvaluatedForeign).toLocaleString('ne-NP')}
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  (मूल दर रु. {dpForeignQuote.toLocaleString('ne-NP')} + {dpMarginPercent}% मार्जिन रु. {Math.round(dpForeignQuote * (dpMarginPercent / 100)).toLocaleString('ne-NP')})
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="text-[11px] font-semibold text-slate-600 block">
+                  स्वदेशी सामानको वास्तविक कबुल दर:
+                </span>
+                <span className="text-base font-bold text-slate-900 block">
+                  रु. {dpDomesticQuote.toLocaleString('ne-NP')}
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  मूल्य फरक: रु. {Math.round(dpPriceDifference).toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div
+                className={`p-4 rounded-xl border flex flex-col justify-center ${isDomesticWinning
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                  : 'bg-amber-50 border-amber-300 text-amber-950'
+                  }`}
+              >
+                <span className="text-xs font-bold flex items-center gap-1.5 mb-1">
+                  {isDomesticWinning ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                      <span>स्वदेशी उत्पादनले ठेक्का पाउनेछ ✓</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="w-4 h-4 text-amber-700" />
+                      <span>विदेशी उत्पादन मूल्याङ्कनमा अगाडि देखियो</span>
+                    </>
+                  )}
+                </span>
+                <p className="text-[11px] leading-relaxed">
+                  {isDomesticWinning
+                    ? `स्वदेशी दर प्रत्यक्ष हेर्दा महँगो देखिए पनि १५% प्राथमिकता जोड्दा विदेशी मूल्याङ्कन दरभन्दा रु ${Math.round(dpPriceDifference).toLocaleString('ne-NP')} ले सस्तो ठहरिएकाले नियम ९७ बमोजिम स्वदेशी बोलपत्रदाता स्वीकृत हुनेछ।`
+                    : `१५% प्राथमिकता जोड्दा पनि स्वदेशी दर विदेशी मूल्याङ्कन मूल्यभन्दा रु ${Math.round(dpPriceDifference).toLocaleString('ne-NP')} ले बढी भएकाले प्राथमिकताको लाभ नपुगेको देखिन्छ।`}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Technical Specifications Compliance & Deviation Analyzer */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-blue-800">
+                  <FileSpreadsheet className="w-4 h-4 text-blue-600" />
+                  <span>खण्ड ३: प्राविधिक स्पेसिफिकेसन कम्प्लायन्स र विचलन विश्लेषक</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  आपूर्तिकर्ता प्राविधिक मूल्याङ्कनमा असफल हुनबाट जोगिने सुनौला नियमहरू (PPR नियम ६५)
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                {[
+                  { id: 'all', label: 'सबै विनिर्देश' },
+                  { id: 'minor', label: 'नगण्य विचलन (स्वीकार्य)' },
+                  { id: 'major', label: 'सारभूत विचलन (सोझै बदर)' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setSpecDeviationFilter(tab.id as any)}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${specDeviationFilter === tab.id
+                      ? 'bg-blue-800 text-white shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Deviation Explorer Cards */}
+            {(specDeviationFilter === 'all' || specDeviationFilter === 'minor') && (
+              <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200 text-xs text-slate-700 space-y-2">
+                <span className="font-bold text-blue-900 flex items-center gap-1.5 text-sm">
+                  <CheckCircle2 className="w-4 h-4 text-blue-700" />
+                  <span>नगण्य विचलन (Minor Deviations) • नियमावली नियम ६५(१) बमोजिम मान्य हुने अवस्था</span>
+                </span>
+                <p className="leading-relaxed">
+                  मालसामानको मुख्य कार्यक्षमता, गुणस्तर र प्रयोजनमा तात्त्विक भिन्नता नपर्ने सामान्य छुट वा फरकहरू (जस्तै: सामान्य रङको फरक, सानो सहायक उपकरणको ढाँचा, सामान्य प्याकेजिङ आदि) लाई मूल्याङ्कन समितिले नगण्य विचलन मानी आर्थिक मूल्याङ्कनमा लैजान सक्छ।
+                </p>
+              </div>
+            )}
+
+            {(specDeviationFilter === 'all' || specDeviationFilter === 'major') && (
+              <div className="p-4 rounded-xl bg-red-50/60 border border-red-200 text-xs text-slate-700 space-y-2">
+                <span className="font-bold text-red-900 flex items-center gap-1.5 text-sm">
+                  <XCircle className="w-4 h-4 text-red-700" />
+                  <span>सारभूत विचलन (Major/Critical Deviations) • सिधै Non-Responsive भई बदर हुने अवस्था</span>
+                </span>
+                <p className="leading-relaxed">
+                  माग गरिएको क्षमता (Power/Rating/Capacity) भन्दा कम प्रस्ताव गर्नु, मान्यता प्राप्त प्रयोगशालाको परीक्षण प्रमाणपत्र नहुनु, डेलिभरी तालिका अस्वीकार गर्नु, वारेन्टी समय नपुग्नु, वा अनिवार्य आधिकारिकता पत्र (MAF) नराख्नु सारभूत विचलन हुन्, जसमा मूल्याङ्कन समितिले बोलपत्र सिधै बदर गर्दछ।
+                </p>
+              </div>
+            )}
 
             {/* Do's and Don'ts comparison */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -1598,13 +1927,13 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
             </div>
           </div>
 
-          {/* 3. Manufacturer's Authorization Form (MAF) Guide */}
+          {/* Section 4: Manufacturer's Authorization Form (MAF) Guide */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-800">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>खण्ड ३: उत्पादकको आधिकारिकता पत्र (Manufacturer's Authorization Form - MAF)</span>
+                  <ShieldCheck className="w-4 h-4 text-purple-600" />
+                  <span>खण्ड ४: उत्पादकको आधिकारिकता पत्र (Manufacturer's Authorization Form - MAF)</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
                   सवारी साधन, कम्प्युटर तथा उपकरण खरिदमा MAF को कानूनी अनिवार्यता
@@ -1613,7 +1942,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveSubTab('forms')}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-100 text-purple-900 hover:bg-purple-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-100 text-purple-900 hover:bg-purple-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>MAF ढाँचा तयार गर्नुहोस् (SBD Sec IV)</span>
@@ -1651,16 +1980,16 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
             </div>
           </div>
 
-          {/* 4. Goods Delivery, Liquidated Damages (LD) & Performance Security */}
+          {/* Section 5: Goods Delivery, Liquidated Damages (LD) & Incoterms */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800">
-                  <Clock className="w-4 h-4" />
-                  <span>खण्ड ४: डेलिभरी अवधि र लिक्विडेटेड ड्यामेज (LD) क्याल्कुलेटर</span>
+                  <Clock className="w-4 h-4 text-amber-600" />
+                  <span>खण्ड ५: डेलिभरी अवधि, Incoterms र लिक्विडेटेड ड्यामेज (LD) क्याल्कुलेटर</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  समयमै सामान आपूर्ति नगर्दा लाग्ने कानूनी हर्जाना (नियम १२१)
+                  आपूर्ति सर्तहरू (Incoterms 2020) र ढिलाइ हुँदा लाग्ने कानुनी हर्जाना (नियम १२१)
                 </h3>
               </div>
               <span className="text-xs bg-amber-50 text-amber-900 border border-amber-200 px-3 py-1 rounded-full font-semibold">
@@ -1668,11 +1997,44 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {/* LD Inputs */}
+            {/* Incoterms mini-guide */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="font-bold text-slate-900 block flex items-center gap-1.5">
+                  <Truck className="w-4 h-4 text-slate-700" />
+                  <span>DDP (Delivered Duty Paid):</span>
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  नेपालको सरकारी निकायमा सबैभन्दा बढी प्रयोग हुने सर्त। आपूर्तिकर्ताले तोकिएको कार्यालय परिसरमै ढुवानी, बीमा र स्थानीय कर तिरेर हस्तान्तरण गर्नुपर्छ।
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="font-bold text-slate-900 block flex items-center gap-1.5">
+                  <Tag className="w-4 h-4 text-slate-700" />
+                  <span>EXW (Ex-Works):</span>
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  उत्पादकको कारखाना वा गोदामको मूल्य। ढुवानी, लोड-अनलोड र बीमाको सम्पूर्ण जोखिम तथा खर्च खरिदकर्ता कार्यालयको दायित्वमा पर्छ।
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                <span className="font-bold text-slate-900 block flex items-center gap-1.5">
+                  <Globe className="w-4 h-4 text-slate-700" />
+                  <span>CIP (Carriage and Insurance Paid):</span>
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  अन्तर्राष्ट्रिय प्रतिस्पर्धा (ICB) मा प्रयोग हुने। नेपालको प्रवेश विन्दु वा भन्सारसम्म ढुवानी र बीमा आपूर्तिकर्ताले बेहोर्ने।
+                </p>
+              </div>
+            </div>
+
+            {/* LD Inputs & Outputs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-slate-100">
               <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
                 <div className="text-xs font-bold text-slate-800">
-                  हर्जाना हिसाब गर्न विवरण प्रविष्ट गर्नुहोस्:
+                  हर्जाना (LD) हिसाब गर्न सम्झौता विवरण भर्नुहोस्:
                 </div>
                 <div className="space-y-3">
                   <div className="space-y-1">
@@ -1708,7 +2070,6 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                 </div>
               </div>
 
-              {/* LD Outputs */}
               <div className="p-5 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3">
                 <div className="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center justify-between">
                   <span>हर्जाना (Liquidated Damages) नतिजा:</span>
@@ -1742,6 +2103,402 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                     नोट: डेलिभरी अवधिभित्र सामान आपूर्ति गर्न नसके म्याद थपको औपचारिक निवेदन दिई LD मिनाहा वा वैधानिक म्याद थप गराउनु बुद्धिमानी हुन्छ।
                   </p>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* TAB: CATALOGUE SHOPPING HUB (PPA Sec 41A, PPR Rule 85A) */}
+      {/* ------------------------------------------------------------- */}
+      {activeSubTab === 'catalogue-shopping' && (
+        <div className="space-y-8">
+          {/* Section 1: Catalogue Shopping Legal Framework */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800">
+                  <Sparkles className="w-4 h-4 text-teal-600" />
+                  <span>खण्ड १: क्याटलग सपिङ कानूनी कार्यविधि (PPA दफा ४१क र PPR नियम ८५क)</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  उत्पादक वा अधिकृत बिक्रेताको सूचीकरण र छुट प्रस्ताव रणनीति
+                </h3>
+              </div>
+              <span className="text-xs bg-teal-50 text-teal-800 border border-teal-200 px-3 py-1 rounded-full font-semibold">
+                PPR नियम ८५ (क)
+              </span>
+            </div>
+
+            {/* 3 Core pillars */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs leading-relaxed">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">
+                    १
+                  </span>
+                  <span>क्याटलग सपिङ के हो?</span>
+                </div>
+                <p className="text-slate-600">
+                  सवारी साधन, हेभी इक्विपमेन्ट, कम्प्युटर/ल्यापटप, स्वास्थ्य उपकरण, फर्निचर, औजार आदि उत्पादकले बजारमा सार्वजनिक मूल्य सूची (MRP/Price List) कायम गरेका सामानहरूमा छुट लिएर गरिने विशेष खरिद विधि हो।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">
+                    २
+                  </span>
+                  <span>सूचीकरण (Listing) प्रक्रिया</span>
+                </div>
+                <p className="text-slate-600">
+                  सार्वजनिक निकायले राष्ट्रिय पत्रिका वा e-GP मा कम्तीमा १५/२१ दिनको म्याद दिई सूचीकरण आह्वान गर्दा आधिकारिक डिलरशिप, अद्यावधिक क्याटलग र उत्पादकद्वारा प्रमाणित आधिकारिक मूल्य सूचीसहित निवेदन पेश गर्नुपर्छ।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">
+                    ३
+                  </span>
+                  <span>छनौटको सिद्धान्त (Maximum Discount)</span>
+                </div>
+                <p className="text-slate-600">
+                  नियम ८५क(४) बमोजिम सार्वजनिक निकायले क्याटलग मूल्यमा <strong className="text-slate-900">सबैभन्दा बढी प्रतिशत छुट (Maximum Discount)</strong> कबुल गर्ने सूचीकृत बिक्रेतासँग खरिद सम्झौता गर्नुपर्छ। मूल्य सूची आर्थिक वर्षभरि बढाउन पाइँदैन।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Interactive Catalogue Shopping Simulator */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800">
+                  <Calculator className="w-4 h-4 text-teal-600" />
+                  <span>खण्ड २: क्याटलग सपिङ छुट, खुद लागत तथा कर क्याल्कुलेटर</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  आपूर्तिकर्ताको छुट प्रस्ताव र निकायको कुल खरिद लागत सिमुलेटर
+                </h3>
+              </div>
+
+              {/* Product Category Pills */}
+              <div className="flex flex-wrap items-center gap-1.5">
+                {[
+                  { id: 'vehicles', label: 'सवारी साधन (Vehicles)', price: 4200000, disc: 7.5 },
+                  { id: 'heavy', label: 'हेभी इक्विपमेन्ट (Equipment)', price: 9500000, disc: 5.0 },
+                  { id: 'it', label: 'कम्प्युटर/सर्भर (IT)', price: 145000, disc: 12.0 },
+                  { id: 'medical', label: 'स्वास्थ्य उपकरण (Medical)', price: 1850000, disc: 8.0 },
+                  { id: 'furniture', label: 'फर्निचर/औजार (Furniture)', price: 45000, disc: 15.0 },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setCatCategoryType(item.id);
+                      setCatOriginalPrice(item.price);
+                      setCatDiscountPercent(item.disc);
+                    }}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${catCategoryType === item.id
+                      ? 'bg-teal-800 text-white shadow-2xs'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  क्याटलग / MRP मूल्य प्रति इकाई (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={catOriginalPrice}
+                  onChange={(e) => setCatOriginalPrice(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  रु. {catOriginalPrice.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  प्रस्तावित छुट प्रतिशत (%)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={catDiscountPercent}
+                  onChange={(e) => setCatDiscountPercent(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  छुट: {catDiscountPercent}% (प्रति इकाई रु. {Math.round(catDiscountAmountPerUnit).toLocaleString('ne-NP')})
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  माग संख्या / परिमाण (Quantity)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={catQuantity}
+                  onChange={(e) => setCatQuantity(Math.max(1, Number(e.target.value)))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  कुल परिमाण: {catQuantity} थान/सेट
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  ढुवानी/जडान लागत (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={catDeliveryCost}
+                  onChange={(e) => setCatDeliveryCost(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
+                />
+                <label className="flex items-center gap-1.5 text-[11px] text-slate-600 mt-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={catApplyVat}
+                    onChange={(e) => setCatApplyVat(e.target.checked)}
+                    className="rounded-sm text-teal-700"
+                  />
+                  <span>१३% भ्याट लागू हुने</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Simulator Output Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 rounded-xl bg-teal-50/70 border border-teal-200">
+                <span className="text-[11px] font-semibold text-teal-800 block">
+                  प्रति इकाई खुद मूल्य (Net Unit Price)
+                </span>
+                <span className="text-base sm:text-lg font-bold text-teal-950 mt-0.5 block">
+                  रु. {Math.round(catNetUnitPrice).toLocaleString('ne-NP')}
+                </span>
+                <span className="text-[10px] text-teal-700">
+                  (क्याटलग मूल्यमा {catDiscountPercent}% छुट पश्चात)
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                <span className="text-[11px] font-semibold text-emerald-800 block">
+                  निकायलाई कुल छुट/बचत (Total Savings)
+                </span>
+                <span className="text-base sm:text-lg font-bold text-emerald-950 mt-0.5 block">
+                  रु. {Math.round(catTotalSavings).toLocaleString('ne-NP')}
+                </span>
+                <span className="text-[10px] text-emerald-700">
+                  (कुल {catQuantity} थानमा प्राप्त छुट रकम)
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <span className="text-[11px] font-semibold text-slate-600 block">
+                  करयोग्य रकम र १३% भ्याट
+                </span>
+                <span className="text-base sm:text-lg font-bold text-slate-900 mt-0.5 block">
+                  रु. {Math.round(catVatAmount).toLocaleString('ne-NP')}
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  (करयोग्य रकम: रु. {Math.round(catTotalTaxable).toLocaleString('ne-NP')})
+                </span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-900 text-white shadow-sm">
+                <span className="text-[11px] font-medium text-teal-300 block">
+                  अन्तिम भुक्तानी योग्य मूल्य (Grand Total)
+                </span>
+                <span className="text-base sm:text-lg font-bold text-white mt-0.5 block">
+                  रु. {Math.round(catGrandTotal).toLocaleString('ne-NP')}
+                </span>
+                <span className="text-[10px] text-slate-300">
+                  (सामान, ढुवानी र १३% भ्याट सहित)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: 6 Mandatory Documents for Listing Checklist */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800">
+                  <CheckSquare className="w-4 h-4 text-teal-600" />
+                  <span>खण्ड ३: क्याटलग सूचीकरणका ६ अनिवार्य कागजातहरू</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  आपूर्तिकर्ताले सार्वजनिक निकायमा सूचीकरण निवेदन दिँदा पेश गर्नुपर्ने प्रमाणहरू
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('forms')}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              >
+                <FileText className="w-3.5 h-3.5 text-teal-600" />
+                <span>सूचीकरण आवेदन फाराम ढाँचा भर्नुहोस्</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">१</span>
+                  <span>उद्योग/कम्पनी दर्ता र अद्यावधिक नवीकरण</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  सम्बन्धित मालसामान उत्पादन वा अधिकृत बिक्री वितरण गर्न कानुन बमोजिम दर्ता भएको प्रमाणपत्र तथा चालू आ.व. सम्मको नवीकरण प्रतिलिपि।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">२</span>
+                  <span>PAN/VAT दर्ता र कर चुक्ता प्रमाणपत्र</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  मूल्य अभिवृद्धि कर दर्ता प्रमाणपत्र र पछिल्लो आर्थिक वर्ष (२०८०/८१ वा चालू) सम्मको कर चुक्ता प्रमाणपत्र (Tax Clearance)।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">३</span>
+                  <span>मूल उत्पादकको आधिकारिक वितरक सम्झौता</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  मूल उत्पादक कम्पनी वा आधिकारिक राष्ट्रिय एजेन्टबाट जारी आधिकारिक डिलरशिप वा डिस्ट्रिब्युटरशिप सम्झौता पत्र।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">४</span>
+                  <span>उत्पादकको आधिकारिक क्याटलग र ब्रोसर</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  सामानको ब्रान्ड, मोडल, प्राविधिक विनिर्देश (Specifications), इन्जिन क्षमता, आयाम र फिचरहरू प्रमाणित हुने सक्कल विवरण पुस्तिका।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">५</span>
+                  <span>उत्पादकद्वारा प्रकाशित सार्वजनिक मूल्यसूची (MRP)</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  उत्पादकले बजारमा सार्वजनिक गरेको प्रमाणित मूल्यसूची (MRP) वा आधिकारिक वेबसाइटमा प्रकाशित सार्वजनिक मूल्य विवरण।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">६</span>
+                  <span>गुणस्तर तथा सुरक्षा मानक प्रमाणपत्र</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  नेपाल गुणस्तर (NS), ISO, CE वा अन्तर्राष्ट्रिय मान्यता प्राप्त प्रयोगशालाबाट जारी गुणस्तर परीक्षण प्रमाणपत्र।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Purchase Order, Delivery & Payment Workflow */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800">
+                  <Truck className="w-4 h-4 text-teal-600" />
+                  <span>खण्ड ४: खरिद आदेश, आपूर्ति समयसीमा, निरीक्षण र भुक्तानी कार्यविधि</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  क्याटलग सपिङ खरिद आदेश भएपछि आपूर्तिकर्ताले पालना गर्नुपर्ने ४-चरणबद्ध प्रक्रिया
+                </h3>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण १: छुट माग र तुलना
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  निकायले सूचीकृत कम्तीमा ३ आपूर्तिकर्तासँग दर र छुट माग गर्छ। सबैभन्दा बढी प्रतिशत छुट दिने बिक्रेतालाई छनौट गरिन्छ (नियम ८५क(४))।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण २: खरिद आदेश जारी
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  स्वीकृत आपूर्तिकर्तालाई तोकिएको परिमाण, छुटपछिको खुद मूल्य र आपूर्ति म्याद खुलाएर आधिकारिक खरिद आदेश (Purchase Order) दिइन्छ।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण ३: प्राविधिक निरीक्षण र दाखिला
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  सामान कार्यालय परिसरमा प्राप्त भएको मितिले नियम ११९ बमोजिम ७ दिनभित्र प्राविधिक समितिले स्पेसिफिकेसन जाँच गरी दाखिला प्रतिवेदन (Stock Entry) तयार गर्छ।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-teal-800 bg-teal-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण ४: तत्काल भुक्तानी
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  दाखिला प्रतिवेदन, स्वीकृत बीजक (Invoice) र वारेन्टी पत्र पेश हुनासाथ सम्झौता सर्त बमोजिम आपूर्तिकर्ताको बैंक खातामा तुरुन्त भुक्तानी पठाइन्छ।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Essential Supplier Cautions */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <span>खण्ड ५: आपूर्तिकर्ताले ध्यान दिनुपर्ने संवेदनशील कानुनी सचेतना बुँदाहरू</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-700">
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1">
+                <strong className="text-amber-950 block">१. आर्थिक वर्षभरि मूल्य बढाउन नपाइने:</strong>
+                <p className="leading-relaxed">
+                  नियम ८५क(५) बमोजिम सूचीकरण गर्दा पेश गरेको क्याटलग मूल्य आर्थिक वर्षभरि बढाउन पाइने छैन। तर आपूर्तिकर्ताले थप छुट दिन भने सक्छ।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1">
+                <strong className="text-amber-950 block">२. बजार मूल्यभन्दा बढी हुन नहुने:</strong>
+                <p className="leading-relaxed">
+                  नियम ८५क(६) अनुसार क्याटलगमा उल्लिखित मूल्य र छुट पछिको खुद दर प्रचलित खुला बजार मूल्यभन्दा कुनै पनि हालतमा बढी हुनुहुँदैन।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1">
+                <strong className="text-amber-950 block">३. आपूर्ति नगरेमा कारबाही:</strong>
+                <p className="leading-relaxed">
+                  खरिद आदेश बुझेर तोकिएको म्यादमा सामान आपूर्ति नगरेमा कालोसूचीमा सिफारिस गरिनेछ र अन्य सूचीकृत बिक्रेताबाट खरिद गर्दा लाग्ने फरक रकम असुल गर्न सकिनेछ।
+                </p>
               </div>
             </div>
           </div>
@@ -2312,13 +3069,12 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                 </div>
                 <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-300 ${
-                      auditRiskLevel === 'safe'
+                    className={`h-full rounded-full transition-all duration-300 ${auditRiskLevel === 'safe'
                         ? 'bg-emerald-600'
                         : auditRiskLevel === 'medium'
-                        ? 'bg-amber-500'
-                        : 'bg-rose-600'
-                    }`}
+                          ? 'bg-amber-500'
+                          : 'bg-rose-600'
+                      }`}
                     style={{ width: `${auditPercent}%` }}
                   />
                 </div>
@@ -2326,13 +3082,12 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
 
               <div className="p-4 rounded-xl border sm:col-span-2 flex items-center gap-3.5 bg-slate-50 border-slate-200">
                 <div
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold ${
-                    auditRiskLevel === 'safe'
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold ${auditRiskLevel === 'safe'
                       ? 'bg-emerald-100 text-emerald-800'
                       : auditRiskLevel === 'medium'
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'bg-rose-100 text-rose-800'
-                  }`}
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-rose-100 text-rose-800'
+                    }`}
                 >
                   {auditRiskLevel === 'safe' ? (
                     <CheckCircle2 className="w-5 h-5" />
@@ -2372,18 +3127,16 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                       }
                     }}
                     onClick={() => handleToggleAudit(item.id)}
-                    className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all select-none ${
-                      isChecked
+                    className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all select-none ${isChecked
                         ? 'bg-emerald-50/60 border-emerald-300 text-slate-900'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     <div
-                      className={`w-5 h-5 mt-0.5 rounded-md flex items-center justify-center border transition-all shrink-0 ${
-                        isChecked
+                      className={`w-5 h-5 mt-0.5 rounded-md flex items-center justify-center border transition-all shrink-0 ${isChecked
                           ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
                           : 'bg-white border-slate-300 text-transparent hover:border-slate-400'
-                      }`}
+                        }`}
                     >
                       <Check className={`w-3.5 h-3.5 stroke-[3] transition-transform ${isChecked ? 'scale-100' : 'scale-50'}`} />
                     </div>
@@ -2439,11 +3192,10 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                 <button
                   key={cat.id}
                   onClick={() => setMistakeCategoryFilter(cat.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                    mistakeCategoryFilter === cat.id
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${mistakeCategoryFilter === cat.id
                       ? 'bg-rose-900 text-white shadow-2xs'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
+                    }`}
                 >
                   {cat.label}
                 </button>
@@ -2466,11 +3218,10 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                              mistake.severity === 'critical'
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${mistake.severity === 'critical'
                                 ? 'bg-red-100 text-red-800'
                                 : 'bg-amber-100 text-amber-800'
-                            }`}
+                              }`}
                           >
                             {mistake.severity === 'critical' ? 'अति संवेदनशील' : 'उच्च जोखिम'}
                           </span>
