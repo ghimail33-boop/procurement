@@ -11,7 +11,8 @@ import {
   Clock, 
   CheckCircle2,
   Building,
-  Check
+  Check,
+  Globe
 } from 'lucide-react';
 import { ProcurementType } from '../types/procurement';
 import { PROCUREMENT_METHODS } from '../data/procurementData';
@@ -20,11 +21,13 @@ import { analyzeProcurementThreshold, formatNepaliCurrency } from '../utils/proc
 interface ProcurementAdvisorWizardProps {
   onSelectMethod?: (methodId: string) => void;
   onNavigateToTemplate?: (templateId: string) => void;
+  onNavigateToIcb?: () => void;
 }
 
 export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> = ({
   onSelectMethod,
   onNavigateToTemplate,
+  onNavigateToIcb,
 }) => {
   const [step, setStep] = useState<number>(() => {
     try {
@@ -339,14 +342,70 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
         };
       }
 
+      // ICB Goods (when selected as international or large imported goods)
+      if (specialCondition === 'icb-international' && procurementType === 'goods') {
+        return {
+          methodId: 'icb-goods',
+          methodName: 'अन्तर्राष्ट्रिय खुला बोलपत्र (ICB Goods - मालसामान खरिद)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा १५, नियमावली नियम ३१ङ, नियम ३९ र PPMO ICB SBD',
+          summary: 'नेपालभित्र पर्याप्त प्रतिस्पर्धा नहुने, विदेशी मुद्रामा भुक्तानी गर्नुपर्ने वा विदेशबाट पैठारी गर्नुपर्ने जटिल मालसामान खरिदमा अंग्रेजी भाषामा कम्तीमा ३० दिनको म्याद दिई ICB खुला बोलपत्र आह्वान गर्नुपर्छ।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'कम्तीमा ३० दिन (पुनः आह्वानमा कम्तीमा १५ दिन - नियम ३१ङ(१))',
+          bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)}) (विदेशी बैंकको भए नेपालको 'क' वर्ग बैंक काउन्टर ग्यारेन्टी)`,
+          performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
+          caution: 'स्थानीय एजेन्ट भए ऐन दफा १४(९, १०) र नियम ३९ अनुसार एजेन्टको नाम, कमिसन, भुक्तानी मुद्रा, सर्त र PAN अनिवार्य खुलाउनुपर्छ। Incoterms 2020 सर्त (जस्तै CIP काठमाडौँ/प्रोजेक्ट साइट) स्पष्ट तोक्नुपर्छ।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'आवश्यकता पहिचान, तटस्थ स्पेसिफिकेसन र Incoterms योजना:',
+              description: 'मालसामानको ब्रान्ड-तटस्थ प्राविधिक स्पेसिफिकेसन, विदेशी मुद्रा/बजेट सुनिश्चितता र Incoterms (CIP/DAP) छनोट गर्ने (ऐन दफा ४ र ५)।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान, विदेशी मुद्रा विनिमय र Goods ICB SBD स्वीकृति:',
+              description: 'अन्तर्राष्ट्रिय बजार दर, ढुवानी, भन्सार र कर विश्लेषण गरी लागत अनुमान र PPMO को मानक ICB SBD कागजात स्वीकृत गराउने (नियम १४)।',
+            },
+            {
+              stepNum: 3,
+              title: 'e-GP पोर्टलमा अंग्रेजीमा बोलपत्र आह्वान (कम्तीमा ३० दिन):',
+              description: 'PPMO को e-GP प्रणाली र राष्ट्रिय दैनिकमा अंग्रेजी भाषामा कम्तीमा ३० दिनको म्याद दिई अन्तर्राष्ट्रिय बोलपत्र आह्वान गर्ने (नियम ३१ङ)। Pre-bid बैठक सञ्चालन गर्ने।',
+            },
+            {
+              stepNum: 4,
+              title: 'बोलपत्र खोल्ने, १५-चरणको प्राविधिक तथा आर्थिक मूल्याङ्कन:',
+              description: 'स्थानीय एजेन्ट घोषणा, विदेशी बैंक काउन्टर ग्यारेन्टी, प्राविधिक कम्प्लायन्स र Incoterms अनुसार मुद्रा रूपान्तरण गरी न्यूनतम मूल्याङ्कित प्रभावग्राही बोलपत्र छनोट गर्ने।',
+            },
+            {
+              stepNum: 5,
+              title: 'आशयको सूचना (LOI - ७ दिन), उजुरी म्याद र सम्झौता (१५ दिन):',
+              description: 'छनोट भएको बोलपत्रदातालाई ७ दिनको LOI दिने (ऐन दफा २७(२))। पुनरावलोकन उजुरी नपरेमा १५ दिनभित्र कार्यसम्पादन जमानत लिई सम्झौता सम्पन्न गर्ने (दफा ५२(४))।',
+            },
+            {
+              stepNum: 6,
+              title: 'सम्झौता कार्यान्वयन, प्रतितपत्र (L/C) र आपूर्ति अनुगमन:',
+              description: 'नेपाल राष्ट्र बैंकको नियम अनुसार Irrevocable L/C खोल्ने, उत्पादन तथा ढुवानी ट्र्याकिङ गर्ने, र पूर्व-ढुवानी वा आगमन पश्चात् प्राविधिक परीक्षण गर्ने।',
+            },
+            {
+              stepNum: 7,
+              title: 'दाखिला प्रतिवेदन, भुक्तानी फरफारक र सम्झौता सम्पन्न:',
+              description: 'स्वीकृति प्रमाणपत्र (Acceptance Certificate), भन्सार कागजात र बिल अनुसार भुक्तानी फरफारक गर्ने, वारेन्टी व्यवस्थापन र धरौटी फिर्ता गर्ने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-ifb-ncb', label: 'अन्तर्राष्ट्रिय बोलपत्र आह्वान सूचना ढाँचा (e-GP / English)', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'ICB आपूर्ति सम्झौता ढाँचा (GCC/SCC)' },
+          ],
+        };
+      }
+
       // NCB Goods (> 20 Lakhs)
       return {
         methodId: 'ncb-goods',
         methodName: 'राष्ट्रिय स्तरको खुला बोलपत्र (NCB Goods)',
         legalBasis: 'सार्वजनिक खरिद ऐन दफा ११, नियमावली नियम ३१, ३१ज',
-        summary: 'रु २० लाख भन्दा माथिको मालसामान खरिदमा २१ दिनको राष्ट्रिय सूचना दिई खुला बोलपत्र आह्वान गर्नुपर्छ। जटिल मालसामान भए दुई खाम।',
+        summary: 'रु २० लाख भन्दा माथिको मालसामान खरिदमा स्वदेशी आपूर्तिकर्ता बीच प्रतिस्पर्धा गराउन २१ दिनको राष्ट्रिय सूचना दिई खुला बोलपत्र आह्वान गरिन्छ (विदेशी बोलपत्रदाता आवश्यक परे ३० दिनको ICB गर्नुपर्छ)।',
         authority: analysis.approvingAuthorityCostEstimate,
-        noticeDays: `कम्तीमा ${analysis.minimumNoticeDays} दिन`,
+        noticeDays: `कम्तीमा ${analysis.minimumNoticeDays} दिन (राष्ट्रिय खुला)`,
         bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
         performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)})`,
         caution: "प्राविधिक स्पेसिफिकेसनमा कुनै खास ब्रान्ड, ट्रेडमार्क वा उत्पादक उल्लेख गर्न पाइँदैन ('वा सो सरह' अनिवार्य)। स्वदेशी मालसामानलाई १५% सम्म मूल्य प्राथमिकता दिन सकिन्छ (ऐन दफा ११)।",
@@ -364,12 +423,12 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
           {
             stepNum: 3,
             title: 'e-GP पोर्टलमा बोलपत्र आह्वान (कम्तीमा २१ दिन):',
-            description: 'PPMO को e-GP प्रणाली मार्फत कम्तीमा २१ दिनको म्याद दिई राष्ट्रिय दैनिक पत्रिकामा बोलपत्र आह्वानको सूचना प्रकाशन गर्ने।',
+            description: 'PPMO को e-GP प्रणाली मार्फत राष्ट्रिय बोलपत्रमा कम्तीमा २१ दिन (पुनः आह्वान भए १५ दिन) को म्याद दिई राष्ट्रिय दैनिक पत्रिकामा बोलपत्र आह्वानको सूचना प्रकाशन गर्ने (नियम ३१ङ)।',
           },
           {
             stepNum: 4,
             title: 'प्राविधिक/आर्थिक मूल्याङ्कन, LOI र सम्झौता:',
-            description: 'स्पेसिफिकेसन अनुपालन जाँच गरी न्यूनतम मूल्याङ्कन गरिएको बोलपत्रदातालाई ७ दिनको LOI दिने, कार्यसम्पादन जमानत लिई १५ दिनभित्र सम्झौता गर्ने।',
+            description: 'स्पेसिफिकेसन अनुपालन जाँच गरी न्यूनतम मूल्याङ्कित बोलपत्रदातालाई ७ दिनको LOI दिने, उजुरी नपरे कार्यसम्पादन जमानत लिई १५ दिनभित्र सम्झौता गर्ने (दफा २७(२) र ५२(४))।',
           },
         ],
         templates: [
@@ -500,6 +559,62 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
           templates: [
             { id: 'tmpl-ifb-ncb', label: 'बोलपत्र आह्वानको सूचना ढाँचा (e-GP / राष्ट्रिय दैनिक)', isPrimary: true },
             { id: 'tmpl-contract-agreement', label: 'सार्वजनिक खरिद सम्झौताको ढाँचा' },
+          ],
+        };
+      }
+
+      // ICB Works (> 5 Arba or special international bidding)
+      if (amount > 5000000000 || specialCondition === 'icb-international') {
+        return {
+          methodId: 'icb-works',
+          methodName: 'अन्तर्राष्ट्रिय स्तरको खुला बोलपत्र (ICB Works - निर्माण कार्य)',
+          legalBasis: 'सार्वजनिक खरिद ऐन दफा १५, नियमावली नियम ३१ङ, PPMO ICB Works SBD',
+          summary: 'रु ५ अर्ब भन्दा माथिको निर्माण कार्यमा विदेशी निर्माण व्यवसायी समेत प्रतिस्पर्धा गर्न पाउने गरी अंग्रेजी भाषामा e-GP पोर्टल तथा राष्ट्रिय दैनिकमा कम्तीमा ३० दिनको म्याद दिई अन्तर्राष्ट्रिय खुला बोलपत्र आह्वान गर्नुपर्छ।',
+          authority: analysis.approvingAuthorityCostEstimate,
+          noticeDays: 'कम्तीमा ३० दिन (पुनः आह्वान भए १५ दिन - नियम ३१ङ(१))',
+          bidSecurityText: `२% देखि ३% (${formatNepaliCurrency(analysis.requiredBidSecurityRange.minAmount)} ~ ${formatNepaliCurrency(analysis.requiredBidSecurityRange.maxAmount)})`,
+          performanceSecurityText: `सम्झौता रकमको ५% (${formatNepaliCurrency(analysis.minimumPerformanceSecurity)}) (विदेशी बैंक भए नेपालको 'क' वर्ग बैंक काउन्टर ग्यारेन्टी)`,
+          caution: 'स्वदेशी निर्माण व्यवसायीलाई १०% सम्म घरेलु प्राथमिकता (Domestic Preference) दिन सकिने व्यवस्था SBD मा खुलाउनुपर्छ (ऐन दफा ११)। विदेशी व्यवसायीको स्थानीय एजेन्ट भए ऐन दफा १४(९, १०) र नियम ३९ अनुसार कमिसन र सर्त अनिवार्य खुलाउनुपर्छ। FIDIC आधारित GCC/SCC सर्त लागू हुन्छन्।',
+          nextSteps: [
+            {
+              stepNum: 1,
+              title: 'विस्तृत इन्जिनियरिङ डिजाइन, वातावरणीय स्वीकृति र पूर्वतयारी:',
+              description: 'जग्गा प्राप्ति, रुख कटान, EIA प्रतिवेदन र बजेट सुनिश्चितता प्रमाणित गर्ने (ऐन दफा ४ र ४क)।',
+            },
+            {
+              stepNum: 2,
+              title: 'लागत अनुमान, विदेशी विनिमय र Works ICB SBD कागजात स्वीकृति:',
+              description: 'PPMO को मानक ICB Works (FIDIC आधारित) बोलपत्र कागजात, योग्यता मापदण्ड र मूल्याङ्कन विधि मन्त्रालय/विभागबाट स्वीकृत गराउने।',
+            },
+            {
+              stepNum: 3,
+              title: 'e-GP प्रणालीमा अंग्रेजीमा अन्तर्राष्ट्रिय बोलपत्र आह्वान (कम्तीमा ३० दिन):',
+              description: 'e-GP पोर्टल र राष्ट्रिय दैनिकमा कम्तीमा ३० दिनको म्याद दिई अंग्रेजी भाषामा बोलपत्र आह्वान गर्ने (नियम ३१ङ)। Pre-bid बैठक अनिवार्य सञ्चालन गर्ने।',
+            },
+            {
+              stepNum: 4,
+              title: 'प्राविधिक प्रस्ताव मूल्याङ्कन, आर्थिक प्रस्ताव र योग्यता परीक्षण:',
+              description: 'दुई खाम प्रणाली अनुसार पहिले प्राविधिक प्रस्ताव खोली मूल्याङ्कन गर्ने, योग्य ठहरिएकाको मात्र आर्थिक प्रस्ताव खोली न्यूनतम मूल्याङ्कित प्रभावग्राही बोलपत्र छनोट गर्ने।',
+            },
+            {
+              stepNum: 5,
+              title: 'आशयको सूचना (LOI - ७ दिन), उजुरी म्याद र सम्झौता हस्ताक्षर:',
+              description: 'सफल बोलपत्रदातालाई ७ दिनको LOI दिने। उजुरी नपरेमा १५ दिनभित्र कार्यसम्पादन जमानत लिई FIDIC सम्झौतामा हस्ताक्षर गर्ने (दफा २७ र ५२)।',
+            },
+            {
+              stepNum: 6,
+              title: 'साइट हस्तान्तरण, इन्जिनियर नियुक्ति र निर्माण अनुगमन:',
+              description: 'साइट हस्तान्तरण गर्ने, परामर्शदाता/इन्जिनियर परिचालन गर्ने, र गुणस्तर परीक्षण (IPC) अनुसार प्रगति अनुगमन गर्ने।',
+            },
+            {
+              stepNum: 7,
+              title: 'Taking-Over Certificate, DLP, वारेन्टी र अन्तिम भुक्तानी:',
+              description: 'कार्य सम्पन्न भएपछि Taking-Over Certificate जारी गर्ने, १ वर्षको Defect Liability Period पश्चात् Performance Security फुकुवा र अन्तिम फरफारक गर्ने।',
+            },
+          ],
+          templates: [
+            { id: 'tmpl-ifb-ncb', label: 'अन्तर्राष्ट्रिय निर्माण बोलपत्र सूचना ढाँचा (e-GP / English)', isPrimary: true },
+            { id: 'tmpl-contract-agreement', label: 'ICB निर्माण सम्झौता ढाँचा (FIDIC)' },
           ],
         };
       }
@@ -1017,6 +1132,24 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
                   <span className="text-[11px] text-slate-500">नेपालमा अर्को विकल्प नभएको प्रमाणित वस्तु (दफा ४१)</span>
                 </div>
               </label>
+
+              <label className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 ${specialCondition === 'icb-international' ? 'bg-red-50/50 border-red-500 ring-1 ring-red-500/20' : 'bg-slate-50 border-slate-200'}`}>
+                <input
+                  type="radio"
+                  name="condition"
+                  value="icb-international"
+                  checked={specialCondition === 'icb-international'}
+                  onChange={() => setSpecialCondition('icb-international')}
+                  className="mt-0.5 text-red-600"
+                />
+                <div>
+                  <span className="font-bold text-slate-900 block flex items-center gap-1.5">
+                    <span>अन्तर्राष्ट्रिय बोलपत्र (ICB / Foreign Bidding)</span>
+                    <Globe className="w-3.5 h-3.5 text-blue-600" />
+                  </span>
+                  <span className="text-[11px] text-slate-500">विदेशी मुद्रा, Incoterms, वा आयात गर्नुपर्ने मालसामान/निर्माण (दफा १५, नियम ३१ङ)</span>
+                </div>
+              </label>
             </div>
           </div>
 
@@ -1118,6 +1251,32 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
               ))}
             </div>
           </div>
+
+          {/* Dedicated ICB Hub Banner if ICB or foreign bidding */}
+          {onNavigateToIcb && (finalRecommendation.methodId.startsWith('icb-') || specialCondition === 'icb-international' || procurementType === 'goods') && (
+            <div className="mx-6 p-4 rounded-xl bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm border border-blue-800/60">
+              <div>
+                <div className="flex items-center gap-1.5 text-xs text-cyan-300 font-bold uppercase tracking-wider">
+                  <Globe className="w-4 h-4 text-cyan-400" />
+                  <span>अन्तर्राष्ट्रिय बोलपत्र (ICB) विशेष मोड्युल</span>
+                </div>
+                <h5 className="text-sm font-bold text-white mt-1">
+                  ७-चरणको विस्तृत ICB Workflow, Incoterms 2020 र Local Agent पोर्टल
+                </h5>
+                <p className="text-xs text-blue-100/80 mt-0.5 max-w-2xl leading-relaxed">
+                  सार्वजनिक खरिद ऐन दफा १४/१५, नियम ३१ङ/३९, SBD Goods ICB अनुसार १५-चरणको मूल्याङ्कन, स्थानीय एजेन्टका कानुनी दायित्व तथा ११ वटा Incoterms।
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={onNavigateToIcb}
+                className="px-4 py-2.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold rounded-lg transition-all flex items-center gap-2 shrink-0 cursor-pointer shadow-xs"
+              >
+                <span>ICB मोड्युल खोल्नुहोस्</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           {/* Action Links to Templates & Checklists */}
           <div className="p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">

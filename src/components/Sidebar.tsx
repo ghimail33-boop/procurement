@@ -23,6 +23,7 @@ import {
   BookA,
   Clock,
   HardHat,
+  Globe,
 } from 'lucide-react';
 import { UserRole } from '../types/auth';
 
@@ -94,6 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       groupTitle: 'खरिद विधि तथा अनुपालन',
       items: [
         { id: 'methods', label: 'खरिद विधिहरू', icon: Layers, desc: ' ' },
+        { id: 'icb-guide', label: 'अन्तर्राष्ट्रिय बोलपत्र (ICB)', icon: Globe, desc: ' ' },
         { id: 'method-checklists', label: 'विधिगत चेकलिस्ट', icon: FileCheck2, desc: ' ' },
         { id: 'stages', label: 'प्रक्रियागत ७ चरणहरू', icon: ClipboardList, desc: ' ' },
         { id: 'egp-guidelines', label: 'e-GP निर्देशिका, २०८०', icon: FileCheck, desc: ' ' },

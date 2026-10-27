@@ -13,7 +13,8 @@ import {
   ExternalLink,
   ChevronDown,
   Building,
-  HelpCircle
+  HelpCircle,
+  Globe
 } from 'lucide-react';
 import { PROCUREMENT_METHODS } from '../data/procurementData';
 import { ProcurementMethod, ProcurementType } from '../types/procurement';
@@ -21,11 +22,13 @@ import { ProcurementMethod, ProcurementType } from '../types/procurement';
 interface ProcurementMethodsViewProps {
   initialSelectedMethodId?: string | null;
   onClearInitialMethod?: () => void;
+  onNavigateToIcb?: () => void;
 }
 
 export const ProcurementMethodsView: React.FC<ProcurementMethodsViewProps> = ({
   initialSelectedMethodId,
   onClearInitialMethod,
+  onNavigateToIcb,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<ProcurementType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -270,6 +273,35 @@ export const ProcurementMethodsView: React.FC<ProcurementMethodsViewProps> = ({
                   </div>
                 </div>
               </div>
+
+              {/* Dedicated ICB Link Button if ICB Goods */}
+              {activeMethodModal.id === 'icb-goods' && onNavigateToIcb && (
+                <div className="p-4 rounded-xl bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm border border-blue-800/60">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs text-cyan-300 font-bold uppercase tracking-wider">
+                      <Globe className="w-4 h-4 text-cyan-400" />
+                      <span>अन्तर्राष्ट्रिय बोलपत्र (ICB) विशेष हब</span>
+                    </div>
+                    <h5 className="text-sm font-bold text-white mt-1">
+                      ७-चरणको ICB चक्र, Incoterms 2020 र Local Agent पोर्टल खोल्नुहोस्
+                    </h5>
+                    <p className="text-xs text-blue-100/80 mt-0.5">
+                      PPA दफा १४/१५, नियम ३१ङ/३९, १५-चरणको मूल्याङ्कन र अन्तरक्रियात्मक चेकलिस्टहरू।
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeModal();
+                      onNavigateToIcb();
+                    }}
+                    className="px-4 py-2.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs font-bold rounded-lg transition-all flex items-center gap-2 shrink-0 cursor-pointer shadow-xs"
+                  >
+                    <span>ICB मोड्युलमा जानुहोस्</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
 
               {/* Key Conditions (मुख्य कानूनी सर्तहरू) */}
               <div>

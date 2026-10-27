@@ -28,6 +28,7 @@ import { LoginPage } from './components/LoginPage';
 import { UserManagementView } from './components/UserManagementView';
 import { BidderPortalView } from './components/BidderPortalView';
 import { BiddingFormsGenerator } from './components/BiddingFormsGenerator';
+import { IcbProcurementHub } from './components/IcbProcurementHub';
 import { TrackedProject } from './types/procurement';
 import { AppUser, ManagedUserInput } from './types/auth';
 import {
@@ -257,6 +258,10 @@ function ProcurementApp({
   };
 
   const navigateToMethodWithId = (methodId: string) => {
+    if (methodId === 'icb-goods' || methodId === 'icb-works') {
+      setActiveTab('icb-guide');
+      return;
+    }
     setSelectedMethodId(methodId);
     setActiveTab('methods');
   };
@@ -380,6 +385,7 @@ function ProcurementApp({
             <ProcurementAdvisorWizard
               onSelectMethod={navigateToMethodWithId}
               onNavigateToTemplate={(templateId) => navigateToTemplate(templateId, 'advisor')}
+              onNavigateToIcb={() => setActiveTab('icb-guide')}
             />
           )}
 
@@ -394,6 +400,7 @@ function ProcurementApp({
             <ProcurementMethodsView
               initialSelectedMethodId={selectedMethodId}
               onClearInitialMethod={() => setSelectedMethodId(null)}
+              onNavigateToIcb={() => setActiveTab('icb-guide')}
             />
           )}
 
@@ -424,6 +431,15 @@ function ProcurementApp({
             <StagesGuideView
               onSelectMethod={navigateToMethodWithId}
               onNavigateToEgpGuide={() => setActiveTab('egp-guidelines')}
+            />
+          )}
+
+          {activeTab === 'icb-guide' && (
+            <IcbProcurementHub
+              initialUserMode={userMode}
+              onNavigateToMethod={(methodId) => navigateToMethodWithId(methodId)}
+              onNavigateToStages={() => setActiveTab('stages')}
+              onNavigateToLaw={() => setActiveTab('law-corpus')}
             />
           )}
 

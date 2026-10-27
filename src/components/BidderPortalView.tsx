@@ -44,6 +44,7 @@ import {
 import { BiddingFormsGenerator } from './BiddingFormsGenerator';
 import { RationProcurementHub } from './bidder/RationProcurementHub';
 import { BidNoBidAnalyzer } from './bidder/BidNoBidAnalyzer';
+import { IcbProcurementHub } from './IcbProcurementHub';
 import {
   SBD_DOCUMENTS_LIST,
   BIDDER_PRECEDENT_CASES,
@@ -78,7 +79,8 @@ interface BidderPortalViewProps {
   | 'checklist'
   | 'egp-guide'
   | 'review'
-  | 'sbd-hub';
+  | 'sbd-hub'
+  | 'icb-procurement';
 }
 
 export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
@@ -758,6 +760,31 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       );
     }
 
+    if (activeSubTab === 'icb-procurement') {
+      return (
+        <div className="bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cyan-300 mb-1.5">
+                <Globe className="w-4 h-4 text-cyan-400" />
+                <span>अन्तर्राष्ट्रिय खुला बोलपत्र • International Competitive Bidding (ICB Guide)</span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                अन्तर्राष्ट्रिय बोलपत्र (ICB Goods/Works), Incoterms 2020 र Local Agent पोर्टल
+              </h1>
+              <p className="text-xs sm:text-sm text-cyan-100/90 mt-1 max-w-3xl leading-relaxed">
+                सार्वजनिक खरिद ऐन २०६३ दफा १४, १५, नियमावली नियम ३१ङ, ३९ र PPMO ICB SBD अनुसार ७-चरणको खरिद चक्र, ११ वटा Incoterms, स्थानीय एजेन्टका दायित्व, १५-चरणको मूल्याङ्कन र अन्तरक्रियात्मक क्विज।
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {renderSwitchBtn()}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     if (activeSubTab === 'consulting-services' || activeSubTab === 'services-guide') {
       return (
         <div className="bg-gradient-to-r from-indigo-950 via-purple-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
@@ -960,6 +987,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
             { id: 'goods-procurement', label: 'मालसामान खरिद (Goods)', icon: ShoppingBag },
             { id: 'catalogue-shopping', label: 'क्याटलग सपिङ (Catalogue)', icon: PackageCheck },
             { id: 'ration-procurement', label: 'राशन खरिद विशेष गाइड (Ration)', icon: UtensilsCrossed },
+            { id: 'icb-procurement', label: 'अन्तर्राष्ट्रिय बोलपत्र (ICB Guide)', icon: Globe },
             { id: 'consulting-services', label: 'परामर्श सेवा (Consulting)', icon: Award },
             { id: 'non-consulting-services', label: 'गैर-परामर्श सेवा (Non-Consulting)', icon: Users },
             { id: 'fatal-mistakes', label: 'घातक गल्तीहरू र जोखिम अडिट', icon: ShieldAlert },
@@ -1091,6 +1119,26 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               </p>
               <div className="mt-3 flex items-center text-xs font-semibold text-amber-700">
                 <span>दररेट तथा जोखिम परीक्षण</span>
+                <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Card: ICB Procurement Hub */}
+            <div
+              onClick={() => setActiveSubTab('icb-procurement')}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-cyan-300 transition-all cursor-pointer group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                <Globe className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 group-hover:text-cyan-800 transition-colors">
+                अन्तर्राष्ट्रिय बोलपत्र (ICB Guide)
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                विदेशी बोलपत्रदाता, Local Agent का दायित्व, Incoterms 2020 र १५-चरणको मूल्याङ्कन।
+              </p>
+              <div className="mt-3 flex items-center text-xs font-semibold text-cyan-700">
+                <span>ICB गाइड तथा चेकलिस्ट</span>
                 <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -4828,6 +4876,13 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       {/* ------------------------------------------------------------- */}
       {activeSubTab === 'bid-no-bid' && (
         <BidNoBidAnalyzer />
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* TAB: ICB PROCUREMENT HUB (BIDDER MODE) */}
+      {/* ------------------------------------------------------------- */}
+      {activeSubTab === 'icb-procurement' && (
+        <IcbProcurementHub initialUserMode="bidder" />
       )}
     </div>
   );
