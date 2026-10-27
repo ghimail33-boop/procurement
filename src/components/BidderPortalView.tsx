@@ -241,7 +241,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
   const [catQuantity, setCatQuantity] = useState<number>(2); // २ थान
   const [catDeliveryCost, setCatDeliveryCost] = useState<number>(45000); // ढुवानी
   const [catApplyVat, setCatApplyVat] = useState<boolean>(true);
-  const [catCategoryType, setCatCategoryType] = useState<string>('vehicles');
+  const [catItemName, setCatItemName] = useState<string>('');
 
   const catDiscountAmountPerUnit = useMemo(() => {
     return (catOriginalPrice * catDiscountPercent) / 100;
@@ -2184,35 +2184,29 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                 </h3>
               </div>
 
-              {/* Product Category Pills */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                {[
-                  { id: 'vehicles', label: 'सवारी साधन (Vehicles)', price: 4200000, disc: 7.5 },
-                  { id: 'heavy', label: 'हेभी इक्विपमेन्ट (Equipment)', price: 9500000, disc: 5.0 },
-                  { id: 'it', label: 'कम्प्युटर/सर्भर (IT)', price: 145000, disc: 12.0 },
-                  { id: 'medical', label: 'स्वास्थ्य उपकरण (Medical)', price: 1850000, disc: 8.0 },
-                  { id: 'furniture', label: 'फर्निचर/औजार (Furniture)', price: 45000, disc: 15.0 },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setCatCategoryType(item.id);
-                      setCatOriginalPrice(item.price);
-                      setCatDiscountPercent(item.disc);
-                    }}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${catCategoryType === item.id
-                      ? 'bg-teal-800 text-white shadow-2xs'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
+              <span className="text-xs bg-teal-50 text-teal-800 border border-teal-200 px-3 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-teal-600" />
+                <span>लागत सिमुलेटर</span>
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  मालसामानको नाम / मोडल (ऐच्छिक)
+                </label>
+                <input
+                  type="text"
+                  placeholder="उदा. गाडी, यन्त्र, कम्प्युटर, आदि"
+                  value={catItemName}
+                  onChange={(e) => setCatItemName(e.target.value)}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-teal-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500 truncate block">
+                  {catItemName ? `वस्तु: ${catItemName}` : 'सबै प्रकारका मालसामान'}
+                </span>
+              </div>
+
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-700 block">
                   क्याटलग / MRP मूल्य प्रति इकाई (रु.)
@@ -3070,10 +3064,10 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                 <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-300 ${auditRiskLevel === 'safe'
-                        ? 'bg-emerald-600'
-                        : auditRiskLevel === 'medium'
-                          ? 'bg-amber-500'
-                          : 'bg-rose-600'
+                      ? 'bg-emerald-600'
+                      : auditRiskLevel === 'medium'
+                        ? 'bg-amber-500'
+                        : 'bg-rose-600'
                       }`}
                     style={{ width: `${auditPercent}%` }}
                   />
@@ -3083,10 +3077,10 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               <div className="p-4 rounded-xl border sm:col-span-2 flex items-center gap-3.5 bg-slate-50 border-slate-200">
                 <div
                   className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-bold ${auditRiskLevel === 'safe'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : auditRiskLevel === 'medium'
-                        ? 'bg-amber-100 text-amber-800'
-                        : 'bg-rose-100 text-rose-800'
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : auditRiskLevel === 'medium'
+                      ? 'bg-amber-100 text-amber-800'
+                      : 'bg-rose-100 text-rose-800'
                     }`}
                 >
                   {auditRiskLevel === 'safe' ? (
@@ -3128,14 +3122,14 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                     }}
                     onClick={() => handleToggleAudit(item.id)}
                     className={`p-3.5 rounded-xl border flex items-start gap-3 cursor-pointer transition-all select-none ${isChecked
-                        ? 'bg-emerald-50/60 border-emerald-300 text-slate-900'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                      ? 'bg-emerald-50/60 border-emerald-300 text-slate-900'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                       }`}
                   >
                     <div
                       className={`w-5 h-5 mt-0.5 rounded-md flex items-center justify-center border transition-all shrink-0 ${isChecked
-                          ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
-                          : 'bg-white border-slate-300 text-transparent hover:border-slate-400'
+                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-2xs'
+                        : 'bg-white border-slate-300 text-transparent hover:border-slate-400'
                         }`}
                     >
                       <Check className={`w-3.5 h-3.5 stroke-[3] transition-transform ${isChecked ? 'scale-100' : 'scale-50'}`} />
@@ -3193,8 +3187,8 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                   key={cat.id}
                   onClick={() => setMistakeCategoryFilter(cat.id)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${mistakeCategoryFilter === cat.id
-                      ? 'bg-rose-900 text-white shadow-2xs'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-rose-900 text-white shadow-2xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                 >
                   {cat.label}
@@ -3219,8 +3213,8 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                         <div className="flex items-center gap-2">
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${mistake.severity === 'critical'
-                                ? 'bg-red-100 text-red-800'
-                                : 'bg-amber-100 text-amber-800'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-amber-100 text-amber-800'
                               }`}
                           >
                             {mistake.severity === 'critical' ? 'अति संवेदनशील' : 'उच्च जोखिम'}
