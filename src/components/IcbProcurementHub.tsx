@@ -179,14 +179,14 @@ export const IcbProcurementHub: React.FC<IcbProcurementHubProps> = ({
       {/* ------------------------------------------------------------- */}
       {/* HERO SECTION / BANNER                                         */}
       {/* ------------------------------------------------------------- */}
-      <div className="bg-gradient-to-r from-blue-950 via-[#132c4b] to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-blue-950 via-[#132c4b] to-slate-900 text-white rounded-2xl py-4 sm:py-5 px-5 sm:px-7 shadow-sm transition-all duration-300 relative overflow-hidden">
         {/* Subtle background graphics */}
         <div className="absolute right-0 top-0 bottom-0 w-96 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none" />
 
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-6 relative z-10">
+          <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-300">
-              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200">
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200">
                 <Globe className="w-3.5 h-3.5 text-blue-300 animate-spin-slow" />
                 अन्तर्राष्ट्रिय खरिद विशेष गाइड • ICB Specialist Module
               </span>
@@ -194,70 +194,70 @@ export const IcbProcurementHub: React.FC<IcbProcurementHubProps> = ({
               <span className="text-amber-300">Goods & Works ICB</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex flex-wrap items-center gap-2.5 text-white">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight flex flex-wrap items-center gap-2 text-white">
               <span>अन्तर्राष्ट्रिय स्तरको खुला बोलपत्र (ICB) विस्तृत गाइड</span>
-              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">
+              <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-400/30">
                 ऐन दफा १५ • नियम ३१ङ
               </span>
             </h1>
 
-            <p className="text-xs sm:text-sm text-blue-100/90 max-w-3xl leading-relaxed">
+            <p className="text-xs text-blue-100/90 max-w-3xl leading-relaxed">
               विदेशी मुद्रा भुक्तानी, जटिल प्रविधि तथा ५ अर्ब माथिका निर्माणका लागि आवश्यक अन्तर्राष्ट्रिय खुला बोलपत्रका ७ विस्तृत चरणहरू, Incoterms 2020 का ११ नियम, १५ उपचरणको मूल्याङ्कन, स्थानीय एजेन्ट (दफा १४(९)/नियम ३९) र e-GP मार्फत ३० दिने आह्वान सम्बन्धी एकीकृत कानुनी तथा व्यावहारिक प्लेटफर्म।
             </p>
 
             {/* Quick Metrics & Links */}
-            <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-blue-200">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1 text-xs text-blue-200">
               <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-amber-400" />
+                <Clock className="w-3.5 h-3.5 text-amber-400" />
                 <span>सूचना म्याद: <strong>कम्तीमा ३० दिन</strong> (पुनः आह्वान १५ दिन)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>बिड सेक्युरिटी: <strong>२% देखि ३%</strong> (USD/NPR)</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Scale className="w-4 h-4 text-blue-300" />
+                <Scale className="w-3.5 h-3.5 text-blue-300" />
                 <span>LOI Standstill: <strong>७ दिन</strong> (दफा २७(२))</span>
               </div>
             </div>
           </div>
 
           {/* Perspective View Switcher & Action */}
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
-            <div className="bg-white/10 backdrop-blur-md p-1.5 rounded-xl border border-white/20 flex items-center gap-1">
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0">
+            <div className="bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20 flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setViewPerspective('entity')}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewPerspective === 'entity'
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'text-blue-100 hover:bg-white/10'
                 }`}
               >
-                <Building2 className="w-4 h-4" />
+                <Building2 className="w-3.5 h-3.5" />
                 <span>सार्वजनिक निकाय View</span>
               </button>
               <button
                 type="button"
                 onClick={() => setViewPerspective('bidder')}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   viewPerspective === 'bidder'
                     ? 'bg-amber-600 text-white shadow-sm'
                     : 'text-blue-100 hover:bg-white/10'
                 }`}
               >
-                <Users className="w-4 h-4" />
+                <Users className="w-3.5 h-3.5" />
                 <span>बोलपत्रदाता View</span>
               </button>
             </div>
 
             {/* Overall Progress Display */}
-            <div className="bg-white/10 backdrop-blur-xs p-3 rounded-xl border border-white/15 text-xs">
-              <div className="flex items-center justify-between mb-1.5">
+            <div className="bg-white/10 backdrop-blur-xs p-2.5 rounded-xl border border-white/15 text-xs">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-blue-200 font-medium">चेकलिस्ट समग्र प्रगति:</span>
                 <span className="font-bold text-amber-300">{progressPercentage}%</span>
               </div>
-              <div className="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
                 <div
                   className="bg-gradient-to-r from-amber-400 to-emerald-400 h-full transition-all duration-500 rounded-full"
                   style={{ width: `${progressPercentage}%` }}
