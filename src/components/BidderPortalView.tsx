@@ -64,6 +64,8 @@ interface BidderPortalViewProps {
   | 'goods-procurement'
   | 'goods-guide'
   | 'catalogue-shopping'
+  | 'consulting-services'
+  | 'non-consulting-services'
   | 'services-guide'
   | 'fatal-mistakes'
   | 'forms'
@@ -79,9 +81,11 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
   onNavigateToEgpGuidelines,
   initialSubTab = 'overview',
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<string>(
-    initialSubTab === 'goods-guide' ? 'goods-procurement' : initialSubTab
-  );
+  const [activeSubTab, setActiveSubTab] = useState<string>(() => {
+    if (initialSubTab === 'goods-guide') return 'goods-procurement';
+    if (initialSubTab === 'services-guide') return 'consulting-services';
+    return initialSubTab;
+  });
 
   // -------------------------------------------------------------
   // 1. Eligibility & Capacity Self-Assessment Calculator State
@@ -268,19 +272,48 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
   }, [catDiscountAmountPerUnit, catQuantity]);
 
   // -------------------------------------------------------------
-  // 1C. Consulting & Services Calculator State
+  // 1C. Consulting Services State & Calculations
   // -------------------------------------------------------------
+  // EOI Shortlisting Self-Assessment
+  const [eoiStandingYears, setEoiStandingYears] = useState<number>(7); // फर्म दर्ता वर्ष
+  const [eoiTurnover, setEoiTurnover] = useState<number>(18000000); // रु १ करोड ८० लाख
+  const [eoiCompletedProjects, setEoiCompletedProjects] = useState<number>(5); // सम्पन्न समान परामर्श कार्य
+  const [eoiKeyExpertsCount, setEoiKeyExpertsCount] = useState<number>(6); // उपलब्ध स्नातकोत्तर/PhD विज्ञ
+  const [eoiHasValidTax, setEoiHasValidTax] = useState<boolean>(true);
+
+  const eoiCalculations = useMemo(() => {
+    // Scoring out of 100 (PPR Rule 70)
+    // 1. Institutional Standing & Financial Capacity (20 marks)
+    const standingScore = Math.min(eoiStandingYears * 2, 10);
+    const finScore = Math.min((eoiTurnover / 20000000) * 10, 10);
+    const instTotal = standingScore + finScore;
+
+    // 2. Specific Experience (45 marks)
+    const expScore = Math.min(eoiCompletedProjects * 9, 45);
+
+    // 3. Key Personnel Capacity (35 marks)
+    const expertScore = Math.min(eoiKeyExpertsCount * 6, 35);
+
+    const totalScore = Math.round(instTotal + expScore + expertScore);
+    const isShortlistReady = totalScore >= 70 && eoiHasValidTax;
+
+    return {
+      instTotal,
+      expScore,
+      expertScore,
+      totalScore,
+      isShortlistReady,
+    };
+  }, [eoiStandingYears, eoiTurnover, eoiCompletedProjects, eoiKeyExpertsCount, eoiHasValidTax]);
+
+  // Consulting Selection Method (QCBS, LCS, FBS)
+  const [consultingMethod, setConsultingMethod] = useState<'qcbs' | 'lcs' | 'fbs'>('qcbs');
   const [qcbsTechScore, setQcbsTechScore] = useState<number>(82); // ८२ अंक (०-१००)
   const [qcbsBidderFinancial, setQcbsBidderFinancial] = useState<number>(2500000); // रु २५ लाख
   const [qcbsLowestFinancial, setQcbsLowestFinancial] = useState<number>(2100000); // रु २१ लाख
   const [qcbsRatio, setQcbsRatio] = useState<'80-20' | '70-30' | '90-10'>('80-20');
-
-  // Non-Consulting Services (Labor & SSF)
-  const [serviceStaffCount, setServiceStaffCount] = useState<number>(4);
-  const [serviceBaseSalary, setServiceBaseSalary] = useState<number>(17300); // नेपाल सरकार न्यूनतम पारिश्रमिक
-  const [serviceAllowance, setServiceAllowance] = useState<number>(2000);
-  const [serviceIncludeBonus, setServiceIncludeBonus] = useState<boolean>(true);
-  const [serviceIncludeSsf, setServiceIncludeSsf] = useState<boolean>(true);
+  const [lcsQualifyingMark, setLcsQualifyingMark] = useState<number>(75);
+  const [fbsBudgetCap, setFbsBudgetCap] = useState<number>(3000000);
 
   const qcbsCalculations = useMemo(() => {
     let techWeight = 80;
@@ -311,23 +344,87 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
     };
   }, [qcbsTechScore, qcbsBidderFinancial, qcbsLowestFinancial, qcbsRatio]);
 
+  // -------------------------------------------------------------
+  // 1D. Non-Consulting Services (Labor Law, SSF & Qualification)
+  // -------------------------------------------------------------
+  const [serviceStaffCount, setServiceStaffCount] = useState<number>(5);
+  const [serviceBaseSalary, setServiceBaseSalary] = useState<number>(17300); // नेपाल सरकार न्यूनतम पारिश्रमिक
+  const [serviceAllowance, setServiceAllowance] = useState<number>(2000);
+  const [serviceUniformPpe, setServiceUniformPpe] = useState<number>(1000); // युनिफर्म तथा PPE
+  const [serviceMarginPercent, setServiceMarginPercent] = useState<number>(8); // व्यवस्थापकीय सेवा शुल्क %
+  const [serviceIncludeBonus, setServiceIncludeBonus] = useState<boolean>(true);
+  const [serviceIncludeSsf, setServiceIncludeSsf] = useState<boolean>(true);
+  const [serviceApplyVat, setServiceApplyVat] = useState<boolean>(true);
+
+  // Non-Consulting Experience & Qualification
+  const [ncEstAmount, setNcEstAmount] = useState<number>(6000000); // रु ६० लाख
+  const [ncTurnoverReq, setNcTurnoverReq] = useState<number>(4800000); // ८०%
+  const [ncSupplierTurnover, setNcSupplierTurnover] = useState<number>(5500000);
+  const [ncExpReq, setNcExpReq] = useState<number>(3000000); // ५०%
+  const [ncSupplierExp, setNcSupplierExp] = useState<number>(3800000);
+  const [ncLiquidReq, setNcLiquidReq] = useState<number>(1500000);
+  const [ncSupplierLiquid, setNcSupplierLiquid] = useState<number>(2000000);
+  const [ncHasLicense, setNcHasLicense] = useState<boolean>(true);
+  const [ncHasSsfRegistered, setNcHasSsfRegistered] = useState<boolean>(true);
+
   const serviceCalculations = useMemo(() => {
     const basicPlusAllowance = serviceBaseSalary + serviceAllowance;
     const ssfEmployerCost = serviceIncludeSsf ? serviceBaseSalary * 0.20 : 0;
     const festivalCost = serviceIncludeBonus ? serviceBaseSalary / 12 : 0;
-    const monthlyCostPerPerson = basicPlusAllowance + ssfEmployerCost + festivalCost;
-    const totalMonthlyCost = monthlyCostPerPerson * serviceStaffCount;
+    const monthlyCostPerPerson = basicPlusAllowance + ssfEmployerCost + festivalCost + serviceUniformPpe;
+    const totalStaffMonthlyBase = monthlyCostPerPerson * serviceStaffCount;
+    const overheadMargin = (totalStaffMonthlyBase * serviceMarginPercent) / 100;
+    const monthlyTaxable = totalStaffMonthlyBase + overheadMargin;
+    const monthlyVat = serviceApplyVat ? monthlyTaxable * 0.13 : 0;
+    const monthlyGrandTotal = monthlyTaxable + monthlyVat;
+    const annualGrandTotal = monthlyGrandTotal * 12;
+
     const isBelowStatutoryMinimum = serviceBaseSalary < 17300;
+    const isZeroMargin = serviceMarginPercent <= 0;
 
     return {
       basicPlusAllowance,
       ssfEmployerCost,
       festivalCost,
       monthlyCostPerPerson,
-      totalMonthlyCost,
+      totalStaffMonthlyBase,
+      overheadMargin,
+      monthlyTaxable,
+      monthlyVat,
+      monthlyGrandTotal,
+      annualGrandTotal,
       isBelowStatutoryMinimum,
+      isZeroMargin,
     };
-  }, [serviceStaffCount, serviceBaseSalary, serviceAllowance, serviceIncludeBonus, serviceIncludeSsf]);
+  }, [
+    serviceStaffCount,
+    serviceBaseSalary,
+    serviceAllowance,
+    serviceUniformPpe,
+    serviceMarginPercent,
+    serviceIncludeBonus,
+    serviceIncludeSsf,
+    serviceApplyVat,
+  ]);
+
+  const isNcEligible = useMemo(() => {
+    return (
+      ncSupplierTurnover >= ncTurnoverReq &&
+      ncSupplierExp >= ncExpReq &&
+      ncSupplierLiquid >= ncLiquidReq &&
+      ncHasLicense &&
+      ncHasSsfRegistered
+    );
+  }, [
+    ncSupplierTurnover,
+    ncTurnoverReq,
+    ncSupplierExp,
+    ncExpReq,
+    ncSupplierLiquid,
+    ncLiquidReq,
+    ncHasLicense,
+    ncHasSsfRegistered,
+  ]);
 
   // -------------------------------------------------------------
   // 2. Pre-Bid 30-Point Checklist State
@@ -655,20 +752,20 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       );
     }
 
-    if (activeSubTab === 'services-guide') {
+    if (activeSubTab === 'consulting-services' || activeSubTab === 'services-guide') {
       return (
-        <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
+        <div className="bg-gradient-to-r from-indigo-950 via-purple-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-300 mb-1.5">
-                <Award className="w-4 h-4" />
-                <span>परामर्श सेवा तथा गैर-परामर्श सेवा सहयोगी • Consulting & Services Hub</span>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-300 mb-1.5">
+                <Award className="w-4 h-4 text-purple-300" />
+                <span>परामर्श सेवा विशेष कर्नर • Consulting Services Hub (PPA दफा २९-३८ र PPR नियम ६९-८०)</span>
               </div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
-                परामर्श सेवा (EOI, RFP, QCBS) तथा गैर-परामर्श सेवा (SSF & श्रम ऐन)
+                परामर्श सेवा खरिद (EOI सर्टलिस्टिङ, RFP, QCBS, QBS, LCS & मुख्य विज्ञ CV)
               </h1>
-              <p className="text-xs sm:text-sm text-indigo-100/90 mt-1 max-w-3xl leading-relaxed">
-                परामर्शदाताहरूको EOI सर्टलिस्टिङ, RFP प्राविधिक प्रस्ताव तयारी, QCBS (८०:२०) संयुक्त स्कोर क्याल्कुलेटर, र सुरक्षा/सरसफाइ सेवामा न्यूनतम पारिश्रमिक तथा SSF अनुपालन।
+              <p className="text-xs sm:text-sm text-purple-100/90 mt-1 max-w-3xl leading-relaxed">
+                सार्वजनिक निकायहरूमा बौद्धिक तथा व्यावसायिक सेवा प्रदान गर्ने परामर्शदाताहरूका लागि EOI योग्यता परीक्षण, QCBS/LCS/FBS छनौट विधि क्याल्कुलेटर, TECH-4 कार्यविधि, र TECH-6 विज्ञ CV प्रमाणीकरण नियमहरू।
               </p>
             </div>
 
@@ -676,10 +773,43 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveSubTab('forms')}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-500 hover:bg-indigo-400 text-slate-950 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-purple-500 hover:bg-purple-400 text-slate-950 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
                 <FileText className="w-4 h-4" />
-                <span>TECH-4 र TECH-6 CV ढाँचा भर्नुहोस्</span>
+                <span>RFP फारामहरू (TECH-4, TECH-6)</span>
+              </button>
+              {renderSwitchBtn()}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeSubTab === 'non-consulting-services') {
+      return (
+        <div className="bg-gradient-to-r from-slate-950 via-rose-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-300 mb-1.5">
+                <Users className="w-4 h-4 text-rose-300" />
+                <span>गैर-परामर्श सेवा सहयोगी • Non-Consulting Services Hub (सुरक्षा, सरसफाइ, हाउसकिपिङ, लजिस्टिक)</span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                गैर-परामर्श सेवा खरिद (श्रम ऐन २०७४, २०% SSF, न्यूनतम पारिश्रमिक र सेवा शुल्क)
+              </h1>
+              <p className="text-xs sm:text-sm text-rose-100/90 mt-1 max-w-3xl leading-relaxed">
+                सुरक्षा गार्ड, सरसफाइ, कार्यालय सहयोग, चालक तथा लजिस्टिक सेवा प्रदायकहरूका लागि नेपाल सरकारको न्यूनतम पारिश्रमिक (रु. १७,३००), रोजगारदाता २०% SSF लागत, सेवा शुल्क (Overhead) क्याल्कुलेटर, र योग्यता स्व-मूल्याङ्कन।
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setActiveSubTab('checklist')}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-500 hover:bg-rose-400 text-white transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+              >
+                <CheckSquare className="w-4 h-4" />
+                <span>सेवा सम्झौता चेकलिस्ट</span>
               </button>
               {renderSwitchBtn()}
             </div>
@@ -786,7 +916,8 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
             { id: 'eligibility', label: 'के म योग्य छु? (निर्माण कार्य)', icon: Calculator },
             { id: 'goods-procurement', label: 'मालसामान खरिद (Goods)', icon: ShoppingBag },
             { id: 'catalogue-shopping', label: 'क्याटलग सपिङ (Catalogue)', icon: PackageCheck },
-            { id: 'services-guide', label: 'परामर्श तथा सेवा खरिद', icon: Award },
+            { id: 'consulting-services', label: 'परामर्श सेवा (Consulting)', icon: Award },
+            { id: 'non-consulting-services', label: 'गैर-परामर्श सेवा (Non-Consulting)', icon: Users },
             { id: 'fatal-mistakes', label: 'घातक गल्तीहरू र जोखिम अडिट', icon: ShieldAlert },
             { id: 'forms', label: 'बोलपत्र फाराम जेनेरेटर (SBD Sec IV)', icon: FileText },
             { id: 'checklist', label: 'बिड पेश गर्नुपूर्वको ३०-बुँदे चेकलिस्ट', icon: CheckSquare },
@@ -880,22 +1011,42 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               </div>
             </div>
 
-            {/* Card 3: Consulting & Services */}
+            {/* Card 4: Consulting Services */}
             <div
-              onClick={() => setActiveSubTab('services-guide')}
-              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group"
+              onClick={() => setActiveSubTab('consulting-services')}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-purple-300 transition-all cursor-pointer group"
             >
-              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
                 <Award className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-800 transition-colors">
-                परामर्श तथा सेवा खरिद
+              <h3 className="text-sm font-bold text-slate-900 group-hover:text-purple-800 transition-colors">
+                परामर्श सेवा (Consulting)
               </h3>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                EOI सर्टलिस्टिङ, RFP प्राविधिक प्रस्ताव, QCBS क्याल्कुलेटर र SSF।
+                EOI सर्टलिस्टिङ स्व-मूल्याङ्कन, RFP प्राविधिक प्रस्ताव, QCBS संयुक्त स्कोर र विज्ञ CV।
               </p>
-              <div className="mt-3 flex items-center text-xs font-semibold text-indigo-700">
-                <span>QCBS स्कोर र नियमहरू</span>
+              <div className="mt-3 flex items-center text-xs font-semibold text-purple-700">
+                <span>QCBS स्कोर र EOI गाइड</span>
+                <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Card 5: Non-Consulting Services */}
+            <div
+              onClick={() => setActiveSubTab('non-consulting-services')}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-rose-300 transition-all cursor-pointer group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 group-hover:text-rose-800 transition-colors">
+                गैर-परामर्श सेवा (Non-Consulting)
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                सुरक्षा, सरसफाइ, न्यूनतम पारिश्रमिक (रु. १७,३००), २०% SSF लागत र सेवा शुल्क क्याल्कुलेटर।
+              </p>
+              <div className="mt-3 flex items-center text-xs font-semibold text-rose-700">
+                <span>SSF र पारिश्रमिक हिसाब</span>
                 <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -2500,297 +2651,570 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* TAB: CONSULTING & SERVICES HUB */}
+      {/* TAB: CONSULTING SERVICES HUB (PPA Sec 29-38, PPR Rule 69-80) */}
       {/* ------------------------------------------------------------- */}
-      {activeSubTab === 'services-guide' && (
+      {(activeSubTab === 'consulting-services' || activeSubTab === 'services-guide') && (
         <div className="space-y-8">
-          {/* 1. QCBS Interactive Combined Score Calculator */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-800">
-                  <Calculator className="w-4 h-4" />
-                  <span>खण्ड १: QCBS (गुणस्तर तथा लागतमा आधारित) संयुक्त स्कोर क्याल्कुलेटर</span>
-                </div>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  प्राविधिक अंक र आर्थिक कबुल रकमको संयुक्त स्कोर सिम्युलेटर
-                </h3>
-              </div>
-              <span className="text-xs bg-indigo-50 text-indigo-800 border border-indigo-200 px-3 py-1 rounded-full font-semibold">
-                खरिद नियमावली नियम ७९
-              </span>
-            </div>
-
-            {/* Formula Explanation Banner */}
-            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed">
-              <strong className="text-slate-900 block font-semibold mb-1">
-                कानूनी मूल्याङ्कन सूत्र: S = (St × T/100) + [(Fm / F) × 100 × P/100]
-              </strong>
-              यहाँ <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">St</code> = तपाईंको प्राविधिक अंक,{' '}
-              <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">Fm</code> = सबैभन्दा न्यून आर्थिक प्रस्ताव रकम,{' '}
-              <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">F</code> = तपाईंको आर्थिक कबुल रकम,{' '}
-              <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">T</code> = प्राविधिक भार (८०%),{' '}
-              <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">P</code> = आर्थिक भार (२०%)।
-            </div>
-
-            {/* QCBS Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-indigo-50/40 p-4 sm:p-5 rounded-2xl border border-indigo-100">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700 block">
-                  तपाईंको प्राविधिक अंक (St - १०० मा)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={qcbsTechScore}
-                  onChange={(e) => setQcbsTechScore(Number(e.target.value))}
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
-                />
-                <span className="text-[10px] text-slate-500">
-                  प्राविधिक योग्यता: {qcbsTechScore} / १००
-                </span>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700 block">
-                  तपाईंको आर्थिक कबुल रकम (F - रु.)
-                </label>
-                <input
-                  type="number"
-                  value={qcbsBidderFinancial}
-                  onChange={(e) => setQcbsBidderFinancial(Number(e.target.value))}
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
-                />
-                <span className="text-[10px] text-slate-500">
-                  रु. {qcbsBidderFinancial.toLocaleString('ne-NP')}
-                </span>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700 block">
-                  न्यूनतम आर्थिक कबुल रकम (Fm - रु.)
-                </label>
-                <input
-                  type="number"
-                  value={qcbsLowestFinancial}
-                  onChange={(e) => setQcbsLowestFinancial(Number(e.target.value))}
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
-                />
-                <span className="text-[10px] text-slate-500">
-                  रु. {qcbsLowestFinancial.toLocaleString('ne-NP')}
-                </span>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-700 block">
-                  अङ्कभार अनुपात (Ratio)
-                </label>
-                <select
-                  value={qcbsRatio}
-                  onChange={(e) => setQcbsRatio(e.target.value as any)}
-                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
-                >
-                  <option value="80-20">८०% प्राविधिक / २०% आर्थिक (मानक)</option>
-                  <option value="70-30">७०% प्राविधिक / ३०% आर्थिक</option>
-                  <option value="90-10">९०% प्राविधिक / १०% आर्थिक (विशिष्ट)</option>
-                </select>
-                <span className="text-[10px] text-slate-500">
-                  SBD अनुसार निर्धारित भार
-                </span>
-              </div>
-            </div>
-
-            {/* QCBS Output Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[11px] font-semibold text-slate-600 block">
-                  प्राविधिक भारित अंक ({qcbsCalculations.techWeight}%)
-                </span>
-                <span className="text-base sm:text-lg font-bold text-slate-900 mt-0.5 block">
-                  {qcbsCalculations.techWeighted.toFixed(2)} अंक
-                </span>
-                <span className="text-[10px] text-slate-500">
-                  ({qcbsTechScore} × {qcbsCalculations.techWeight} / १००)
-                </span>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-[11px] font-semibold text-slate-600 block">
-                  आर्थिक भारित अंक ({qcbsCalculations.finWeight}%)
-                </span>
-                <span className="text-base sm:text-lg font-bold text-slate-900 mt-0.5 block">
-                  {qcbsCalculations.finWeighted.toFixed(2)} अंक
-                </span>
-                <span className="text-[10px] text-slate-500">
-                  (आर्थिक अनुपात: {qcbsCalculations.finScore.toFixed(1)}%)
-                </span>
-              </div>
-
-              <div className="p-4 rounded-xl bg-indigo-50/80 border border-indigo-200">
-                <span className="text-[11px] font-semibold text-indigo-800 block">
-                  कुल संयुक्त स्कोर (Combined Score)
-                </span>
-                <span className="text-base sm:text-xl font-extrabold text-indigo-950 mt-0.5 block">
-                  {qcbsCalculations.combinedScore.toFixed(2)} / १००
-                </span>
-                <span className="text-[10px] text-indigo-700">
-                  (उच्चतम संयुक्त स्कोर ल्याउनेले ठेक्का पाउँछ)
-                </span>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-900 text-white shadow-sm flex flex-col justify-between">
-                <div>
-                  <span className="text-[11px] font-medium text-indigo-300 block">
-                    रणनीतिक सल्लाह (Bidder Strategy)
-                  </span>
-                  <p className="text-xs text-slate-200 mt-1 leading-relaxed">
-                    {qcbsCalculations.techWeighted > 65
-                      ? 'तपाईंको प्राविधिक अंक निकै बलियो छ! आर्थिक प्रस्ताव प्रतिस्पर्धी भन्दा केही बढी भए पनि सम्झौता जित्ने प्रबल सम्भावना छ।'
-                      : 'प्राविधिक अंक कमजोर हुँदा आर्थिक रकम धेरै घटाए पनि संयुक्त स्कोरमा जित्न कठिन हुन सक्छ। प्राविधिक गुणस्तरमा जोड दिनुहोस्।'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 2. EOI Shortlisting & Qualification Guidelines */}
+          {/* Section 1: EOI Shortlisting Self-Assessment Simulator */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-800">
-                  <GraduationCap className="w-4 h-4" />
-                  <span>खण्ड २: परामर्श सेवा EOI (आशयपत्र) सर्टलिस्टिङ कार्यविधि</span>
+                  <Calculator className="w-4 h-4 text-purple-600" />
+                  <span>खण्ड १: EOI (आशयपत्र) सर्टलिस्टिङ स्व-मूल्याङ्कन सिमुलेटर</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  दफा ३० अनुसार उत्कृष्ट ३ देखि ६ फर्मभित्र पर्ने रणनीति
+                  सार्वजनिक खरिद ऐन दफा ३० र नियम ७० अनुसार उत्कृष्ट ३ देखि ६ फर्मभित्र पर्ने योग्यता परीक्षण
                 </h3>
               </div>
-              <span className="text-xs bg-purple-50 text-purple-800 border border-purple-200 px-3 py-1 rounded-full font-semibold">
-                खरिद ऐन दफा ३० र नियम ७०
-              </span>
+              <div
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 ${eoiCalculations.isShortlistReady
+                  ? 'bg-purple-100 text-purple-900 border border-purple-300'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300'
+                  }`}
+              >
+                {eoiCalculations.isShortlistReady ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-purple-700" />
+                    <span>सर्टलिस्टिङमा अग्रस्थान सम्भावना (स्कोर: {eoiCalculations.totalScore}/१००)</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="w-4 h-4 text-amber-700" />
+                    <span>सर्टलिस्ट हुन क्षमता थप बढाउनुपर्ने (स्कोर: {eoiCalculations.totalScore}/१००)</span>
+                  </>
+                )}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs leading-relaxed">
-                <div className="font-bold text-slate-900 flex items-center justify-between">
-                  <span>१. योग्यता तथा संस्थाको हैसियत</span>
-                  <span className="text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded-sm">४० - ५०%</span>
-                </div>
-                <ul className="space-y-1.5 text-slate-600 list-disc list-inside">
-                  <li>कम्पनी/फर्म दर्ता र स्थापना वर्ष (Firm Standing)</li>
-                  <li>अद्यावधिक कर चुक्ता प्रमाणपत्र</li>
-                  <li>विगत ३ वर्षको औसत वार्षिक कारोबार (AACT)</li>
-                  <li>कार्यालय पूर्वाधार र आन्तरिक व्यवस्थापकीय क्षमता</li>
-                </ul>
+            {/* Inputs Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  संस्था दर्ता तथा सञ्चालन अवधि (वर्ष)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={eoiStandingYears}
+                  onChange={(e) => setEoiStandingYears(Math.max(1, Number(e.target.value)))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-purple-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  स्थापना: {eoiStandingYears} वर्ष (अधिकतम १० अंक)
+                </span>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs leading-relaxed">
-                <div className="font-bold text-slate-900 flex items-center justify-between">
-                  <span>२. कार्यानुभव (Experience)</span>
-                  <span className="text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded-sm">४० - ५०%</span>
-                </div>
-                <ul className="space-y-1.5 text-slate-600 list-disc list-inside">
-                  <li>समान प्रकृतिका परामर्श कार्य सम्पन्न गरेको संख्या</li>
-                  <li>विगत ७ वर्षभित्र सम्पन्न आयोजनाको कार्यसम्पादन प्रमाणपत्र</li>
-                  <li>नेपाल सरकार वा दातृ निकाय (WB/ADB) को आयोजना अनुभव</li>
-                  <li>भौगोलिक तथा स्थानीय परिवेशको अनुभव</li>
-                </ul>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  औसत वार्षिक कारोबार (रु. ३ वर्षको औसत)
+                </label>
+                <input
+                  type="number"
+                  value={eoiTurnover}
+                  onChange={(e) => setEoiTurnover(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-purple-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  रु. {eoiTurnover.toLocaleString('ne-NP')} (अधिकतम १० अंक)
+                </span>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2 text-xs leading-relaxed">
-                <div className="font-bold text-slate-900 flex items-center justify-between">
-                  <span>३. मुख्य जनशक्ति क्षमता</span>
-                  <span className="text-purple-700 font-bold bg-purple-100 px-2 py-0.5 rounded-sm">१० - १५%</span>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  समान परामर्श कार्य सम्पन्न संख्या (७ वर्षभित्र)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={eoiCompletedProjects}
+                  onChange={(e) => setEoiCompletedProjects(Math.max(0, Number(e.target.value)))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-purple-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  सम्पन्न आयोजना: {eoiCompletedProjects} वटा (अधिकतम ४५ अंक)
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  मुख्य विषय विज्ञ संख्या (स्नातकोत्तर/PhD रोस्टर)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={eoiKeyExpertsCount}
+                  onChange={(e) => setEoiKeyExpertsCount(Math.max(1, Number(e.target.value)))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-purple-600 focus:outline-hidden"
+                />
+                <label className="flex items-center gap-1.5 text-[11px] text-slate-600 mt-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={eoiHasValidTax}
+                    onChange={(e) => setEoiHasValidTax(e.target.checked)}
+                    className="rounded-sm text-purple-700"
+                  />
+                  <span>अद्यावधिक कर चुक्ता संलग्न छ</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Live Result Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-200">
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span>१. संस्थागत हैसियत र वित्तीय क्षमता</span>
+                  <span className="text-purple-700 font-bold">{Math.round(eoiCalculations.instTotal)} / २०</span>
                 </div>
-                <ul className="space-y-1.5 text-slate-600 list-disc list-inside">
-                  <li>संस्थामा उपलब्ध स्थायी र सम्बद्ध विज्ञहरूको रोस्टर</li>
-                  <li>सम्बन्धित विषयमा स्नातकोत्तर वा विद्यावारिधि योग्यता</li>
-                  <li>काउन्सिल दर्ता र पेशागत तालिम प्रमाणपत्रहरू</li>
-                  <li>JV को हकमा लिड पार्टनर कम्तीमा ५०% र अन्य २५%</li>
-                </ul>
+                <div className="text-xs text-slate-600 mt-1">
+                  स्थापना वर्ष अंक: {Math.min(eoiStandingYears * 2, 10)} | वित्तीय कारोबार अंक: {Math.round(Math.min((eoiTurnover / 20000000) * 10, 10))}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-200">
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span>२. समान प्रकृतिका कार्य अनुभव</span>
+                  <span className="text-purple-700 font-bold">{Math.round(eoiCalculations.expScore)} / ४५</span>
+                </div>
+                <div className="text-xs text-slate-600 mt-1">
+                  सम्पन्न {eoiCompletedProjects} वटा समान कार्यको आधारमा (न्यूनतम ३ कार्य भए सुरक्षित)
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-purple-50/70 border border-purple-200">
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span>३. मुख्य जनशक्ति रोस्टर क्षमता</span>
+                  <span className="text-purple-700 font-bold">{Math.round(eoiCalculations.expertScore)} / ३५</span>
+                </div>
+                <div className="text-xs text-slate-600 mt-1">
+                  उपलब्ध {eoiKeyExpertsCount} विज्ञहरूको प्राविधिक क्षमता तथा काउन्सिल दर्ता
+                </div>
               </div>
             </div>
           </div>
 
-          {/* 3. RFP Technical Proposal Preparation (TECH-4 & TECH-6) */}
+          {/* Section 2: Consulting Selection Methods (QCBS, LCS, FBS) */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800">
-                  <FileText className="w-4 h-4" />
-                  <span>खण्ड ३: RFP प्राविधिक प्रस्ताव (Technical Proposal) तयारीका स्वर्ण नियम</span>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-800">
+                  <Scale className="w-4 h-4 text-indigo-600" />
+                  <span>खण्ड २: परामर्श सेवा छनौट विधि विश्लेषक (Selection Methods)</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  TECH-4 कार्यविधि र TECH-6 मुख्य विज्ञको व्यक्तिगत विवरण (CV) प्रमाणीकरण
+                  QCBS (गुणस्तर र लागत), LCS (न्यूनतम लागत), र FBS (निश्चित बजेट) मूल्याङ्कन सिमुलेटर
                 </h3>
               </div>
+
+              {/* Selection Method Pills */}
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                {[
+                  { id: 'qcbs', label: 'QCBS (गुणस्तर र लागत)' },
+                  { id: 'lcs', label: 'LCS (न्यूनतम लागत)' },
+                  { id: 'fbs', label: 'FBS (निश्चित बजेट)' },
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setConsultingMethod(item.id as any)}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${consultingMethod === item.id
+                      ? 'bg-indigo-800 text-white shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Method 1: QCBS Simulator */}
+            {consultingMethod === 'qcbs' && (
+              <div className="space-y-6">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed">
+                  <strong className="text-slate-900 block font-semibold mb-1">
+                    QCBS मूल्याङ्कन सूत्र (PPR नियम ७९): S = (St × T/100) + [(Fm / F) × 100 × P/100]
+                  </strong>
+                  यहाँ <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">St</code> = प्राविधिक अंक,{' '}
+                  <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">Fm</code> = सबैभन्दा न्यून आर्थिक प्रस्ताव रकम,{' '}
+                  <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">F</code> = तपाईंको कबुल रकम,{' '}
+                  <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">T</code> = प्राविधिक भार ({qcbsCalculations.techWeight}%),{' '}
+                  <code className="bg-white px-1.5 py-0.5 rounded-sm border border-slate-200 text-slate-900 font-semibold">P</code> = आर्थिक भार ({qcbsCalculations.finWeight}%)।
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-indigo-50/40 p-4 sm:p-5 rounded-2xl border border-indigo-100">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 block">
+                      तपाईंको प्राविधिक अंक (St - १०० मा)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={qcbsTechScore}
+                      onChange={(e) => setQcbsTechScore(Number(e.target.value))}
+                      className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-500">
+                      प्राविधिक अंक: {qcbsTechScore} / १००
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 block">
+                      तपाईंको आर्थिक कबुल रकम (F - रु.)
+                    </label>
+                    <input
+                      type="number"
+                      value={qcbsBidderFinancial}
+                      onChange={(e) => setQcbsBidderFinancial(Number(e.target.value))}
+                      className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-500">
+                      रु. {qcbsBidderFinancial.toLocaleString('ne-NP')}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 block">
+                      न्यूनतम आर्थिक कबुल रकम (Fm - रु.)
+                    </label>
+                    <input
+                      type="number"
+                      value={qcbsLowestFinancial}
+                      onChange={(e) => setQcbsLowestFinancial(Number(e.target.value))}
+                      className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
+                    />
+                    <span className="text-[10px] text-slate-500">
+                      रु. {qcbsLowestFinancial.toLocaleString('ne-NP')}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700 block">
+                      अङ्कभार अनुपात (Ratio)
+                    </label>
+                    <select
+                      value={qcbsRatio}
+                      onChange={(e) => setQcbsRatio(e.target.value as any)}
+                      className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-indigo-600 focus:outline-hidden"
+                    >
+                      <option value="80-20">८०% प्राविधिक / २०% आर्थिक (मानक)</option>
+                      <option value="70-30">७०% प्राविधिक / ३०% आर्थिक</option>
+                      <option value="90-10">९०% प्राविधिक / १०% आर्थिक (विशिष्ट)</option>
+                    </select>
+                    <span className="text-[10px] text-slate-500">
+                      SBD अनुसार निर्धारित भार
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[11px] font-semibold text-slate-600 block">
+                      प्राविधिक भारित अंक ({qcbsCalculations.techWeight}%)
+                    </span>
+                    <span className="text-base sm:text-lg font-bold text-slate-900 mt-0.5 block">
+                      {qcbsCalculations.techWeighted.toFixed(2)} अंक
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      ({qcbsTechScore} × {qcbsCalculations.techWeight} / १००)
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[11px] font-semibold text-slate-600 block">
+                      आर्थिक भारित अंक ({qcbsCalculations.finWeight}%)
+                    </span>
+                    <span className="text-base sm:text-lg font-bold text-slate-900 mt-0.5 block">
+                      {qcbsCalculations.finWeighted.toFixed(2)} अंक
+                    </span>
+                    <span className="text-[10px] text-slate-500">
+                      (आर्थिक अनुपात: {qcbsCalculations.finScore.toFixed(1)}%)
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-indigo-50/80 border border-indigo-200">
+                    <span className="text-[11px] font-semibold text-indigo-800 block">
+                      कुल संयुक्त स्कोर (Combined Score)
+                    </span>
+                    <span className="text-base sm:text-xl font-extrabold text-indigo-950 mt-0.5 block">
+                      {qcbsCalculations.combinedScore.toFixed(2)} / १००
+                    </span>
+                    <span className="text-[10px] text-indigo-700">
+                      (उच्चतम संयुक्त स्कोर ल्याउनेले ठेक्का पाउँछ)
+                    </span>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-900 text-white shadow-sm flex flex-col justify-between">
+                    <div>
+                      <span className="text-[11px] font-medium text-indigo-300 block">
+                        रणनीतिक सल्लाह (Bidder Strategy)
+                      </span>
+                      <p className="text-xs text-slate-200 mt-1 leading-relaxed">
+                        {qcbsCalculations.techWeighted > 65
+                          ? 'तपाईंको प्राविधिक अंक निकै बलियो छ! आर्थिक प्रस्ताव प्रतिस्पर्धी भन्दा केही बढी भए पनि सम्झौता जित्ने प्रबल सम्भावना छ।'
+                          : 'प्राविधिक अंक कमजोर हुँदा आर्थिक रकम धेरै घटाए पनि संयुक्त स्कोरमा जित्न कठिन हुन सक्छ। प्राविधिक गुणस्तरमा जोड दिनुहोस्।'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Method 2: LCS Simulator */}
+            {consultingMethod === 'lcs' && (
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 text-xs leading-relaxed">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                  <div>
+                    <strong className="text-slate-900 text-sm block">LCS (Least Cost Selection - न्यूनतम लागत छनौट विधि)</strong>
+                    <span className="text-slate-500">नियम ७८ बमोजिम अडिटिङ, साधारण सर्भे, वा मानक परामर्श सेवामा प्रयोग हुन्छ।</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-700">उत्तीर्णाङ्क थ्रेसहोल्ड (Qualifying Mark):</span>
+                    <input
+                      type="number"
+                      value={lcsQualifyingMark}
+                      onChange={(e) => setLcsQualifyingMark(Number(e.target.value))}
+                      className="w-16 px-2 py-1 bg-white border border-slate-300 rounded-lg text-center font-bold"
+                    />
+                    <span>अंक</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+                    <strong className="text-slate-900 block">१. प्राविधिक छनौट चरण:</strong>
+                    <p className="text-slate-600">
+                      पहिला प्राविधिक प्रस्ताव खोलिन्छ। कम्तीमा {lcsQualifyingMark} अंक प्राप्त गर्ने सबै परामर्शदाताहरू आर्थिक प्रतिस्पर्धाका लागि योग्य ठहरिन्छन्। {lcsQualifyingMark} भन्दा कम अंक ल्याउनेको आर्थिक खाम नखोली फिर्ता गरिन्छ।
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-2">
+                    <strong className="text-slate-900 block">२. आर्थिक छनौट चरण (न्यूनतम मूल्य):</strong>
+                    <p className="text-slate-600">
+                      {lcsQualifyingMark} अंक पार गर्नेहरूमध्ये <strong>जसको आर्थिक प्रस्ताव सबैभन्दा सस्तो (Least Cost)</strong> हुन्छ, उसैसँग खरिद सम्झौता गरिन्छ। यस विधिमा प्राविधिक अंकको थप भार जोडिँदैन।
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Method 3: FBS Simulator */}
+            {consultingMethod === 'fbs' && (
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 text-xs leading-relaxed">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+                  <div>
+                    <strong className="text-slate-900 text-sm block">FBS (Fixed Budget Selection - निश्चित बजेटमा आधारित छनौट)</strong>
+                    <span className="text-slate-500">नियम ७७ बमोजिम बजेट सीमा पहिले नै सार्वजनिक निकायले तोकेको अवस्थामा लागू हुन्छ।</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-700">तोकिएको बजेट सीमा:</span>
+                    <input
+                      type="number"
+                      value={fbsBudgetCap}
+                      onChange={(e) => setFbsBudgetCap(Number(e.target.value))}
+                      className="w-28 px-2 py-1 bg-white border border-slate-300 rounded-lg text-center font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 space-y-2">
+                  <strong className="block font-bold">आपूर्तिकर्ताले ध्यान दिनुपर्ने संवेदनशील नियम:</strong>
+                  <p>
+                    यदि तपाईंको आर्थिक कबुल रकम तोकिएको अधिकतम बजेट सीमा रु. {fbsBudgetCap.toLocaleString('ne-NP')} भन्दा १ रुपैयाँ मात्र पनि बढी भएमा तपाईंको प्रस्ताव <strong>सोझै गैर-जिम्मेवार (Non-Responsive) भई बदर</strong> हुनेछ। तोकिएको बजेटभित्र रहेर सबैभन्दा उच्च प्राविधिक अंक प्राप्त गर्ने परामर्शदाता छानिनेछ।
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Section 3: RFP Technical Proposal (TECH-4 & Evaluation Criteria) */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-800">
+                  <FileSpreadsheet className="w-4 h-4 text-purple-600" />
+                  <span>खण्ड ३: RFP प्राविधिक प्रस्ताव मूल्याङ्कनका ४ मूल आधारहरू (PPR नियम ७४)</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  परामर्शदाताले १०० पूर्णाङ्कमा अधिकतम प्राविधिक अंक हासिल गर्ने रणनीति
+                </h3>
+              </div>
+
               <button
                 type="button"
                 onClick={() => setActiveSubTab('forms')}
-                className="text-xs text-teal-700 hover:text-teal-900 font-bold flex items-center gap-1 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
-                <span>फाराम जेनेरेटरमा CV ढाँचा हेर्नुहोस्</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <FileText className="w-3.5 h-3.5 text-purple-600" />
+                <span>TECH-4 र TECH-6 फाराम ढाँचा भर्नुहोस्</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs leading-relaxed">
-              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <div className="font-bold text-slate-900 flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-teal-700" />
-                  <span>TECH-4: कार्यविधि, दृष्टिकोण र कार्यतालिका (Methodology & Work Plan)</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center justify-between">
+                  <span>१. विशिष्ट अनुभव (Specific Exp)</span>
+                  <span className="text-purple-700 bg-purple-100 px-2 py-0.5 rounded-sm">१० - २०%</span>
                 </div>
-                <p className="text-slate-600">
-                  TOR (Terms of Reference) लाई जस्ताको तस्तै कपी-पेस्ट नगरी आयोजनाको वास्तविक समस्या, समाधानको नवीन प्राविधिक विधि (Software/Drone/GIS), फिल्ड सर्भे योजना, र महिना अनुसारको Milestones स्पष्ट प्रस्तुत गर्नुहोस्।
+                <p className="text-slate-600 leading-relaxed">
+                  विगत ५-७ वर्षभित्र सम्पन्न ठ्याक्कै उस्तै विषय र प्रकृतिका आयोजनाको संख्या र कार्यसम्पादन प्रमाणपत्र (Completion Certificate)।
                 </p>
-                <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-900 text-[11px] font-semibold">
-                  सुझाव: प्राविधिक प्रस्तावमा कम्तीमा ७० वा ७५ वा ८० न्यूनतम उत्तीर्णाङ्क प्राप्त नगरे आर्थिक खाम खोल्न कानूनतः पाइँदैन।
-                </div>
               </div>
 
-              <div className="p-5 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-3">
-                <div className="font-bold text-amber-950 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-700" />
-                  <span>TECH-6: मुख्य विज्ञको CV र Exclusivity सम्बन्धी संवेदनशील नियम</span>
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center justify-between">
+                  <span>२. कार्यविधि र कार्यतालिका (TECH-4)</span>
+                  <span className="text-purple-700 bg-purple-100 px-2 py-0.5 rounded-sm">२० - ४०%</span>
                 </div>
-                <p className="text-slate-700">
-                  मुख्य विज्ञको बायोडाटामा सम्बन्धित विज्ञ स्वयंको सक्कल हस्ताक्षर अनिवार्य छ। साथै, <strong className="text-slate-900">यदि एउटै मुख्य विज्ञले दुई वा बढी प्रतिस्पर्धी फर्मलाई CV दिएको प्रमाणित भएमा</strong> दुवै फर्महरूको प्रस्ताव बदर वा अंक शून्य हुने जोखिम रहन्छ।
+                <p className="text-slate-600 leading-relaxed">
+                  TOR को बुझाइ, प्राविधिक दृष्टिकोण, नवीन पद्धति (GIS/सफ्टवेयर/ड्रोन), कार्यतालिका (Work Plan) र प्रतिवेदन बुझाउने माइलस्टोन्स।
                 </p>
-                <div className="p-3 rounded-xl bg-white border border-amber-300 text-slate-800 text-[11px]">
-                  विज्ञसँग 'यो आयोजनाका लागि मेरो CV केवल यस फर्मलाई मात्र प्रयोग गर्न दिएको छु' भन्ने Exclusivity & Availability Statement अनिवार्य गराउनुहोस्।
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center justify-between">
+                  <span>३. मुख्य विज्ञहरूको योग्यता (TECH-6)</span>
+                  <span className="text-purple-700 bg-purple-100 px-2 py-0.5 rounded-sm">५० - ७०%</span>
                 </div>
+                <p className="text-slate-600 leading-relaxed">
+                  टोली नेता (Team Leader) र मुख्य विज्ञहरूको शैक्षिक योग्यता, समान कार्य अनुभव, पेशागत काउन्सिल दर्ता र हस्ताक्षरित बायोडाटा।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center justify-between">
+                  <span>४. ज्ञान तथा सीप हस्तान्तरण</span>
+                  <span className="text-purple-700 bg-purple-100 px-2 py-0.5 rounded-sm">० - १०%</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  सार्वजनिक निकायका प्राविधिक कर्मचारीलाई तालिम, ज्ञान आदानप्रदान, र कार्यशाला सञ्चालन योजना।
+                </p>
               </div>
             </div>
           </div>
 
-          {/* 4. Non-Consulting Services: Labor Act & SSF Compliance Calculator */}
+          {/* Section 4: Key Expert CV (TECH-6) & Exclusivity Rules */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <span>खण्ड ४: मुख्य विज्ञको व्यक्तिगत विवरण (CV) र दोहोरो प्रतिबद्धता (Conflict) सम्बन्धी कडा कानुनी प्रावधान</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-700 leading-relaxed">
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1.5">
+                <strong className="text-amber-950 block font-bold">१. सक्कल हस्ताक्षर र मिति अनिवार्य:</strong>
+                <p>
+                  प्रत्येक मुख्य विज्ञको बायोडाटामा सम्बन्धित विज्ञको आफ्नै हातले गरेको सक्कल हस्ताक्षर र मिति अनिवार्य हुनुपर्छ। फोटोकपी हस्ताक्षर वा स्क्यान हस्ताक्षर अस्पष्ट भएमा अंक शून्य वा प्रस्ताव रद्द हुन सक्छ।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1.5">
+                <strong className="text-amber-950 block font-bold">२. दोहोरो CV पेश गर्न नपाइने (Exclusivity):</strong>
+                <p>
+                  यदि एउटै मुख्य विज्ञले दुई वा बढी प्रतिस्पर्धी परामर्शदाता फर्मलाई CV दिएको प्रमाणित भएमा, <strong>ती दुवै प्रतिस्पर्धी फर्महरूको प्राविधिक प्रस्ताव बदर</strong> हुन्छ वा उक्त विज्ञको अंक कट्टा गरिन्छ। विज्ञसँग 'Exclusivity Statement' अनिवार्य लिनुहोस्।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1.5">
+                <strong className="text-amber-950 block font-bold">३. बहालवाला कर्मचारी संलग्न गर्न नपाइने:</strong>
+                <p>
+                  खरिद ऐनको दफा ६२ बमोजिम नेपाल सरकार वा सार्वजनिक निकायमा बहाल रहेका कर्मचारी वा शिक्षकलाई बिना अनुमति परामर्शदाताको विज्ञ बनाउन पाइँदैन। त्यस्तो फेला परेमा बोलपत्र सोझै बदर भई कालोसूचीमा सिफारिस हुन्छ।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Contract Types & Payment Milestones */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-800">
+              <Briefcase className="w-4 h-4 text-purple-600" />
+              <span>खण्ड ५: परामर्श सम्झौताका प्रकारहरू (Contract Types) र भुक्तानी माइलस्टोन्स</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="font-bold text-slate-900 flex items-center justify-between">
+                  <span>१. Lump-Sum (एकमुष्ट रकम सम्झौता - नियम ८१)</span>
+                  <span className="text-xs bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-sm">माइलस्टोन भुक्तानी</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  DPR, सर्भे, डिजाइन, वा सफ्टवेयर विकास जस्ता स्पष्ट प्रतिवेदन निस्कने कार्यमा प्रयोग हुन्छ।
+                </p>
+                <div className="space-y-1.5 border-t border-slate-200 pt-2 text-[11px]">
+                  <div className="flex justify-between"><span>• इनसेप्शन प्रतिवेदन (Inception Report):</span><strong>१० - १५%</strong></div>
+                  <div className="flex justify-between"><span>• अन्तरिम/फिल्ड सर्भे प्रतिवेदन (Interim Report):</span><strong>३० - ३५%</strong></div>
+                  <div className="flex justify-between"><span>• मस्यौदा प्रतिवेदन (Draft Report):</span><strong>३० - ३५%</strong></div>
+                  <div className="flex justify-between"><span>• अन्तिम प्रतिवेदन स्वीकृति (Final Report):</span><strong>१५ - २०%</strong></div>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="font-bold text-slate-900 flex items-center justify-between">
+                  <span>२. Time-Based (समयमा आधारित सम्झौता - नियम ८१)</span>
+                  <span className="text-xs bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded-sm">Person-Month Rate</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  निर्माण सुपरभिजन (Construction Supervision) वा आयोजना व्यवस्थापन जस्ता कार्यअवधि यकिन गर्न कठिन कार्यमा प्रयोग हुन्छ।
+                </p>
+                <div className="space-y-1.5 border-t border-slate-200 pt-2 text-[11px]">
+                  <div className="flex justify-between"><span>• विज्ञ पारिश्रमिक (Remuneration):</span><span>Person-Month दर × फिल्ड समय</span></div>
+                  <div className="flex justify-between"><span>• प्रतिपूर्ति खर्च (Reimbursable):</span><span>होटेल, यात्रा, सर्भे, ल्याब टेस्टिङ</span></div>
+                  <div className="flex justify-between"><span>• आकस्मिक खर्च (Contingencies):</span><span>स्वीकृत सीमाभित्र वास्तविक बिल अनुसार</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* TAB: NON-CONSULTING SERVICES HUB (Labor Law & SSF Compliance) */}
+      {/* ------------------------------------------------------------- */}
+      {activeSubTab === 'non-consulting-services' && (
+        <div className="space-y-8">
+          {/* Section 1: Labor Act, SSF & Service Margin Mandatory Calculator */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-800">
-                  <Users className="w-4 h-4" />
-                  <span>खण्ड ४: गैर-परामर्श सेवा (सुरक्षा, सरसफाइ, सवारी) र श्रम ऐन / SSF अनुपालन</span>
+                  <Calculator className="w-4 h-4 text-rose-600" />
+                  <span>खण्ड १: वैधानिक न्यूनतम पारिश्रमिक, २०% SSF तथा सेवा शुल्क क्याल्कुलेटर</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
-                  न्यूनतम पारिश्रमिक भन्दा कम दररेट हाल्दा बोलपत्र स्वतः बदर हुने कानूनी व्यवस्था
+                  श्रम ऐन २०७४ र सामाजिक सुरक्षा ऐन २०७४ बमोजिम अनिवार्य सेवा लागत तथा बिलिङ सिमुलेटर
                 </h3>
               </div>
               <span className="text-xs bg-rose-50 text-rose-800 border border-rose-200 px-3 py-1 rounded-full font-semibold">
-                श्रम ऐन २०७४ र PPRC नजिर
+                PPR नियम ६५ र सर्वोच्च अदालत नजिर
               </span>
             </div>
+
+            {/* Warning Alert if Below Minimum Wage or Zero Margin */}
+            {serviceCalculations.isBelowStatutoryMinimum && (
+              <div className="p-4 rounded-xl bg-red-100 border border-red-300 text-red-950 text-xs font-semibold flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 shrink-0 text-red-700" />
+                <span>गम्भीर चेतावनी: नेपाल सरकारले राजपत्रमा तोकेको न्यूनतम पारिश्रमिक रु. १७,३०० भन्दा कम कबुल गरेमा खरिद ऐनको दफा २३ तथा नियमावलीको नियम ६५ बमोजिम तपाईंको बोलपत्र सोझै सारभूत रूपमा अप्रभावकारी (Non-Responsive) भई रद्द हुनेछ!</span>
+              </div>
+            )}
+
+            {serviceCalculations.isZeroMargin && (
+              <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 text-xs flex items-center gap-2.5">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700" />
+                <span>सचेतना: शून्य प्रतिशत (०%) वा १ पैसा सेवा शुल्क राख्दा सर्वोच्च अदालत र सार्वजनिक खरिद पुनरावलोकन समिति (PPRC) को नजिर अनुसार अस्वस्थ प्रतिस्पर्धा ठहर्‍याई बोलपत्र बदर हुने उच्च जोखिम हुन्छ।</span>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Labor & SSF Inputs */}
               <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
                 <div className="text-xs font-bold text-slate-800">
-                  सेवा जनशक्ति तथा पारिश्रमिक विवरण:
+                  सेवा जनशक्ति तथा पारिश्रमिक दर विवरण:
                 </div>
                 <div className="space-y-3">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-700 block">
-                      जनशक्ति संख्या (श्रमिक/गार्ड संख्या)
+                      जनशक्ति संख्या (सुरक्षा गार्ड/सरसफाइकर्मी/चालक)
                     </label>
                     <input
                       type="number"
@@ -2799,11 +3223,14 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                       onChange={(e) => setServiceStaffCount(Math.max(1, Number(e.target.value)))}
                       className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
                     />
+                    <span className="text-[10px] text-slate-500">
+                      कुल कार्यरत जनशक्ति: {serviceStaffCount} जना
+                    </span>
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-700 block">
-                      आधारभूत न्यूनतम मासिक पारिश्रमिक (नेपाल सरकार तोकेको रु १७,३००)
+                      आधारभूत न्यूनतम मासिक पारिश्रमिक (तोकिएको रु १७,३००)
                     </label>
                     <input
                       type="number"
@@ -2811,23 +3238,47 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                       onChange={(e) => setServiceBaseSalary(Number(e.target.value))}
                       className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
                     />
-                    {serviceCalculations.isBelowStatutoryMinimum && (
-                      <span className="text-[10px] text-red-600 font-bold block">
-                        चेतावनी: रु १७,३०० भन्दा कम पारिश्रमिक कोट गरेमा खरिद ऐनको दफा २३ बमोजिम बोलपत्र स्वतः रद्द हुनेछ!
-                      </span>
-                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-700 block">
+                        महँगी/स्थानीय भत्ता (रु.)
+                      </label>
+                      <input
+                        type="number"
+                        value={serviceAllowance}
+                        onChange={(e) => setServiceAllowance(Number(e.target.value))}
+                        className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-700 block">
+                        युनिफर्म, PPE र बिमा (प्रति व्यक्ति रु.)
+                      </label>
+                      <input
+                        type="number"
+                        value={serviceUniformPpe}
+                        onChange={(e) => setServiceUniformPpe(Number(e.target.value))}
+                        className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-700 block">
-                      महँगी वा स्थानीय भत्ता (रु.)
+                      सेवा प्रदायकको व्यवस्थापकीय सेवा शुल्क (Overhead Margin %)
                     </label>
                     <input
                       type="number"
-                      value={serviceAllowance}
-                      onChange={(e) => setServiceAllowance(Number(e.target.value))}
+                      step="0.5"
+                      value={serviceMarginPercent}
+                      onChange={(e) => setServiceMarginPercent(Number(e.target.value))}
                       className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
                     />
+                    <span className="text-[10px] text-slate-500">
+                      प्रस्तावित सेवा शुल्क: {serviceMarginPercent}% (मासिक रु. {Math.round(serviceCalculations.overheadMargin).toLocaleString('ne-NP')})
+                    </span>
                   </div>
 
                   <div className="flex flex-col gap-2 pt-1 text-xs">
@@ -2838,7 +3289,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                         onChange={(e) => setServiceIncludeSsf(e.target.checked)}
                         className="rounded-sm text-rose-700"
                       />
-                      <span>योगदानमा आधारित सामाजिक सुरक्षा (SSF) को २०% नियोक्ता योगदान जोड्ने</span>
+                      <span>रोजगारदाताको २०% SSF योगदान जोड्ने (उपदान ८.३३% + सञ्चय १०% + स्वास्थ्य १.६७%)</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700">
@@ -2850,6 +3301,16 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                       />
                       <span>१ महिनाको चाडपर्व खर्च (वार्षिक १ तलबलाई १२ महिनामा विभाजन)</span>
                     </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer font-medium text-slate-700">
+                      <input
+                        type="checkbox"
+                        checked={serviceApplyVat}
+                        onChange={(e) => setServiceApplyVat(e.target.checked)}
+                        className="rounded-sm text-rose-700"
+                      />
+                      <span>१३% भ्याट लागू हुने</span>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -2857,7 +3318,7 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {/* Labor & SSF Outputs */}
               <div className="p-5 rounded-2xl bg-rose-50/50 border border-rose-200 space-y-3">
                 <div className="text-xs font-bold text-rose-900 uppercase tracking-wider">
-                  न्यूनतम वैधानिक सेवा लागत (Statutory Minimum Cost):
+                  न्यूनतम वैधानिक लागत र बिलिङ नतिजा:
                 </div>
 
                 <div className="space-y-2 text-xs text-slate-700">
@@ -2866,26 +3327,302 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                     <strong className="text-slate-900">रु. {Math.round(serviceCalculations.basicPlusAllowance).toLocaleString('ne-NP')}</strong>
                   </div>
                   <div className="flex justify-between border-b border-rose-200/60 pb-1.5">
-                    <span>नियोक्ताको २०% SSF योगदान (उपदान + संचय कोष + दुर्घटना):</span>
+                    <span>नियोक्ताको २०% SSF योगदान:</span>
                     <strong className="text-slate-900">रु. {Math.round(serviceCalculations.ssfEmployerCost).toLocaleString('ne-NP')}</strong>
                   </div>
                   <div className="flex justify-between border-b border-rose-200/60 pb-1.5">
-                    <span>प्रति व्यक्ति मासिक चाडपर्व भार:</span>
-                    <strong className="text-slate-900">रु. {Math.round(serviceCalculations.festivalCost).toLocaleString('ne-NP')}</strong>
+                    <span>प्रति व्यक्ति चाडपर्व खर्च + PPE:</span>
+                    <strong className="text-slate-900">रु. {Math.round(serviceCalculations.festivalCost + serviceUniformPpe).toLocaleString('ne-NP')}</strong>
                   </div>
                   <div className="flex justify-between border-b border-rose-200/60 pb-1.5">
                     <span>प्रति व्यक्ति न्यूनतम मासिक लागत:</span>
                     <strong className="text-rose-950 font-bold">रु. {Math.round(serviceCalculations.monthlyCostPerPerson).toLocaleString('ne-NP')}</strong>
                   </div>
+                  <div className="flex justify-between border-b border-rose-200/60 pb-1.5">
+                    <span>कुल {serviceStaffCount} जनाको प्रत्यक्ष श्रमिक लागत:</span>
+                    <strong className="text-slate-900">रु. {Math.round(serviceCalculations.totalStaffMonthlyBase).toLocaleString('ne-NP')}</strong>
+                  </div>
+                  <div className="flex justify-between border-b border-rose-200/60 pb-1.5">
+                    <span>सेवा प्रदायकको व्यवस्थापकीय शुल्क ({serviceMarginPercent}%):</span>
+                    <strong className="text-emerald-800 font-bold">रु. {Math.round(serviceCalculations.overheadMargin).toLocaleString('ne-NP')}</strong>
+                  </div>
+                  <div className="flex justify-between border-b border-rose-200/60 pb-1.5">
+                    <span>१३% मूल्य अभिवृद्धि कर (VAT):</span>
+                    <strong className="text-slate-900">रु. {Math.round(serviceCalculations.monthlyVat).toLocaleString('ne-NP')}</strong>
+                  </div>
                   <div className="flex justify-between pt-1">
-                    <span className="font-bold text-slate-900">कुल {serviceStaffCount} जनाको न्यूनतम मासिक लागत:</span>
-                    <strong className="text-rose-900 text-sm font-extrabold">रु. {Math.round(serviceCalculations.totalMonthlyCost).toLocaleString('ne-NP')}</strong>
+                    <span className="font-bold text-slate-900">कुल मासिक बिल रकम (Grand Total):</span>
+                    <strong className="text-rose-900 text-sm font-extrabold">रु. {Math.round(serviceCalculations.monthlyGrandTotal).toLocaleString('ne-NP')}</strong>
+                  </div>
+                  <div className="flex justify-between text-[11px] text-slate-600">
+                    <span>वार्षिक अनुमानित सम्झौता रकम (१२ महिना):</span>
+                    <span className="font-semibold text-slate-800">रु. {Math.round(serviceCalculations.annualGrandTotal).toLocaleString('ne-NP')}</span>
                   </div>
                 </div>
 
                 <div className="p-3 rounded-xl bg-white border border-rose-200 text-[11px] text-slate-600 leading-relaxed">
-                  सर्वोच्च अदालत र PPRC को नजिर अनुसार 'प्रशासनिक खर्च' वा 'सेवा शुल्क' नराखी शून्य वा ऋणात्मक मार्जिन राखी हालिएका बोलपत्रहरू अस्वस्थ प्रतिस्पर्धा ठहर्‍याई बदर गरिएका छन्। त्यसैले न्यूनतम वैधानिक लागतमा आफ्नो निश्चित सेवा शुल्क जोडेर मात्र दररेट पेश गर्नुहोस्।
+                  नोट: सम्झौता पश्चात मासिक बिल भुक्तानी लिँदा प्रत्येक कामदारको बैंक खातामा तलब जम्मा भएको भौचर र अघिल्लो महिनाको SSF भुक्तानी निस्सा अनिवार्य संलग्न गर्नुपर्छ।
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Non-Consulting Qualification & Capacity Self-Assessment */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-800">
+                  <ShieldCheck className="w-4 h-4 text-rose-600" />
+                  <span>खण्ड २: सेवा प्रदायकको योग्यता तथा वित्तीय स्व-मूल्याङ्कन (PPMO SBD Section III)</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  गैर-परामर्श सेवा बोलपत्रमा कारोबार, अनुभव र नगद प्रवाह परीक्षण
+                </h3>
+              </div>
+              <div
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 ${isNcEligible
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300'
+                  }`}
+              >
+                {isNcEligible ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                    <span>सेवा बोलपत्रका लागि प्रारम्भिक रूपमा योग्य</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="w-4 h-4 text-amber-700" />
+                    <span>केही मापदण्डहरू सुधार गर्नुपर्ने</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  बोलपत्रको लागत अनुमान (रु.)
+                </label>
+                <input
+                  type="number"
+                  value={ncEstAmount}
+                  onChange={(e) => {
+                    const est = Number(e.target.value);
+                    setNcEstAmount(est);
+                    setNcTurnoverReq(Math.round(est * 0.8));
+                    setNcExpReq(Math.round(est * 0.5));
+                    setNcLiquidReq(Math.round(est * 0.25));
+                  }}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  रु. {ncEstAmount.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  औसत वार्षिक कारोबार माग (८०% रु.)
+                </label>
+                <input
+                  type="number"
+                  value={ncTurnoverReq}
+                  onChange={(e) => setNcTurnoverReq(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  माग: रु. {ncTurnoverReq.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  सेवा प्रदायकको वार्षिक कारोबार (३ आ.व. को औसत)
+                </label>
+                <input
+                  type="number"
+                  value={ncSupplierTurnover}
+                  onChange={(e) => setNcSupplierTurnover(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  तपाईंको कारोबार: रु. {ncSupplierTurnover.toLocaleString('ne-NP')}
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 block">
+                  सम्पन्न समान सेवा सम्झौता रकम (५०%)
+                </label>
+                <input
+                  type="number"
+                  value={ncSupplierExp}
+                  onChange={(e) => setNcSupplierExp(Number(e.target.value))}
+                  className="w-full text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-white focus:border-rose-600 focus:outline-hidden"
+                />
+                <span className="text-[10px] text-slate-500">
+                  माग: रु. {ncExpReq.toLocaleString('ne-NP')} | सम्पन्न: रु. {ncSupplierExp.toLocaleString('ne-NP')}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className={`p-4 rounded-xl border ${ncSupplierTurnover >= ncTurnoverReq ? 'bg-emerald-50/70 border-emerald-200' : 'bg-red-50/70 border-red-200'}`}>
+                <div className="flex justify-between text-xs font-bold">
+                  <span>१. वार्षिक कारोबार (Turnover)</span>
+                  <span className={ncSupplierTurnover >= ncTurnoverReq ? 'text-emerald-700' : 'text-red-700'}>
+                    {ncSupplierTurnover >= ncTurnoverReq ? 'योग्य ✓' : 'अपुग ✗'}
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-slate-900 mt-1">रु. {ncSupplierTurnover.toLocaleString('ne-NP')}</div>
+              </div>
+
+              <div className={`p-4 rounded-xl border ${ncSupplierExp >= ncExpReq ? 'bg-emerald-50/70 border-emerald-200' : 'bg-red-50/70 border-red-200'}`}>
+                <div className="flex justify-between text-xs font-bold">
+                  <span>२. समान सेवा अनुभव</span>
+                  <span className={ncSupplierExp >= ncExpReq ? 'text-emerald-700' : 'text-red-700'}>
+                    {ncSupplierExp >= ncExpReq ? 'योग्य ✓' : 'अपुग ✗'}
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-slate-900 mt-1">रु. {ncSupplierExp.toLocaleString('ne-NP')}</div>
+              </div>
+
+              <div className={`p-4 rounded-xl border ${ncSupplierLiquid >= ncLiquidReq ? 'bg-emerald-50/70 border-emerald-200' : 'bg-red-50/70 border-red-200'}`}>
+                <div className="flex justify-between text-xs font-bold">
+                  <span>३. वित्तीय स्रोत / क्रेडिट लाइन</span>
+                  <span className={ncSupplierLiquid >= ncLiquidReq ? 'text-emerald-700' : 'text-red-700'}>
+                    {ncSupplierLiquid >= ncLiquidReq ? 'योग्य ✓' : 'अपुग ✗'}
+                  </span>
+                </div>
+                <div className="text-sm font-bold text-slate-900 mt-1">रु. {ncSupplierLiquid.toLocaleString('ne-NP')}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: 4 Mandatory Statutory Licenses & Compliance */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-800">
+              <CheckSquare className="w-4 h-4 text-rose-600" />
+              <span>खण्ड ३: गैर-परामर्श सेवा बोलपत्रमा अनिवार्य हुने ४ वैधानिक इजाजतपत्र तथा सर्तहरू</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-[10px]">१</span>
+                  <span>गृह मन्त्रालय अनुमति (सुरक्षा सेवा)</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  सुरक्षा गार्ड सेवा प्रदान गर्न गृह मन्त्रालयबाट जारी भएको चालू इजाजतपत्र तथा जिल्ला प्रशासन कार्यालयमा दर्ता अभिलेख।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-[10px]">२</span>
+                  <span>श्रम विभाग इजाजतपत्र</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  श्रम तथा व्यवसायजन्य सुरक्षा विभागबाट श्रमिक आपूर्तिकर्ता (Labor Supplier) को रूपमा दर्ता भई चालू नवीकरण प्रमाणपत्र।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-[10px]">३</span>
+                  <span>SSF सूचीकरण प्रमाणपत्र</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  सामाजिक सुरक्षा कोष (SSF) मा रोजगारदाताको रूपमा दर्ता भई नियमित योगदान दाखिला गरिरहेको अद्यावधिक निस्सा।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                <div className="font-bold text-slate-900 flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center font-bold text-[10px]">४</span>
+                  <span>बैंक खाता मार्फत तलब प्रतिबद्धता</span>
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  सबै श्रमिकहरूको व्यक्तिगत 'क' वर्गको बैंक खाता खोली पारिश्रमिक सिधै बैंक दाखिला गर्ने लिखित वैधानिक प्रतिबद्धता पत्र।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Daily Attendance & Monthly Payment Workflow */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-rose-800">
+              <Clock className="w-4 h-4 text-rose-600" />
+              <span>खण्ड ४: सेवा सञ्चालन, दैनिक हाजिरी र मासिक भुक्तानी कार्यविधि (PPR नियम ११९ र १२२)</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण १: दैनिक हाजिरी रुजु
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  कार्यस्थलमा खटिएका कर्मचारीहरूको दैनिक बायोमेट्रिक वा लगबुक हाजिरी सार्वजनिक निकायको प्रशासन शाखाबाट प्रमाणित गराउने।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण २: बैंक दाखिला विवरण
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  श्रमिकहरूको बैंक खातामा अघिल्लो महिनाको तलब जम्मा भएको बैंक ट्रान्सफर भौचर तथा स्टेटमेन्ट संलग्न गर्ने।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण ३: SSF दाखिला निस्सा
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  कामदारको ३१% (२०% रोजगारदाता + ११% श्रमिक) रकम सामाजिक सुरक्षा कोषमा जम्मा गरेको आधिकारिक अनलाइन रसिद पेश गर्ने।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+                <span className="text-xs font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-sm inline-block">
+                  चरण ४: मासिक बीजक भुक्तानी
+                </span>
+                <p className="text-slate-600 leading-relaxed">
+                  सबै प्रमाण रुजु भएपछि निकायले सेवा शुल्क र १३% भ्याट सहित सेवा प्रदायकको खातामा चालू महिनाको रकम भुक्तानी गर्छ।
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Absenteeism Penalty & Reliever Rules */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-800">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <span>खण्ड ५: कामदार अनुपस्थिति हर्जाना तथा प्रतिस्थापन जनशक्ति (Penalty & Reliever Rules)</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-700 leading-relaxed">
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1">
+                <strong className="text-amber-950 block font-bold">१. अनुपस्थित भएमा तलब कट्टा:</strong>
+                <p>
+                  कुनै श्रमिक बिदा वा अनुपस्थित भएमा उक्त दिनको दैनिक दर अनुसार मासिक बिलबाट सोझै पारिश्रमिक कट्टा गरिनेछ।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1">
+                <strong className="text-amber-950 block font-bold">२. प्रतिस्थापन (Reliever) नखटाए जरिवाना:</strong>
+                <p>
+                  अनुपस्थित श्रमिकको सट्टा २ घण्टाभित्र वैकल्पिक प्रतिस्थापन (Reliever) नखटाए सम्झौता सर्त अनुसार प्रति व्यक्ति दैनिक रु. ५०० देखि १,००० सम्म जरिवाना काटिनेछ।
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 space-y-1">
+                <strong className="text-amber-950 block font-bold">३. अनिवार्य पोसाक र सुरक्षा सामग्री (PPE):</strong>
+                <p>
+                  नियम अनुसार तोकिएको युनिफर्म, नेमप्लेट, र सुरक्षा उपकरण (PPE) बिना ड्युटीमा खटाइएमा सेवा प्रदायकलाई कारबाही गरिनेछ।
+                </p>
               </div>
             </div>
           </div>
