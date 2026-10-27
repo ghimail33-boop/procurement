@@ -1,30 +1,30 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Search, 
-  X, 
-  Layers, 
-  BookOpen, 
-  FileCheck2, 
-  ClipboardList, 
+import {
+  Search,
+  X,
+  Layers,
+  BookOpen,
+  FileCheck2,
+  ClipboardList,
   ArrowRight,
   CheckCircle2
 } from 'lucide-react';
-import { 
-  PROCUREMENT_METHODS, 
-  PROCUREMENT_STAGES, 
-  COMPLIANCE_CHECKLIST_MASTER, 
-  KEY_LEGAL_CLAUSES, 
-  OFFICIAL_SCHEDULES 
+import {
+  PROCUREMENT_METHODS,
+  PROCUREMENT_STAGES,
+  COMPLIANCE_CHECKLIST_MASTER,
+  KEY_LEGAL_CLAUSES,
+  OFFICIAL_SCHEDULES
 } from '../data/procurementData';
 import { ACT_CHAPTERS, RULE_CHAPTERS } from '../data/completeLawData';
 import { PROCUREMENT_GLOSSARY } from '../data/procurementGlossaryData';
 import { PROCUREMENT_DILEMMAS } from '../data/procurementDilemmasData';
 import { PROCUREMENT_TEMPLATES } from '../data/templatesData';
 import { ProcurementType } from '../types/procurement';
-import { 
-  HelpCircle, 
-  BookA, 
-  FileText 
+import {
+  HelpCircle,
+  BookA,
+  FileText
 } from 'lucide-react';
 
 const SEARCH_TERM_ALIASES: Record<string, string[]> = {
@@ -106,20 +106,20 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
     // 1. Filter Methods
     const matchedMethods = (selectedContentType === 'all' || selectedContentType === 'methods')
       ? PROCUREMENT_METHODS.filter((m) => {
-          // Category filter
-          if (selectedType !== 'all' && !m.category.includes(selectedType)) return false;
+        // Category filter
+        if (selectedType !== 'all' && !m.category.includes(selectedType)) return false;
 
-          // Threshold filter
-          if (selectedThreshold === 'under-15lakh' && (m.minAmount && m.minAmount > 1500000)) return false;
-          if (selectedThreshold === '15lakh-20lakh' && m.id !== 'sealed-quotation' && m.id !== 'direct-procurement') return false;
-          if (selectedThreshold === '20lakh-2crore' && m.minAmount && m.minAmount > 20000000) return false;
-          if (selectedThreshold === '2crore-5arab' && m.maxAmount && m.maxAmount < 20000000) return false;
-          if (selectedThreshold === 'above-5arab' && (!m.maxAmount || m.maxAmount < 5000000000)) return false;
+        // Threshold filter
+        if (selectedThreshold === 'under-15lakh' && (m.minAmount && m.minAmount > 1500000)) return false;
+        if (selectedThreshold === '15lakh-20lakh' && m.id !== 'sealed-quotation' && m.id !== 'direct-procurement') return false;
+        if (selectedThreshold === '20lakh-2crore' && m.minAmount && m.minAmount > 20000000) return false;
+        if (selectedThreshold === '2crore-5arab' && m.maxAmount && m.maxAmount < 20000000) return false;
+        if (selectedThreshold === 'above-5arab' && (!m.maxAmount || m.maxAmount < 5000000000)) return false;
 
-          // Text search
-          if (!term) return true;
-          return matchesSearch(m, term);
-        })
+        // Text search
+        if (!term) return true;
+        return matchesSearch(m, term);
+      })
       : [];
 
     // 2. Filter Legal Clauses & Act / Rule Sections
@@ -154,61 +154,61 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
 
     const matchedClauses = (selectedContentType === 'all' || selectedContentType === 'clauses')
       ? uniqueClauses.filter((c) => {
-          if (selectedType !== 'all' && c.category !== 'general' && !c.category.includes(selectedType)) return false;
-          if (!term) return true;
-          return matchesSearch(c, term);
-        })
+        if (selectedType !== 'all' && c.category !== 'general' && !c.category.includes(selectedType)) return false;
+        if (!term) return true;
+        return matchesSearch(c, term);
+      })
       : [];
 
     // 3. Filter Checklists
     const matchedChecklists = (selectedContentType === 'all' || selectedContentType === 'checklists')
       ? COMPLIANCE_CHECKLIST_MASTER.filter((chk) => {
-          if (selectedType !== 'all' && !chk.procurementTypes.includes(selectedType)) return false;
-          if (selectedStage !== 'all' && chk.stageId !== selectedStage) return false;
-          if (!term) return true;
-          return matchesSearch(chk, term);
-        })
+        if (selectedType !== 'all' && !chk.procurementTypes.includes(selectedType)) return false;
+        if (selectedStage !== 'all' && chk.stageId !== selectedStage) return false;
+        if (!term) return true;
+        return matchesSearch(chk, term);
+      })
       : [];
 
     // 4. Filter Stages
     const matchedStages = (selectedContentType === 'all')
       ? PROCUREMENT_STAGES.filter((s) => {
-          if (selectedStage !== 'all' && s.id !== selectedStage) return false;
-          if (!term) return true;
-          return matchesSearch(s, term);
-        })
+        if (selectedStage !== 'all' && s.id !== selectedStage) return false;
+        if (!term) return true;
+        return matchesSearch(s, term);
+      })
       : [];
 
     // 5. Filter Schedules
     const matchedSchedules = (selectedContentType === 'all' || selectedContentType === 'schedules')
       ? OFFICIAL_SCHEDULES.filter((sch) => {
-          if (!term) return true;
-          return matchesSearch(sch, term);
-        })
+        if (!term) return true;
+        return matchesSearch(sch, term);
+      })
       : [];
 
     // 6. Filter Practical Dilemmas & Cases (समस्या समाधान तथा नजिर)
     const matchedDilemmas = (selectedContentType === 'all' || selectedContentType === 'dilemmas')
       ? PROCUREMENT_DILEMMAS.filter((d) => {
-          if (!term) return true;
-          return matchesSearch(d, term);
-        })
+        if (!term) return true;
+        return matchesSearch(d, term);
+      })
       : [];
 
     // 7. Filter Procurement Glossary (शब्दावली कोष)
     const matchedGlossary = (selectedContentType === 'all' || selectedContentType === 'glossary')
       ? PROCUREMENT_GLOSSARY.filter((g) => {
-          if (!term) return true;
-          return matchesSearch(g, term);
-        })
+        if (!term) return true;
+        return matchesSearch(g, term);
+      })
       : [];
 
     // 8. Filter Templates (कागजात तथा टिप्पणी ढाँचाहरू)
     const matchedTemplates = (selectedContentType === 'all' || selectedContentType === 'templates')
       ? PROCUREMENT_TEMPLATES.filter((t) => {
-          if (!term) return true;
-          return matchesSearch(t, term);
-        })
+        if (!term) return true;
+        return matchesSearch(t, term);
+      })
       : [];
 
     const totalCount =
@@ -544,7 +544,7 @@ export const SearchAndFilterModal: React.FC<SearchAndFilterModalProps> = ({
                         </h4>
                         <p className="text-xs text-slate-600 mt-1 line-clamp-2">{stage.description}</p>
                         <div className="text-[11px] text-slate-600 mt-2 pt-2 border-t border-slate-100">
-                          कानुनी आधार: {stage.legalBasis}
+                          कानूनी आधार: {stage.legalBasis}
                         </div>
                       </div>
                     ))}

@@ -38,8 +38,12 @@ import {
   FileWarning,
   Globe,
   Tag,
+  Target,
+  UtensilsCrossed,
 } from 'lucide-react';
 import { BiddingFormsGenerator } from './BiddingFormsGenerator';
+import { RationProcurementHub } from './bidder/RationProcurementHub';
+import { BidNoBidAnalyzer } from './bidder/BidNoBidAnalyzer';
 import {
   SBD_DOCUMENTS_LIST,
   BIDDER_PRECEDENT_CASES,
@@ -67,6 +71,8 @@ interface BidderPortalViewProps {
   | 'consulting-services'
   | 'non-consulting-services'
   | 'services-guide'
+  | 'ration-procurement'
+  | 'bid-no-bid'
   | 'fatal-mistakes'
   | 'forms'
   | 'checklist'
@@ -875,6 +881,10 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
       );
     }
 
+    if (activeSubTab === 'ration-procurement' || activeSubTab === 'bid-no-bid') {
+      return null;
+    }
+
     // Default Main Banner for 'overview' and all other tabs
     return (
       <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
@@ -914,8 +924,10 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
           {[
             { id: 'overview', label: 'ड्यासबोर्ड मुख्य पृष्ठ', icon: Layers },
             { id: 'eligibility', label: 'के म योग्य छु? (निर्माण कार्य)', icon: Calculator },
+            { id: 'bid-no-bid', label: 'बिड/नो-बिड विश्लेषक (Strategy)', icon: Target },
             { id: 'goods-procurement', label: 'मालसामान खरिद (Goods)', icon: ShoppingBag },
             { id: 'catalogue-shopping', label: 'क्याटलग सपिङ (Catalogue)', icon: PackageCheck },
+            { id: 'ration-procurement', label: 'राशन खरिद विशेष गाइड (Ration)', icon: UtensilsCrossed },
             { id: 'consulting-services', label: 'परामर्श सेवा (Consulting)', icon: Award },
             { id: 'non-consulting-services', label: 'गैर-परामर्श सेवा (Non-Consulting)', icon: Users },
             { id: 'fatal-mistakes', label: 'घातक गल्तीहरू र जोखिम अडिट', icon: ShieldAlert },
@@ -971,6 +983,26 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               </div>
             </div>
 
+            {/* Card: Bid / No-Bid Analyzer */}
+            <div
+              onClick={() => setActiveSubTab('bid-no-bid')}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-indigo-300 transition-all cursor-pointer group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                <Target className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-800 transition-colors">
+                बिड / नो-बिड रणनीतिक विश्लेषक
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                १०-सूचकांक आधारमा बोलपत्र हाल्ने कि नहाल्ने वैज्ञानिक निर्णय र भाग १४.२ मूल्य निर्धारण सूत्र।
+              </p>
+              <div className="mt-3 flex items-center text-xs font-semibold text-indigo-700">
+                <span>रणनीतिक मूल्याङ्कन</span>
+                <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
             {/* Card 2: Goods Procurement */}
             <div
               onClick={() => setActiveSubTab('goods-procurement')}
@@ -1007,6 +1039,26 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               </p>
               <div className="mt-3 flex items-center text-xs font-semibold text-emerald-700">
                 <span>छुट क्याल्कुलेटर र गाइड</span>
+                <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            {/* Card: Ration Procurement */}
+            <div
+              onClick={() => setActiveSubTab('ration-procurement')}
+              className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs hover:shadow-md hover:border-amber-300 transition-all cursor-pointer group"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold mb-3 group-hover:scale-105 transition-transform">
+                <UtensilsCrossed className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 group-hover:text-amber-800 transition-colors">
+                राशन खरिद विशेष गाइड (Ration)
+              </h3>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                सुरक्षा निकाय र अस्पताल सिदा आपूर्ति, माघ १ चक्र, २५% गोदाम पेश्की र १००% बढी दर सिमुलेटर।
+              </p>
+              <div className="mt-3 flex items-center text-xs font-semibold text-amber-700">
+                <span>दररेट तथा जोखिम परीक्षण</span>
                 <ChevronRight className="w-3.5 h-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
@@ -3164,6 +3216,114 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* Implementation Rules Comparison Table */}
+            <div className="overflow-x-auto pt-2">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-slate-100 text-slate-700 border-b border-slate-200 font-semibold">
+                    <th className="p-2.5">प्रावधान / सर्त</th>
+                    <th className="p-2.5">Time-Based सम्झौता</th>
+                    <th className="p-2.5">Lump-Sum सम्झौता</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-600">
+                  <tr>
+                    <td className="p-2.5 font-semibold text-slate-800">मूल्य समायोजन (Price Adjustment)</td>
+                    <td className="p-2.5">१२ महिनाभन्दा बढी अवधिको सम्झौता भए लागू हुन सक्ने [ऐन दफा ५५]</td>
+                    <td className="p-2.5 text-rose-700 font-medium">लागू हुँदैन (Fixed Price) [ऐन दफा ५५(२)]</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2.5 font-semibold text-slate-800">खर्चको सीमा (Ceiling Alert)</td>
+                    <td className="p-2.5">कुल सम्झौता रकमको ८०% खर्च पुगेपछि निकायलाई अनिवार्य जानकारी</td>
+                    <td className="p-2.5">माइलस्टोन प्रतिवेदन स्वीकृति अनुसार किस्ताबन्दी भुक्तानी</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2.5 font-semibold text-slate-800">मोबिलाइजेसन पेश्की (Advance)</td>
+                    <td className="p-2.5" colSpan={2}>सम्झौता रकमको बढीमा २०% (ऐन दफा ५२क); अग्रिम बैंक जमानत लिई छुट्टै खाताबाट खर्च; ३० दिनभित्र काम सुरु</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2.5 font-semibold text-slate-800">रिटेन्सन कट्टी र फिर्ता (Retention)</td>
+                    <td className="p-2.5" colSpan={2}>प्रत्येक बिलबाट कट्टा हुने; आधा रकम अन्तिम बिलमा र बाँकी आधा आयकर चुक्ता प्रमाण पेश गरेको १५ दिनभित्र फिर्ता [नियम १२४]</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2.5 font-semibold text-slate-800">ढिलाइ क्षतिपूर्ति (Liquidated Damages)</td>
+                    <td className="p-2.5" colSpan={2}>प्रतिदिन सम्झौता रकमको ०.०५%, अधिकतम १०% सम्म [नियम १२१]; १०% पुगे सम्झौता अन्त्य र कालोसूची सिफारिस</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Section 6: Professional Liability Insurance (PPA Sec 38(6), PPR Rule 81(7)-(8)) */}
+          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-800">
+                  <ShieldCheck className="w-4 h-4 text-purple-600" />
+                  <span>खण्ड ६: पेसागत दायित्व बिमा (Professional Liability Insurance) – नयाँ वैधानिक व्यवस्था</span>
+                </div>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                  सार्वजनिक खरिद ऐन दफा ३८(६) र नियमावलीको नियम ८१(७)-(८) सम्बन्धी अनिवार्य मार्गनिर्देशन
+                </h3>
+              </div>
+              <span className="text-xs bg-purple-100 text-purple-900 font-bold px-3 py-1.5 rounded-full border border-purple-200 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-purple-700" />
+                सम्झौता गरेको ३० दिनभित्र बुझाउनैपर्ने
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  १. बिमाको कभरेज तथा दायित्व क्षेत्र (नियम ८१(७क))
+                </h4>
+                <ul className="space-y-2 text-xs text-slate-600 leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0 mt-1.5" />
+                    <span><strong>कुल सम्झौता मूल्य बराबर:</strong> यो बिमा निःशर्त फुकुवा हुने प्रकृतिको हुनुपर्छ र यसले सम्झौताको कुल रकम समेट्नुपर्छ।</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0 mt-1.5" />
+                    <span><strong>परामर्शदाता र मुख्य पेसाविद् दुवै कभर:</strong> परामर्शदाता संस्था र निजले परिचालन गरेका सबै जिम्मेवार मुख्य विज्ञहरू (Key Experts) लाई समेट्नुपर्छ।</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0 mt-1.5" />
+                    <span><strong>लापरबाही वा त्रुटिबाट हुने क्षति:</strong> अध्ययन, सर्वेक्षण, अनुसन्धान, परीक्षण, डिजाइन, गणना, ड्रइङ, स्पेसिफिकेसन, सुपरिवेक्षण, प्रमाणीकरण वा सिफारिस गर्दा भएको भूल वा पेसागत दायित्व उल्लङ्घनबाट उत्पन्न जोखिम समेट्नुपर्छ।</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0 mt-1.5" />
+                    <span><strong>आर्थिक प्रस्तावमै समावेश गर्नुपर्ने:</strong> बिमा शुल्क (प्रिमियम) लागत अनुमान र आर्थिक प्रस्तावमै समावेश गर्नुपर्छ (नियम ८१(७ख))।</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  २. वैधता अवधि र पेश नगरे हुने घातक सजाय (नियम ८१(८))
+                </h4>
+                <div className="bg-red-50 border-2 border-red-300 rounded-xl p-4 text-xs text-red-950 space-y-2">
+                  <span className="font-bold text-red-900 block flex items-center gap-1.5">
+                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                    बिमा पेश नगरे सम्झौता अन्त्य र कालोसूची सिफारिस:
+                  </span>
+                  <p className="leading-relaxed">
+                    सम्झौता गरेको ३० दिनभित्र तोकिएको पेसागत दायित्व बिमा दाखिला नगरेमा सार्वजनिक निकायले <strong>सम्झौता तत्काल अन्त्य गरी कालोसूचीमा राख्न सिफारिस गर्नुपर्ने</strong> बाध्यात्मक व्यवस्था छ (नियम ८१(८); SRFP GCC २०.१.१(f))।
+                  </p>
+                  <p className="leading-relaxed font-semibold">
+                    बिमा परामर्श सेवा सुरु भएको मितिदेखि सम्झौतामा तोकिएको दायित्व अवधि (Defect Liability Period / Post-completion liability) समाप्त नहुन्जेलसम्म निरन्तर मान्य रहनुपर्छ (नियम ८१(७ग))।
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Statutory Protection Banner */}
+            <div className="bg-purple-50/70 border border-purple-200 rounded-xl p-3.5 text-xs text-purple-950 leading-relaxed flex items-center gap-2.5">
+              <ShieldCheck className="w-4 h-4 text-purple-700 shrink-0" />
+              <span>
+                <strong>ऐन दफा ५२घ को संरक्षण:</strong> सम्झौताका शर्त विपरीत सार्वजनिक निकायका पदाधिकारीले दबाब दिएर कुनै पनि अधिकार परित्याग गराउन पाउने छैनन्। जबर्जस्ती गराइएको अधिकार परित्याग कानुनतः शून्य र अमान्य हुन्छ।
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -4622,6 +4782,20 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
             )}
           </div>
         </div>
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* TAB: RATION PROCUREMENT HUB (PPA Sec 42, PPR Rule 88-93) */}
+      {/* ------------------------------------------------------------- */}
+      {activeSubTab === 'ration-procurement' && (
+        <RationProcurementHub />
+      )}
+
+      {/* ------------------------------------------------------------- */}
+      {/* TAB: BID / NO-BID STRATEGIC ANALYZER (PPA Sec 10, 25 & SBD) */}
+      {/* ------------------------------------------------------------- */}
+      {activeSubTab === 'bid-no-bid' && (
+        <BidNoBidAnalyzer />
       )}
     </div>
   );
