@@ -1,4 +1,19 @@
 import React, { useMemo, useState } from 'react';
+import publicAImage from '../../public-a.png';
+import bidderDedicatedImage from '../../bidder-dedicated.png';
+import goodsImage from '../../goods.png';
+import catalogueImage from '../../catalogue.png';
+import rationImage from '../../ration.png';
+import icbImage from '../../icb.png';
+import consultingImage from '../../consulting.png';
+import nonConsultingImage from '../../non-consulting.png';
+import riskImage from '../../risk.png';
+import generatorImage from '../../generator.png';
+import checklistImage from '../../checklist.png';
+import egpImage from '../../egp.png';
+import reviewImage from '../../review.png';
+import sampleImage from '../../sample.png';
+import bidNoBidImage from '../../bid-no-bid.png';
 import {
   Briefcase,
   CheckCircle2,
@@ -696,17 +711,17 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
 
     if (activeSubTab === 'goods-procurement' || activeSubTab === 'goods-guide') {
       return (
-        <div className="bg-gradient-to-r from-blue-950 via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-300 mb-1.5">
-                <ShoppingBag className="w-4 h-4" />
-                <span>मालसामान खरिद तथा आपूर्ति सहयोगी • Goods Procurement & Supply Hub</span>
+        <div className="bg-gradient-to-r from-blue-950 via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-teal-300 mb-1.5 truncate">
+                <ShoppingBag className="w-4 h-4 shrink-0" />
+                <span className="truncate">मालसामान खरिद तथा आपूर्ति सहयोगी • Goods Procurement & Supply Hub</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight truncate">
                 मालसामान खरिद (खुला बोलपत्र, शिलबन्दी दरभाउ र सोझै खरिद)
               </h1>
-              <p className="text-xs sm:text-sm text-teal-100/90 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-teal-100/90 mt-1 leading-relaxed line-clamp-2">
                 सार्वजनिक खरिद ऐन २०६३, नियमावली २०६४ (१६औँ संशोधन) र PPMO SBDs अनुसार आपूर्तिकर्ताको योग्यता स्व-मूल्याङ्कन, MAF नियम, स्पेसिफिकेसन कम्प्लायन्स, स्वदेशी उत्पादनलाई प्राथमिकता (१५%), र डेलिभरी/LD क्याल्कुलेटर।
               </p>
             </div>
@@ -723,23 +738,40 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {renderSwitchBtn()}
             </div>
           </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={goodsImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-950/35 via-teal-900/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-teal-900 via-teal-900/40 to-transparent" />
+          </div>
         </div>
       );
     }
 
     if (activeSubTab === 'catalogue-shopping') {
       return (
-        <div className="bg-gradient-to-r from-teal-900 via-emerald-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-1.5">
-                <PackageCheck className="w-4 h-4" />
-                <span>क्याटलग सपिङ विशेष कर्नर • Catalogue Shopping Hub (PPA दफा ४१क र PPR नियम ८५क)</span>
+        <div className="bg-gradient-to-r from-teal-900 via-emerald-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-1.5 truncate">
+                <PackageCheck className="w-4 h-4 shrink-0" />
+                <span className="truncate">क्याटलग सपिङ विशेष कर्नर • Catalogue Shopping Hub (PPA दफा ४१क र PPR नियम ८५क)</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight truncate">
                 क्याटलग सपिङ विधिबाट मालसामान खरिद तथा आपूर्ति
               </h1>
-              <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 leading-relaxed line-clamp-2">
                 उत्पादक तथा अधिकृत बिक्रेताहरूका लागि क्याटलग सूचीकरण प्रक्रिया, अधिकतम छुट रणनीति क्याल्कुलेटर, खरिद आदेश कार्यान्वयन, आपूर्ति समयसीमा, र निरीक्षण तथा दाखिला प्रक्रिया।
               </p>
             </div>
@@ -756,23 +788,40 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {renderSwitchBtn()}
             </div>
           </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={catalogueImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-teal-900/35 via-emerald-900/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-emerald-900 via-emerald-900/40 to-transparent" />
+          </div>
         </div>
       );
     }
 
     if (activeSubTab === 'icb-procurement') {
       return (
-        <div className="bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cyan-300 mb-1.5">
-                <Globe className="w-4 h-4 text-cyan-400" />
-                <span>अन्तर्राष्ट्रिय खुला बोलपत्र • International Competitive Bidding (ICB Guide)</span>
+        <div className="bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-cyan-300 mb-1.5 truncate">
+                <Globe className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="truncate">अन्तर्राष्ट्रिय खुला बोलपत्र • International Competitive Bidding (ICB Guide)</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight truncate">
                 अन्तर्राष्ट्रिय बोलपत्र (ICB Goods/Works), Incoterms 2020 र Local Agent पोर्टल
               </h1>
-              <p className="text-xs sm:text-sm text-cyan-100/90 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-cyan-100/90 mt-1 leading-relaxed line-clamp-2">
                 सार्वजनिक खरिद ऐन २०६३ दफा १४, १५, नियमावली नियम ३१ङ, ३९ र PPMO ICB SBD अनुसार ७-चरणको खरिद चक्र, ११ वटा Incoterms, स्थानीय एजेन्टका दायित्व, १५-चरणको मूल्याङ्कन र अन्तरक्रियात्मक क्विज।
               </p>
             </div>
@@ -781,23 +830,40 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {renderSwitchBtn()}
             </div>
           </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={icbImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-950/35 via-indigo-900/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-indigo-900 via-indigo-900/40 to-transparent" />
+          </div>
         </div>
       );
     }
 
     if (activeSubTab === 'consulting-services' || activeSubTab === 'services-guide') {
       return (
-        <div className="bg-gradient-to-r from-indigo-950 via-purple-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-300 mb-1.5">
-                <Award className="w-4 h-4 text-purple-300" />
-                <span>परामर्श सेवा विशेष कर्नर • Consulting Services Hub (PPA दफा २९-३८ र PPR नियम ६९-८०)</span>
+        <div className="bg-gradient-to-r from-indigo-950 via-purple-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-300 mb-1.5 truncate">
+                <Award className="w-4 h-4 text-purple-300 shrink-0" />
+                <span className="truncate">परामर्श सेवा विशेष कर्नर • Consulting Services Hub (PPA दफा २९-३८ र PPR नियम ६९-८०)</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight truncate">
                 परामर्श सेवा खरिद (EOI सर्टलिस्टिङ, RFP, QCBS, QBS, LCS & मुख्य विज्ञ CV)
               </h1>
-              <p className="text-xs sm:text-sm text-purple-100/90 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-purple-100/90 mt-1 leading-relaxed line-clamp-2">
                 सार्वजनिक निकायहरूमा बौद्धिक तथा व्यावसायिक सेवा प्रदान गर्ने परामर्शदाताहरूका लागि EOI योग्यता परीक्षण, QCBS/LCS/FBS छनौट विधि क्याल्कुलेटर, TECH-4 कार्यविधि, र TECH-6 विज्ञ CV प्रमाणीकरण नियमहरू।
               </p>
             </div>
@@ -814,23 +880,40 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {renderSwitchBtn()}
             </div>
           </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={consultingImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/35 via-purple-900/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-purple-900 via-purple-900/40 to-transparent" />
+          </div>
         </div>
       );
     }
 
     if (activeSubTab === 'non-consulting-services') {
       return (
-        <div className="bg-gradient-to-r from-slate-950 via-rose-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-300 mb-1.5">
-                <Users className="w-4 h-4 text-rose-300" />
-                <span>गैर-परामर्श सेवा सहयोगी • Non-Consulting Services Hub (सुरक्षा, सरसफाइ, हाउसकिपिङ, लजिस्टिक)</span>
+        <div className="bg-gradient-to-r from-slate-950 via-rose-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-300 mb-1.5 truncate">
+                <Users className="w-4 h-4 text-rose-300 shrink-0" />
+                <span className="truncate">गैर-परामर्श सेवा सहयोगी • Non-Consulting Services Hub (सुरक्षा, सरसफाइ, हाउसकिपिङ, लजिस्टिक)</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight truncate">
                 गैर-परामर्श सेवा खरिद (श्रम ऐन २०७४, २०% SSF, न्यूनतम पारिश्रमिक र सेवा शुल्क)
               </h1>
-              <p className="text-xs sm:text-sm text-rose-100/90 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-rose-100/90 mt-1 leading-relaxed line-clamp-2">
                 सुरक्षा गार्ड, सरसफाइ, कार्यालय सहयोग, चालक तथा लजिस्टिक सेवा प्रदायकहरूका लागि नेपाल सरकारको न्यूनतम पारिश्रमिक (रु. १७,३००), रोजगारदाता २०% SSF लागत, सेवा शुल्क (Overhead) क्याल्कुलेटर, र योग्यता स्व-मूल्याङ्कन।
               </p>
             </div>
@@ -847,23 +930,40 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {renderSwitchBtn()}
             </div>
           </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={nonConsultingImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/35 via-rose-950/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-rose-950 via-rose-950/40 to-transparent" />
+          </div>
         </div>
       );
     }
 
     if (activeSubTab === 'fatal-mistakes') {
       return (
-        <div className="bg-gradient-to-r from-rose-950 via-red-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-300 mb-1.5">
-                <ShieldAlert className="w-4 h-4" />
-                <span>बोलपत्रदाता सचेतना केन्द्र • Fatal Bid Disqualification Pitfalls & Risk Auditor</span>
+        <div className="bg-gradient-to-r from-rose-950 via-red-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-300 mb-1.5 truncate">
+                <ShieldAlert className="w-4 h-4 shrink-0" />
+                <span className="truncate">बोलपत्रदाता सचेतना केन्द्र • Fatal Bid Disqualification Pitfalls & Risk Auditor</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight truncate">
                 बोलपत्र बदर (Non-Responsive) हुनसक्ने १५ घातक गल्तीहरू र पूर्व-पेश जोखिम अडिट
               </h1>
-              <p className="text-xs sm:text-sm text-rose-100/90 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-rose-100/90 mt-1 leading-relaxed line-clamp-2">
                 हेर्दा सामान्य लाग्ने तर बोलपत्रलाई सिधै रद्द गराउने कानूनी, प्राविधिक र प्रक्रियागत छिद्रहरूको विस्तृत विश्लेषण, बैंक ग्यारेन्टी म्याद क्याल्कुलेटर, र बिड सबमिट गर्नुअघिको अनिवार्य १०-बुँदे जोखिम अडिट।
               </p>
             </div>
@@ -876,23 +976,40 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {renderSwitchBtn()}
             </div>
           </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={riskImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-rose-950/35 via-red-900/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-red-900 via-red-900/40 to-transparent" />
+          </div>
         </div>
       );
     }
 
     if (activeSubTab === 'forms') {
       return (
-        <div className="bg-gradient-to-r from-blue-900 via-[#173b63] to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-300 mb-1">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span>PPMO Standard Bidding Documents (SBD) • Section IV</span>
+        <div className="bg-gradient-to-r from-blue-900 via-[#173b63] to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-300 mb-1 truncate">
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="truncate">PPMO Standard Bidding Documents (SBD) • Section IV</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight truncate">
                 बोलपत्र फाराम तथा आधिकारिक ढाँचा जेनेरेटर
               </h1>
-              <p className="text-xs sm:text-sm text-blue-100/90 mt-1.5 max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-blue-100/90 mt-1.5 leading-relaxed line-clamp-2">
                 सार्वजनिक खरिद अनुगमन कार्यालय (PPMO) का SBDs (Works, Goods, Services, SQ) अनुसार बोलपत्रदाताहरूले पेश गर्नुपर्ने फारामहरू आफ्ना विवरण भरी तुरुन्तै प्रिन्ट वा कपी गर्नुहोस्।
               </p>
             </div>
@@ -904,62 +1021,157 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
               {renderSwitchBtn()}
             </div>
           </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={generatorImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/35 via-[#173b63]/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#173b63] via-[#173b63]/40 to-transparent" />
+          </div>
         </div>
       );
     }
 
     if (activeSubTab === 'ration-procurement') {
       return (
-        <div className="bg-gradient-to-r from-amber-800 via-orange-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-300 mb-1.5">
-                <UtensilsCrossed className="w-4 h-4 text-amber-300" />
-                <span>विशेष खरिद मार्गदर्शन • Ration Procurement Guide</span>
+        <div className="bg-gradient-to-r from-amber-800 via-orange-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-300 mb-1.5 truncate">
+                <UtensilsCrossed className="w-4 h-4 text-amber-300 shrink-0" />
+                <span className="truncate">विशेष खरिद मार्गदर्शन • Ration Procurement Guide</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
-                <span>राशन खरिद तथा सिदा आपूर्ति व्यवस्था</span>
-                <span className="text-xs bg-amber-600/80 text-white px-2.5 py-0.5 rounded-full font-medium">
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight flex items-center gap-2 truncate">
+                <span className="truncate">राशन खरिद तथा सिदा आपूर्ति व्यवस्था</span>
+                <span className="text-xs bg-amber-600/80 text-white px-2.5 py-0.5 rounded-full font-medium shrink-0">
                   ऐन दफा ४२ • नियम ८८–९३
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-amber-100/90 mt-1 max-w-3xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-amber-100/90 mt-1 leading-relaxed line-clamp-2">
                 नेपाली सेना, नेपाल प्रहरी, सशस्त्र प्रहरी बल, कारागारका कैदीबन्दी, अस्पतालका बिरामी र पशुपन्छीका लागि खाद्यान्न आपूर्ति सम्बन्धी विशेष कानुनी व्यवस्था, वार्षिक चक्र (माघ १ देखि लागू), २५% गोदाम पेश्की र नियम ८९(६) बमोजिम १००% बढी दररेटमा बोलपत्र रद्द हुने जोखिम सिमुलेटर।
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <div className="bg-white/10 backdrop-blur-xs border border-white/20 p-3 rounded-xl text-center">
-                <span className="text-xs text-amber-200 block font-medium">वार्षिक खरिद चक्र</span>
-                <span className="text-base font-bold text-white">माघ १ – पौष मसान्त</span>
-                <span className="text-[11px] text-amber-300 block mt-0.5">मूल्यवृद्धि नदिइने (Fixed Price)</span>
+              <div className="bg-white/10 backdrop-blur-xs border border-white/20 px-3 py-1.5 rounded-xl text-center">
+                <span className="text-xs text-amber-200 block font-medium">वार्षिक खरिद चक्र (माघ १–पौष मसान्त)</span>
+                <span className="text-[11px] text-amber-300 block mt-0.5 font-bold">मूल्यवृद्धि नदिइने (Fixed Price)</span>
               </div>
               {renderSwitchBtn()}
             </div>
+          </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={rationImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-800/35 via-orange-900/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-orange-900 via-orange-900/40 to-transparent" />
           </div>
         </div>
       );
     }
 
     if (activeSubTab === 'bid-no-bid') {
-      return null;
+      return (
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex-1 min-w-0 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-300 mb-1.5 truncate">
+                <Target className="w-4 h-4 shrink-0" />
+                <span className="truncate">रणनीतिक निर्णय उपकरण • Bid/No-Bid Decision Matrix</span>
+              </div>
+              <h1 className="text-xl lg:text-2xl font-bold tracking-tight flex items-center gap-2 truncate">
+                <span className="truncate">बोलपत्र हाल्ने कि नहाल्ने निर्णय विश्लेषक</span>
+                <span className="text-xs bg-indigo-700 text-white px-2.5 py-0.5 rounded-full font-medium shrink-0">
+                  PPA Sec 10, 25 & SBD Framework
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-indigo-100/90 mt-1 leading-relaxed line-clamp-2">
+                हरेक बोलपत्र हाल्नैपर्छ भन्ने छैन। योग्यता, बैंक सीमा, चालू ५ ठेक्का सीमा, लिक्विडेटेड ड्यामेज (LD), नगद प्रवाह र नाफा मार्जिनको वैज्ञानिक १०-सूचकांक विश्लेषण गरी आफ्नो स्रोत सुरक्षित राख्नुहोस्।
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <div className="bg-white/10 backdrop-blur-xs border border-white/20 px-3 py-1.5 rounded-xl text-center shrink-0 min-w-[120px]">
+                <span className="text-xs text-indigo-200 block font-medium">१०-सूचकांक म्याट्रिक्स</span>
+                <span className="text-[11px] text-indigo-300 block mt-0.5 font-bold">Go / No-Bid सिमुलेटर</span>
+              </div>
+              {renderSwitchBtn()}
+            </div>
+          </div>
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            }}
+          >
+            <img
+              src={bidNoBidImage}
+              alt=""
+              aria-hidden="true"
+              className="h-full w-full object-cover object-right"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/35 via-indigo-950/50 to-slate-900/65" />
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-indigo-950 via-indigo-950/40 to-transparent" />
+          </div>
+        </div>
+      );
     }
 
     // Default Main Banner for 'overview' and all other tabs
+    const getDefaultBannerImage = () => {
+      switch (activeSubTab) {
+        case 'eligibility':
+          return bidderDedicatedImage;
+        case 'checklist':
+          return checklistImage;
+        case 'egp-guide':
+          return egpImage;
+        case 'review':
+          return reviewImage;
+        case 'sbd-hub':
+          return sampleImage;
+        case 'overview':
+        default:
+          return publicAImage;
+      }
+    };
+
     return (
-      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>बोलपत्रदाता विशेष कर्नर • Bidder's Dedicated Portal</span>
+      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm transition-all duration-300 relative overflow-hidden min-h-[162px] flex flex-col justify-center">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex-1 min-w-0 max-w-2xl">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-300 mb-1.5 truncate">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="truncate">बोलपत्रदाता विशेष कर्नर • Bidder's Dedicated Portal</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
+            <h1 className="text-xl lg:text-2xl font-bold tracking-tight flex items-center gap-2 truncate">
               <span>सार्वजनिक खरिद बोलपत्रदाता सहयोगी</span>
-              <span className="text-xs bg-emerald-700/80 text-white px-2.5 py-0.5 rounded-full font-medium">
+              <span className="text-xs bg-emerald-700/80 text-white px-2.5 py-0.5 rounded-full font-medium shrink-0">
                 Bidder Mode
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-emerald-100/90 mt-1 leading-relaxed line-clamp-2">
               निर्माण व्यवसायी, आपूर्तिकर्ता तथा परामर्शदाताहरूका लागि योग्यता स्व-मूल्याङ्कन, SBD का फाराम जेनेरेटर, e-GP बिडिङ गाइड, र पुनरावलोकन सम्बन्धी एकीकृत सहयोगी सुविधा।
             </p>
           </div>
@@ -967,6 +1179,23 @@ export const BidderPortalView: React.FC<BidderPortalViewProps> = ({
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             {renderSwitchBtn()}
           </div>
+        </div>
+
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 w-[42%] overflow-hidden"
+          style={{
+            maskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 35%)',
+          }}
+        >
+          <img
+            src={getDefaultBannerImage()}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover object-right"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/35 via-teal-900/50 to-slate-900/65" />
+          <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-teal-900 via-teal-900/40 to-transparent" />
         </div>
       </div>
     );

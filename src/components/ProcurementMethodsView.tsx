@@ -121,7 +121,7 @@ export const ProcurementMethodsView: React.FC<ProcurementMethodsViewProps> = ({
           onClick={() => setSelectedCategory('works')}
           className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'works'
-              ? 'bg-red-700 text-white font-semibold shadow-xs'
+              ? 'bg-blue-700 text-white font-semibold shadow-xs'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -131,7 +131,7 @@ export const ProcurementMethodsView: React.FC<ProcurementMethodsViewProps> = ({
           onClick={() => setSelectedCategory('goods')}
           className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'goods'
-              ? 'bg-red-700 text-white font-semibold shadow-xs'
+              ? 'bg-blue-700 text-white font-semibold shadow-xs'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -141,7 +141,7 @@ export const ProcurementMethodsView: React.FC<ProcurementMethodsViewProps> = ({
           onClick={() => setSelectedCategory('consulting')}
           className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'consulting'
-              ? 'bg-red-700 text-white font-semibold shadow-xs'
+              ? 'bg-blue-700 text-white font-semibold shadow-xs'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -151,7 +151,7 @@ export const ProcurementMethodsView: React.FC<ProcurementMethodsViewProps> = ({
           onClick={() => setSelectedCategory('services')}
           className={`px-3.5 py-2 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'services'
-              ? 'bg-red-700 text-white font-semibold shadow-xs'
+              ? 'bg-blue-700 text-white font-semibold shadow-xs'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >

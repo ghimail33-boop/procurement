@@ -245,7 +245,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>A4 प्रिन्ट / PDF एक्सपोर्ट</span>
@@ -297,7 +297,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
             onClick={() => setSelectedCategory('works')}
             className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
               selectedCategory === 'works'
-                ? 'bg-red-700 text-white font-semibold shadow-xs'
+                ? 'bg-blue-700 text-white font-semibold shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -307,7 +307,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
             onClick={() => setSelectedCategory('goods')}
             className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
               selectedCategory === 'goods'
-                ? 'bg-red-700 text-white font-semibold shadow-xs'
+                ? 'bg-blue-700 text-white font-semibold shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -317,7 +317,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
             onClick={() => setSelectedCategory('consulting')}
             className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
               selectedCategory === 'consulting'
-                ? 'bg-red-700 text-white font-semibold shadow-xs'
+                ? 'bg-blue-700 text-white font-semibold shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -327,7 +327,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
             onClick={() => setSelectedCategory('user-committee')}
             className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
               selectedCategory === 'user-committee'
-                ? 'bg-red-700 text-white font-semibold shadow-xs'
+                ? 'bg-blue-700 text-white font-semibold shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -337,7 +337,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
             onClick={() => setSelectedCategory('services')}
             className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors cursor-pointer ${
               selectedCategory === 'services'
-                ? 'bg-red-700 text-white font-semibold shadow-xs'
+                ? 'bg-blue-700 text-white font-semibold shadow-xs'
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -364,7 +364,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
                     {preset.methodName}
                   </span>
                   {isSelected && (
-                    <span className="w-4 h-4 rounded-full bg-red-700 text-white flex items-center justify-center">
+                    <span className="w-4 h-4 rounded-full bg-blue-700 text-white flex items-center justify-center">
                       <Check className="w-3 h-3 stroke-[3]" />
                     </span>
                   )}
@@ -464,7 +464,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
               onClick={() => setActiveStepNo(milestone.stepNo)}
               className={`p-3 rounded-xl border text-left transition-all relative flex-1 min-w-[140px] cursor-pointer ${
                 isActive
-                  ? 'bg-red-700 text-white border-red-700 shadow-md ring-2 ring-red-700/20'
+                  ? 'bg-blue-700 text-white border-blue-700 shadow-md ring-2 ring-blue-700/20'
                   : isStepDone
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
                   : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -587,7 +587,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
                 <ul className="space-y-1.5 text-xs text-slate-700">
                   {activeMilestone.requiredDocs.map((doc, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-700 mt-1.5 shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-700 mt-1.5 shrink-0" />
                       <span>{doc}</span>
                     </li>
                   ))}
@@ -628,7 +628,7 @@ export const ProcurementWorkflowWizard: React.FC<ProcurementWorkflowWizardProps>
               <button
                 disabled={activeStepNo === activeMilestones.length}
                 onClick={() => setActiveStepNo(prev => Math.min(activeMilestones.length, prev + 1))}
-                className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded-lg text-xs font-bold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold shadow-xs disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <span>पछिल्लो माइलस्टोन</span>
                 <ArrowRight className="w-3.5 h-3.5" />

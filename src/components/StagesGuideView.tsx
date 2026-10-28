@@ -235,7 +235,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
                 setSearchQuery('');
               }}
               className={`p-3 rounded-xl border text-left transition-all relative ${isActive
-                  ? 'bg-red-700 text-white border-red-700 shadow-sm ring-2 ring-red-400/30'
+                  ? 'bg-blue-700 text-white border-blue-700 shadow-sm ring-2 ring-red-400/30'
                   : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                 }`}
             >
@@ -327,7 +327,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
             <button
               onClick={() => setActiveSubTab('overview')}
               className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 ${activeSubTab === 'overview'
-                  ? 'border-red-700 text-red-700 bg-red-50/50'
+                  ? 'border-blue-700 text-red-700 bg-red-50/50'
                   : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
@@ -338,7 +338,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
             <button
               onClick={() => setActiveSubTab('statutory')}
               className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 ${activeSubTab === 'statutory'
-                  ? 'border-red-700 text-red-700 bg-red-50/50'
+                  ? 'border-blue-700 text-red-700 bg-red-50/50'
                   : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
@@ -354,7 +354,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
             <button
               onClick={() => setActiveSubTab('ppmo')}
               className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 ${activeSubTab === 'ppmo'
-                  ? 'border-red-700 text-red-700 bg-red-50/50'
+                  ? 'border-blue-700 text-red-700 bg-red-50/50'
                   : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
@@ -370,7 +370,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
             <button
               onClick={() => setActiveSubTab('pprc')}
               className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 ${activeSubTab === 'pprc'
-                  ? 'border-red-700 text-red-700 bg-red-50/50'
+                  ? 'border-blue-700 text-red-700 bg-red-50/50'
                   : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
@@ -386,7 +386,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
             <button
               onClick={() => setActiveSubTab('audit')}
               className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 ${activeSubTab === 'audit'
-                  ? 'border-red-700 text-red-700 bg-red-50/50'
+                  ? 'border-blue-700 text-red-700 bg-red-50/50'
                   : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
@@ -402,7 +402,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
             <button
               onClick={() => setActiveSubTab('checklist')}
               className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 ${activeSubTab === 'checklist'
-                  ? 'border-red-700 text-red-700 bg-red-50/50'
+                  ? 'border-blue-700 text-red-700 bg-red-50/50'
                   : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
@@ -419,7 +419,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
             <button
               onClick={() => setActiveSubTab('dos-donts')}
               className={`px-3.5 py-2 text-xs font-bold rounded-t-xl transition-all border-b-2 flex items-center gap-1.5 ${activeSubTab === 'dos-donts'
-                  ? 'border-red-700 text-red-700 bg-red-50/50'
+                  ? 'border-blue-700 text-red-700 bg-red-50/50'
                   : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
             >
@@ -973,7 +973,7 @@ export const StagesGuideView: React.FC<StagesGuideViewProps> = ({
                 setSearchQuery('');
               }
             }}
-            className="px-4 py-2 bg-red-700 hover:bg-red-800 disabled:opacity-40 text-white font-medium rounded-lg transition-colors shadow-2xs"
+            className="px-4 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-40 text-white font-medium rounded-lg transition-colors shadow-2xs"
           >
             अर्को चरण ({activeStage.stageNo < PROCUREMENT_STAGES.length ? `चरण ${activeStage.stageNo + 1}` : ''}) →
           </button>

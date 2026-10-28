@@ -23,21 +23,28 @@ interface TopHeaderProps {
 
 const TAB_TITLES: Record<string, { title: string; category: string }> = {
   dashboard: { title: 'ड्यासबोर्ड तथा आयोजना अनुगमन', category: 'व्यवस्थापन' },
+  'procurement-chat': { title: 'सार्वजनिक खरिद स्रोत सहायक', category: 'प्रश्नोत्तर' },
   'bidder-hub': { title: 'बोलपत्रदाता विशेष कर्नर (Bidder Portal)', category: 'बोलपत्रदाता' },
   'bidding-forms': { title: 'बोलपत्र फाराम तथा ढाँचा जेनेरेटर', category: 'बोलपत्रदाता' },
   advisor: { title: 'खरिद सल्लाहकार (Wizard)', category: 'सल्लाहकार' },
+  'workflow-wizard': { title: 'चरणबद्ध खरिद कार्यप्रवाह', category: 'प्रक्रिया' },
+  'user-management': { title: 'प्रयोगकर्ता व्यवस्थापन', category: 'प्रणाली व्यवस्थापन' },
+  'dilemma-solver': { title: 'खरिद समस्या समाधान', category: 'सल्लाह तथा नजिर' },
   methods: { title: 'खरिदका सम्पूर्ण विधिहरू', category: 'विधिहरू' },
   'method-checklists': { title: 'विधि अनुसारको चेकलिस्ट', category: 'अनुपालन' },
   'law-corpus': { title: 'ऐन तथा नियमावली संग्रह', category: 'कानूनी संग्रह' },
   amendments: { title: '१६औँ संशोधनका विशेषताहरू', category: 'संशोधन' },
   stages: { title: 'प्रक्रियागत ७ चरणहरू', category: 'चरणहरू' },
   'egp-guidelines': { title: 'विद्युतीय खरिद प्रणाली सञ्चालन निर्देशिका, २०८०', category: 'e-GP अनुपालन' },
+  'icb-guide': { title: 'अन्तर्राष्ट्रिय प्रतिस्पर्धात्मक बोलपत्र', category: 'खरिद विधि' },
   templates: { title: 'कागजात ढाँचा भण्डार', category: 'ढाँचाहरू' },
   checklists: { title: 'एकीकृत अनुपालन चेकलिस्ट', category: 'चेकलिस्ट' },
   calculator: { title: 'सीमा तथा अख्तियारी क्याल्कुलेटर', category: 'उपकरण' },
   clauses: { title: 'महत्वपूर्ण कानुनी दफाहरू', category: 'दफाहरू' },
   schedules: { title: 'आधिकारिक अनुसूचीहरू (१–८)', category: 'अनुसूचीहरू' },
   'ppmo-pprc': { title: 'PPMO राय तथा PPRC पुनरावलोकन निर्णय', category: 'राय तथा नजिर' },
+  glossary: { title: 'खरिद शब्दावली', category: 'सन्दर्भ' },
+  'timeline-calculator': { title: 'खरिद समयसीमा क्याल्कुलेटर', category: 'उपकरण' },
 };
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
@@ -136,7 +143,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
 
         <button
           onClick={() => window.open('https://financial-procedures.vercel.app/', '_blank', 'noopener,noreferrer')}
-          className="flex items-center justify-center gap-1.5 p-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-red-700 hover:bg-red-800 rounded-lg shadow-xs transition-colors shrink-0"
+          className="flex items-center justify-center gap-1.5 p-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-xs transition-colors shrink-0"
           aria-label="आर्थिक कार्यविधि पेज नयाँ window मा खोल्नुहोस्"
           title="आर्थिक कार्यविधि पेज (नयाँ window मा खोल्नुहोस्)"
         >

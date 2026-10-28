@@ -100,7 +100,7 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
           onClick={() => setActiveSubTab('timeline')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
             activeSubTab === 'timeline'
-              ? 'bg-red-700 text-white shadow-xs'
+              ? 'bg-blue-700 text-white shadow-xs'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -141,7 +141,7 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
                 onClick={() => setProcurementType('works')}
                 className={`p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all text-left ${
                   procurementType === 'works'
-                    ? 'bg-red-700 text-white border-red-700 shadow-xs'
+                    ? 'bg-blue-700 text-white border-blue-700 shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -152,7 +152,7 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
                 onClick={() => setProcurementType('goods')}
                 className={`p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all text-left ${
                   procurementType === 'goods'
-                    ? 'bg-red-700 text-white border-red-700 shadow-xs'
+                    ? 'bg-blue-700 text-white border-blue-700 shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -163,7 +163,7 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
                 onClick={() => setProcurementType('consulting')}
                 className={`p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all text-left ${
                   procurementType === 'consulting'
-                    ? 'bg-red-700 text-white border-red-700 shadow-xs'
+                    ? 'bg-blue-700 text-white border-blue-700 shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -174,7 +174,7 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
                 onClick={() => setProcurementType('services')}
                 className={`p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all text-left ${
                   procurementType === 'services'
-                    ? 'bg-red-700 text-white border-red-700 shadow-xs'
+                    ? 'bg-blue-700 text-white border-blue-700 shadow-xs'
                     : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
                 }`}
               >
@@ -251,7 +251,7 @@ export const CalculatorView: React.FC<CalculatorViewProps> = ({
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-slate-900">{rec.name}</span>
                         {rec.isPrimary && (
-                          <span className="text-[10px] bg-red-700 text-white font-semibold px-2 py-0.2 rounded-full">
+                          <span className="text-[10px] bg-blue-700 text-white font-semibold px-2 py-0.2 rounded-full">
                             प्राथमिक विधि
                           </span>
                         )}

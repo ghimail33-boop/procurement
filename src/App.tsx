@@ -47,6 +47,7 @@ import {
 import { isSupabaseConfigured, supabase } from './lib/supabase';
 
 const PpmoPprcGuide = lazy(() => import('../ppmo_pprc/src/App'));
+const ProcurementChatbot = lazy(() => import('./components/ProcurementChatbot'));
 
 function ProcurementApp({
   currentUser,
@@ -334,7 +335,7 @@ function ProcurementApp({
         />
 
         {/* Viewport Content */}
-        <main className="flex-1 w-full p-4 sm:p-6">
+        <main aria-label="पृष्ठको मुख्य सामग्री" className="flex-1 w-full p-4 sm:p-6 lg:p-8">
           {authError && (
             <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               {authError}
@@ -499,6 +500,12 @@ function ProcurementApp({
               )
           )}
 
+          {activeTab === 'procurement-chat' && (
+            <Suspense fallback={<div role="status" className="py-8 text-center text-sm text-slate-500">खरिद ज्ञान-स्रोत लोड हुँदैछ...</div>}>
+              <ProcurementChatbot onNavigate={setActiveTab} />
+            </Suspense>
+          )}
+
           {activeTab === 'ppmo-pprc' && (
             <Suspense fallback={<div role="status" className="py-8 text-center text-sm text-slate-500">PPMO राय र PPRC निर्णय लोड हुँदैछ...</div>}>
               <PpmoPprcGuide embedded />
@@ -510,7 +517,7 @@ function ProcurementApp({
         <footer className="bg-white border-t border-slate-200 mt-auto py-6 px-4 sm:px-8 no-print text-left">
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-md bg-red-700 text-white flex items-center justify-center font-bold text-[10px]">
+              <div className="w-5 h-5 rounded-md bg-blue-700 text-white flex items-center justify-center font-bold text-[10px]">
                 ख
               </div>
               <span className="font-semibold text-slate-800">सार्वजनिक खरिद सहयोगी</span>

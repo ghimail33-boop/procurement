@@ -91,6 +91,42 @@ verification messages, configure Supabase Auth SMTP and implement accounts with
 real email addresses; do not use the placeholder `.example` address for email
 verification.
 
+## 6. Enable the source-grounded Gemini procurement chatbot
+
+The chatbot retrieves relevant local Act/Rules, SBD/DBD, PPMO opinion, PPRC
+decision, and app content in the browser. It sends the current question, up to
+six recent chat turns, and up to five retrieved excerpts to the authenticated
+`procurement-chat` Edge Function. That function validates the Supabase user
+session and calls Google's Gemini 3.8 Flash API. On temporary server overload,
+it retries once with a short backoff, then tries Gemini 3.6 Flash with one
+retry. The browser never receives the Gemini key. The chatbot UI discloses this
+data flow to users.
+
+Create a Gemini API key in Google AI Studio, then add it as an Edge Function
+secret in Supabase Dashboard → **Edge Functions → Secrets** using the name
+`GEMINI_API_KEY`. Do not put it in `.env.local`, a `VITE_*` variable, source
+code, or a chat message. Supabase supplies `SUPABASE_URL` and
+`SUPABASE_ANON_KEY` to the Edge Function; no service-role key is needed by this
+function.
+
+Deploy the function after linking the repository to the intended Supabase
+project:
+
+```powershell
+supabase functions deploy procurement-chat
+```
+
+The function accepts authenticated POST requests only, bounds request and
+context size, returns bounded upstream diagnostics, and does not log question
+text, source excerpts, or API key values. Google processes the submitted prompt under
+the Gemini API terms and data settings for the key's project.
+
+If the chatbot displays a Gemini 400/404 error after deployment, the response
+now includes Google's short error explanation so the model/request configuration
+can be corrected. Other provider failures include their HTTP status; timeouts
+are reported separately. The Edge Function logs include the provider status and
+provider error message, but never the submitted prompt or API key.
+
 ## 5. Enable public email verification
 
 The login page also supports public user registration with a username, real

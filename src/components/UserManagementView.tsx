@@ -168,6 +168,20 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
           कुल प्रयोगकर्ता: {users.length}
         </div>
         <div className="divide-y divide-slate-100">
+          {users.length === 0 && (
+            <div className="px-5 py-12 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+                <UserRound className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <h3 className="mt-4 text-base font-bold text-slate-900">अर्को प्रयोगकर्ता खाता छैन</h3>
+              <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-600">
+                आवश्यक भूमिका छानेर सहकर्मीका लागि छुट्टै खाता थप्नुहोस्।
+              </p>
+              <button type="button" onClick={startAdd} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">
+                <Plus className="h-4 w-4" /> नयाँ युजर थप्नुहोस्
+              </button>
+            </div>
+          )}
           {users.map((user) => (
             <div key={user.id} className="p-4">
               {editingUserId === user.id ? (

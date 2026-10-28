@@ -148,7 +148,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>कुल चालू योजना</span>
-            <Briefcase className="w-4 h-4 text-red-600" />
+            <Briefcase className="w-4 h-4 text-blue-600" />
           </div>
           <div className="mt-2 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-slate-900 tabular-nums">{projects.length}</span>
@@ -230,9 +230,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           <div className="flex items-center gap-2">
             {/* Filter buttons */}
-            <div className="flex items-center p-1 bg-slate-100 rounded-lg text-xs font-medium">
+            <div className="flex flex-wrap items-center p-1 bg-slate-100 rounded-lg text-xs font-medium" role="group" aria-label="आयोजना प्रकारबाट छान्नुहोस्">
               <button
                 onClick={() => setSelectedTypeFilter('all')}
+                aria-pressed={selectedTypeFilter === 'all'}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedTypeFilter === 'all'
                     ? 'bg-white text-slate-900 shadow-xs font-semibold'
@@ -243,6 +244,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
               <button
                 onClick={() => setSelectedTypeFilter('works')}
+                aria-pressed={selectedTypeFilter === 'works'}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedTypeFilter === 'works'
                     ? 'bg-white text-slate-900 shadow-xs font-semibold'
@@ -253,6 +255,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
               <button
                 onClick={() => setSelectedTypeFilter('goods')}
+                aria-pressed={selectedTypeFilter === 'goods'}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedTypeFilter === 'goods'
                     ? 'bg-white text-slate-900 shadow-xs font-semibold'
@@ -263,6 +266,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
               <button
                 onClick={() => setSelectedTypeFilter('consulting')}
+                aria-pressed={selectedTypeFilter === 'consulting'}
                 className={`px-2.5 py-1 rounded-md transition-colors ${
                   selectedTypeFilter === 'consulting'
                     ? 'bg-white text-slate-900 shadow-xs font-semibold'
@@ -271,12 +275,47 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               >
                 परामर्श
               </button>
+              <button
+                onClick={() => setSelectedTypeFilter('services')}
+                aria-pressed={selectedTypeFilter === 'services'}
+                className={`px-2.5 py-1 rounded-md transition-colors ${
+                  selectedTypeFilter === 'services'
+                    ? 'bg-white text-slate-900 shadow-xs font-semibold'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                गैर-परामर्श सेवा
+              </button>
             </div>
           </div>
         </div>
 
         {/* Project Table List */}
         <div className="divide-y divide-slate-100">
+          {filteredProjects.length === 0 && (
+            <div className="px-5 py-12 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+                <Briefcase className="h-6 w-6" aria-hidden="true" />
+              </div>
+              <h3 className="mt-4 text-base font-bold text-slate-900">
+                {projects.length === 0 ? 'अहिलेसम्म कुनै आयोजना छैन' : 'यो प्रकारको आयोजना भेटिएन'}
+              </h3>
+              <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-600">
+                {projects.length === 0
+                  ? 'पहिलो खरिद आयोजना थपेपछि यसको चरण, बजेट र अनुपालन प्रगति यहाँ देखिनेछ।'
+                  : 'अर्को प्रकार छान्नुहोस् वा सबै आयोजना सूचीमा फर्कनुहोस्।'}
+              </p>
+              {projects.length === 0 ? (
+                <button onClick={onOpenNewProjectModal} className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">
+                  <PlusCircle className="h-4 w-4" /> पहिलो आयोजना थप्नुहोस्
+                </button>
+              ) : (
+                <button onClick={() => setSelectedTypeFilter('all')} className="mt-4 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                  सबै आयोजना देखाउनुहोस्
+                </button>
+              )}
+            </div>
+          )}
           {filteredProjects.map((project) => {
             const method = PROCUREMENT_METHODS.find((m) => m.id === project.methodId);
             const stage = PROCUREMENT_STAGES.find((s) => s.id === project.currentStageId);
@@ -287,6 +326,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div
                 key={project.id}
                 onClick={() => setSelectedProject(project)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${project.title} को विवरण खोल्नुहोस्`}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    setSelectedProject(project);
+                  }
+                }}
                 className="p-4 sm:p-5 hover:bg-slate-50/80 transition-colors cursor-pointer group"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -296,13 +344,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span className="font-semibold text-slate-800">{project.officeName}</span>
                       <span>·</span>
                       <span className="text-[11px] px-2 py-0.5 rounded-sm bg-slate-100 text-slate-700 font-medium">
-                        {project.procurementType === 'works' ? 'निर्माण कार्य' : project.procurementType === 'goods' ? 'मालसामान' : 'परामर्श सेवा'}
+                        {project.procurementType === 'works' ? 'निर्माण कार्य' : project.procurementType === 'goods' ? 'मालसामान' : project.procurementType === 'services' ? 'गैर-परामर्श सेवा' : 'परामर्श सेवा'}
                       </span>
                       <span>·</span>
                       <span className="text-slate-600">{method?.nameNepali || 'खुला बोलपत्र'}</span>
                     </div>
 
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-red-700 transition-colors">
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
                       {project.title}
                     </h3>
 
@@ -329,7 +377,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-20 bg-slate-200 rounded-full h-2 overflow-hidden">
                           <div
-                            className="bg-red-600 h-2 rounded-full transition-all duration-300"
+                            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${project.progressPercent}%` }}
                           ></div>
                         </div>
@@ -339,7 +387,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="p-2 text-slate-400 group-hover:text-red-600 group-hover:translate-x-0.5 transition-all">
+                    <div className="p-2 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all">
                       <ChevronRight className="w-5 h-5" />
                     </div>
                   </div>
@@ -361,7 +409,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                             isPassed
                               ? 'bg-emerald-500'
                               : isCurrent
-                              ? 'bg-red-600 ring-2 ring-red-200'
+                              ? 'bg-blue-600 ring-2 ring-blue-200'
                               : 'bg-slate-200'
                           }`}
                         ></div>
@@ -502,7 +550,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                   isCompleted
                                     ? 'bg-emerald-600 text-white'
                                     : isCurrent
-                                    ? 'bg-red-700 text-white animate-pulse'
+                                    ? 'bg-blue-700 text-white animate-pulse'
                                     : 'bg-slate-200 text-slate-600'
                                 }`}
                               >
@@ -523,7 +571,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                               onClick={() => advanceStage(selectedProject.id, stg.id)}
                               className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors whitespace-nowrap ${
                                 isCurrent
-                                  ? 'bg-red-700 text-white'
+                                  ? 'bg-blue-700 text-white'
                                   : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                               }`}
                             >
@@ -586,7 +634,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                                     type="checkbox"
                                     checked={isChecked}
                                     onChange={() => toggleChecklist(selectedProject.id, chk.id)}
-                                    className="mt-0.5 w-4 h-4 text-red-600 rounded-sm border-slate-300 focus:ring-red-500 cursor-pointer"
+                                    className="mt-0.5 w-4 h-4 text-blue-600 rounded-sm border-slate-300 focus:ring-red-500 cursor-pointer"
                                   />
                                   <div className="flex-1 min-w-0">
                                     <span className={`text-xs sm:text-sm font-medium ${isChecked ? 'line-through text-slate-400' : 'text-slate-800'}`}>

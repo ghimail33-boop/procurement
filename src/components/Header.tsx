@@ -61,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setActiveTab('dashboard')} 
               className="flex items-center gap-2.5 text-left group focus:outline-hidden"
             >
-              <div className="w-9 h-9 rounded-lg bg-red-700 text-white flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-red-800 transition-colors">
+              <div className="w-9 h-9 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-blue-800 transition-colors">
                 ख
               </div>
               <div className="flex flex-col">

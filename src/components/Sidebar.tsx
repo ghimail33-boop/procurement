@@ -11,6 +11,7 @@ import {
   Calculator, 
   Scale, 
   MessageSquareText,
+  Bot,
   Search, 
   PlusCircle, 
   X,
@@ -77,6 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       groupTitle: 'व्यवस्थापन तथा सल्लाह',
       items: [
         { id: 'dashboard', label: 'ड्यासबोर्ड', icon: Briefcase, desc: ' ' },
+        { id: 'procurement-chat', label: 'खरिद स्रोत सहायक', icon: Bot, desc: ' ' },
         { id: 'advisor', label: 'खरिद सल्लाहकार', icon: Sparkles, desc: ' ' },
         { id: 'workflow-wizard', label: 'चरणबद्ध गाइड (Wizard)', icon: ClipboardList, desc: ' ' },
         { id: 'dilemma-solver', label: 'समस्या समाधान (FAQ)', icon: HelpCircle, desc: ' ' },
@@ -154,7 +156,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleNavClick('dashboard')}
                   title="सार्वजनिक खरिद सहयोगी - ड्यासबोर्ड"
                   aria-label="ड्यासबोर्डमा जानुहोस्"
-                  className="w-10 h-10 rounded-lg bg-red-700 text-white flex items-center justify-center font-bold text-lg shadow-sm hover:bg-red-800 transition-colors"
+                  className="w-10 h-10 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold text-lg shadow-sm hover:bg-blue-800 transition-colors"
                 >
                   ख
                 </button>
@@ -175,7 +177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleNavClick('dashboard')}
                   className="flex items-center gap-2.5 text-left group focus:outline-hidden min-w-0"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-red-700 text-white flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-red-800 transition-colors shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold text-lg shadow-sm group-hover:bg-blue-800 transition-colors shrink-0">
                     ख
                   </div>
                   <div className="flex flex-col min-w-0">
@@ -234,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => { if (userMode !== 'entity') onToggleUserMode(); }}
                     className={`flex-1 py-1 px-2 rounded-lg font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       userMode === 'entity'
-                        ? 'bg-red-700 text-white shadow-2xs'
+                        ? 'bg-blue-700 text-white shadow-2xs'
                         : 'text-blue-200 hover:text-white'
                     }`}
                   >
@@ -263,14 +265,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => { onOpenNewProject(); onCloseMobile(); }}
                 title="नयाँ खरिद आयोजना थप्नुहोस्"
                 aria-label="नयाँ खरिद आयोजना थप्नुहोस्"
-                className="w-10 h-10 bg-red-700 hover:bg-red-800 text-white rounded-lg flex items-center justify-center shadow-xs transition-colors"
+                className="w-10 h-10 bg-blue-700 hover:bg-blue-800 text-white rounded-lg flex items-center justify-center shadow-xs transition-colors"
               >
                 <PlusCircle className="w-5 h-5" />
               </button>
             ) : (
               <button
                 onClick={() => { onOpenNewProject(); onCloseMobile(); }}
-                className="w-full py-2 px-3 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
+                className="w-full py-2 px-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>नयाँ खरिद आयोजना थप्नुहोस्</span>
@@ -327,6 +329,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onClick={() => handleNavClick(item.id)}
                       title={item.label}
                       aria-label={item.label}
+                      aria-current={isActive ? 'page' : undefined}
                       className={`w-full flex items-center rounded-lg transition-all group ${
                         isCollapsed
                           ? `justify-center p-2.5 ${

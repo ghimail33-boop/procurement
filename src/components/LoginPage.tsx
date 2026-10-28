@@ -59,27 +59,35 @@ export const LoginPage: React.FC<LoginPageProps> = ({ errorMessage, onLogin, onS
 
   return (
     <main
-      className="relative flex min-h-screen items-start bg-cover bg-center px-5 py-8 sm:px-10 sm:py-10 lg:px-16"
+      className="login-screen relative flex min-h-screen items-center bg-cover bg-center px-5 py-8 sm:px-10 lg:px-16"
       style={{ backgroundImage: `url("${loginBackground}")` }}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#071b37]/50 via-[#0c2b50]/25 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#071b37]/85 via-[#0c2b50]/65 to-[#0c2b50]/20" />
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="mb-8 flex items-center gap-3 text-white">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-xl font-bold shadow-lg backdrop-blur-sm">
-            ख
-          </div>
-          <div>
-            <div className="text-xl font-bold tracking-tight sm:text-2xl">सार्वजनिक खरिद सहयोगी</div>
-            <div className="mt-0.5 text-xs text-blue-100/90 sm:text-sm">
-              खरिद प्रक्रिया गाइड
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1fr_440px] lg:gap-16">
+        <div className="hidden max-w-xl text-white lg:block">
+          <div className="mb-8 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-xl font-bold shadow-lg backdrop-blur-sm">ख</div>
+            <div>
+              <div className="text-xl font-bold tracking-tight">सार्वजनिक खरिद सहयोगी</div>
+              <div className="mt-0.5 text-sm text-blue-100/90">खरिद प्रक्रिया गाइड</div>
             </div>
           </div>
+          <p className="text-sm font-semibold uppercase tracking-[.18em] text-blue-200">सजिलो · पारदर्शी · व्यवस्थित</p>
+          <h2 className="mt-4 text-4xl font-bold leading-tight tracking-tight xl:text-5xl">सार्वजनिक खरिदका हरेक चरणमा<br />विश्वसनीय साथ।</h2>
+          <p className="mt-5 max-w-lg text-base leading-7 text-blue-50/85">योजना व्यवस्थापन, कानुनी सन्दर्भ र उपयोगी उपकरणहरू एउटै सुरक्षित कार्यस्थलमा।</p>
         </div>
 
-        <section className="rounded-xl border border-white/70 bg-white/95 p-3 shadow-2xl backdrop-blur-md sm:p-8">
+        <section className="w-full rounded-3xl border border-white/70 bg-white/95 p-6 shadow-2xl shadow-slate-950/20 backdrop-blur-md sm:p-9">
+          <div className="mb-6 flex items-center gap-3 text-slate-900 lg:hidden">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-800 text-lg font-bold text-white">ख</div>
+            <div>
+              <div className="font-bold tracking-tight">सार्वजनिक खरिद सहयोगी</div>
+              <div className="text-xs text-slate-500">खरिद प्रक्रिया गाइड</div>
+            </div>
+          </div>
           <div className="mb-6">
-            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-800">
               <LockKeyhole className="h-5 w-5" />
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900">

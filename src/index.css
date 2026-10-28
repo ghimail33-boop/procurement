@@ -3,27 +3,64 @@
 @theme {
   --font-sans: "Mukta", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  --color-red-50: #eff6ff;
-  --color-red-100: #dbeafe;
-  --color-red-200: #bfdbfe;
-  --color-red-300: #93c5fd;
-  --color-red-400: #60a5fa;
-  --color-red-500: #3b82f6;
-  --color-red-600: #2563eb;
-  --color-red-700: #1d4ed8;
-  --color-red-800: #1e40af;
-  --color-red-900: #1e3a8a;
-  --color-red-950: #172554;
   --color-slate-50: #f4f8fd;
   --color-slate-100: #eaf1f8;
   --color-slate-200: #d8e3ef;
 }
 
 @layer base {
+  :root {
+    color-scheme: light;
+    --app-ink: #172b43;
+    --app-muted: #62748a;
+    --app-border: #dbe4ee;
+    --app-primary: #174b7b;
+    --app-canvas: #f3f7fb;
+  }
+
+  html {
+    background: var(--app-canvas);
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: var(--font-sans);
+    color: var(--app-ink);
+    background: var(--app-canvas);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  button:not(:disabled) { cursor: pointer; }
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible,
+  textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid rgb(59 130 246 / 35%);
+    outline-offset: 2px;
   }
 }
+
+/* Shared polish for the many feature views, including the bidder and legal guides. */
+#root > div.min-h-screen { background: var(--app-canvas); }
+#root main:not(.login-screen) { min-width: 0; }
+#root main:not(.login-screen) > * { min-width: 0; }
+
+main:not(.login-screen) [class~="rounded-2xl"][class~="bg-white"][class~="border"],
+main:not(.login-screen) [class~="rounded-xl"][class~="bg-white"][class~="border"] {
+  box-shadow: 0 1px 2px rgb(20 43 68 / 4%), 0 8px 24px rgb(20 43 68 / 3%);
+}
+
+main:not(.login-screen) table { font-variant-numeric: tabular-nums; }
+main:not(.login-screen) th { letter-spacing: .015em; }
+main:not(.login-screen) input:not([type="checkbox"]):not([type="radio"]),
+main:not(.login-screen) select,
+main:not(.login-screen) textarea {
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+}
+main:not(.login-screen) input::placeholder,
+main:not(.login-screen) textarea::placeholder { color: #91a0b2; }
+
+::selection { color: #12314f; background: #cfe5fb; }
 
 /* Custom subtle scrollbar */
 ::-webkit-scrollbar {
@@ -39,6 +76,15 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+@media (max-width: 640px) {
+  #root main:not(.login-screen) { padding: 1rem; }
+  #root footer { padding: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
 @media print {

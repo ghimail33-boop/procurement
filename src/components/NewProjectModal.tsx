@@ -80,7 +80,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-red-700 text-white flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold text-sm">
               +
             </div>
             <div>
@@ -260,7 +260,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white font-semibold rounded-lg text-xs sm:text-sm shadow-xs transition-colors disabled:cursor-wait disabled:opacity-60"
+              className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg text-xs sm:text-sm shadow-xs transition-colors disabled:cursor-wait disabled:opacity-60"
             >
               {isSubmitting ? 'सुरक्षित हुँदैछ...' : 'खरिद योजना सुरक्षित गर्नुहोस्'}
             </button>

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import bidNoBidImage from '../../../bid-no-bid.png';
 import {
   Target,
   CheckCircle2,
@@ -233,32 +234,6 @@ export const BidNoBidAnalyzer: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-300 mb-1.5">
-              <Target className="w-4 h-4" />
-              <span>रणनीतिक निर्णय उपकरण • Bid/No-Bid Decision Matrix</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold tracking-tight flex items-center gap-2">
-              <span>बोलपत्र हाल्ने कि नहाल्ने निर्णय विश्लेषक</span>
-              <span className="text-xs bg-indigo-700 text-white px-2.5 py-0.5 rounded-full font-medium">
-                PPA Sec 10, 25 & SBD Framework
-              </span>
-            </h2>
-            <p className="text-xs sm:text-sm text-indigo-100/90 mt-1 max-w-3xl leading-relaxed">
-              हरेक बोलपत्र हाल्नैपर्छ भन्ने छैन। योग्यता, बैंक सीमा, चालू ५ ठेक्का सीमा, लिक्विडेटेड ड्यामेज (LD), नगद प्रवाह र नाफा मार्जिनको वैज्ञानिक १०-सूचकांक विश्लेषण गरी आफ्नो स्रोत सुरक्षित राख्नुहोस्।
-            </p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-xs border border-white/20 p-3.5 rounded-xl text-center shrink-0 min-w-[140px]">
-            <span className="text-xs text-indigo-200 block font-medium">तपाईंको स्कोर</span>
-            <span className="text-2xl font-extrabold text-white">{percentageScore}%</span>
-            <span className="text-[11px] text-indigo-300 block mt-0.5">{totalScore} / {maxScore} अङ्क</span>
-          </div>
-        </div>
-      </div>
-
       {/* Navigation Tabs */}
       <div className="bg-white p-1.5 sm:p-2 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -303,14 +278,21 @@ export const BidNoBidAnalyzer: React.FC = () => {
                   {verdict.description}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={handleResetScores}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors self-start sm:self-auto cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>रिसेट गर्नुहोस्</span>
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 text-center shadow-xs">
+                  <span className="text-xs text-slate-500 font-medium">तपाईंको स्कोर: </span>
+                  <span className="text-base font-extrabold text-slate-900">{percentageScore}%</span>
+                  <span className="text-xs text-slate-500 ml-1 font-semibold">({totalScore}/{maxScore})</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleResetScores}
+                  className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors self-start sm:self-auto cursor-pointer shadow-xs"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>रिसेट गर्नुहोस्</span>
+                </button>
+              </div>
             </div>
           </div>
 

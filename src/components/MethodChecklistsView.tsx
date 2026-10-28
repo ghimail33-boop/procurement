@@ -137,7 +137,7 @@ export const MethodChecklistsView: React.FC<MethodChecklistsViewProps> = ({
                 onClick={() => setSelectedMethodId(m.id)}
                 className={`p-2.5 rounded-lg text-left transition-all text-xs font-medium flex items-center justify-between gap-2 border ${
                   isSelected
-                    ? 'bg-red-700 text-white border-red-700 shadow-xs'
+                    ? 'bg-blue-700 text-white border-blue-700 shadow-xs'
                     : 'bg-slate-50/70 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >

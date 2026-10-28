@@ -871,7 +871,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
           onClick={() => setStep(1)}
           className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
             step === 1
-              ? 'bg-red-700 text-white font-bold shadow-xs'
+              ? 'bg-blue-700 text-white font-bold shadow-xs'
               : 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold hover:bg-emerald-100'
           }`}
         >
@@ -882,7 +882,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
           onClick={() => setStep(2)}
           className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
             step === 2
-              ? 'bg-red-700 text-white font-bold shadow-xs'
+              ? 'bg-blue-700 text-white font-bold shadow-xs'
               : step > 2
               ? 'bg-emerald-50 text-emerald-800 border-emerald-200 font-semibold hover:bg-emerald-100'
               : 'bg-white text-slate-600 hover:bg-slate-50'
@@ -895,7 +895,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
           onClick={() => setStep(3)}
           className={`p-3 rounded-xl border text-center transition-all cursor-pointer ${
             step === 3
-              ? 'bg-red-700 text-white font-bold shadow-xs'
+              ? 'bg-blue-700 text-white font-bold shadow-xs'
               : 'bg-white text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -1156,7 +1156,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
           <div className="pt-4 border-t border-slate-200 flex justify-end">
             <button
               onClick={() => setStep(3)}
-              className="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-xs flex items-center gap-2 transition-colors"
+              className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-xs flex items-center gap-2 transition-colors"
             >
               <span>कार्ययोजना हेर्नुहोस्</span>
               <ArrowRight className="w-4 h-4" />
@@ -1240,7 +1240,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
             <div className="space-y-2.5 text-xs sm:text-sm">
               {finalRecommendation.nextSteps.map((s) => (
                 <div key={s.stepNum} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                  <span className="w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  <span className="w-6 h-6 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
                     {s.stepNum}
                   </span>
                   <div>
@@ -1291,7 +1291,7 @@ export const ProcurementAdvisorWizard: React.FC<ProcurementAdvisorWizardProps> =
                   onClick={() => onNavigateToTemplate(tmpl.id)}
                   className={`px-3.5 py-2 font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs ${
                     tmpl.isPrimary
-                      ? 'bg-red-700 hover:bg-red-800 text-white'
+                      ? 'bg-blue-700 hover:bg-blue-800 text-white'
                       : 'bg-white hover:bg-slate-100 text-slate-800 border border-slate-300'
                   }`}
                   title={`${tmpl.label} खोल्नुहोस्`}

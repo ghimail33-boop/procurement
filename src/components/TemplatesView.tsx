@@ -144,7 +144,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
             <button
               type="button"
               onClick={onBackToAdvisor}
-              className="p-2.5 bg-red-700 hover:bg-red-800 text-white rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center cursor-pointer group"
+              className="p-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center cursor-pointer group"
               title="सिफारिस र कार्ययोजनामा फर्कनुहोस्"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
@@ -167,7 +167,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
           <button
             type="button"
             onClick={onBackToAdvisor}
-            className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md shrink-0 cursor-pointer"
+            className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md shrink-0 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>← सिफारिस र कार्ययोजनामा फर्कनुहोस्</span>
@@ -182,7 +182,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
             <button
               type="button"
               onClick={onBackToWorkflow}
-              className="p-2.5 bg-red-700 hover:bg-red-800 text-white rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center cursor-pointer group"
+              className="p-2.5 bg-blue-700 hover:bg-blue-800 text-white rounded-xl transition-all shadow-xs shrink-0 flex items-center justify-center cursor-pointer group"
               title="चरणबद्ध गाइड (Wizard) का चरणहरूमा फर्कनुहोस्"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
@@ -205,7 +205,7 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
           <button
             type="button"
             onClick={onBackToWorkflow}
-            className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md shrink-0 cursor-pointer"
+            className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md shrink-0 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>← खरिद विधिको चरणहरूमा फर्कनुहोस्</span>
@@ -242,9 +242,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
       </div>
 
       {/* Category Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs font-medium">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs font-medium" role="group" aria-label="ढाँचाको वर्ग छान्नुहोस्">
         <button
           onClick={() => setSelectedCategory('all')}
+          aria-pressed={selectedCategory === 'all'}
           className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'all'
               ? 'bg-slate-900 text-white font-semibold'
@@ -255,9 +256,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
         </button>
         <button
           onClick={() => setSelectedCategory('notesheet')}
+          aria-pressed={selectedCategory === 'notesheet'}
           className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-1.5 ${
             selectedCategory === 'notesheet'
-              ? 'bg-red-700 text-white font-semibold shadow-xs'
+              ? 'bg-blue-700 text-white font-semibold shadow-xs'
               : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
           }`}
         >
@@ -267,9 +269,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
         </button>
         <button
           onClick={() => setSelectedCategory('notice')}
+          aria-pressed={selectedCategory === 'notice'}
           className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'notice'
-              ? 'bg-red-700 text-white font-semibold'
+              ? 'bg-blue-700 text-white font-semibold'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -277,9 +280,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
         </button>
         <button
           onClick={() => setSelectedCategory('contract')}
+          aria-pressed={selectedCategory === 'contract'}
           className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'contract'
-              ? 'bg-red-700 text-white font-semibold'
+              ? 'bg-blue-700 text-white font-semibold'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -287,9 +291,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
         </button>
         <button
           onClick={() => setSelectedCategory('guarantee')}
+          aria-pressed={selectedCategory === 'guarantee'}
           className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'guarantee'
-              ? 'bg-red-700 text-white font-semibold'
+              ? 'bg-blue-700 text-white font-semibold'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -297,9 +302,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
         </button>
         <button
           onClick={() => setSelectedCategory('administrative')}
+          aria-pressed={selectedCategory === 'administrative'}
           className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'administrative'
-              ? 'bg-red-700 text-white font-semibold'
+              ? 'bg-blue-700 text-white font-semibold'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -307,9 +313,10 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
         </button>
         <button
           onClick={() => setSelectedCategory('completion')}
+          aria-pressed={selectedCategory === 'completion'}
           className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${
             selectedCategory === 'completion'
-              ? 'bg-red-700 text-white font-semibold'
+              ? 'bg-blue-700 text-white font-semibold'
               : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
           }`}
         >
@@ -321,17 +328,28 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Template List (4 cols) */}
         <div className="lg:col-span-4 bg-white rounded-xl border border-slate-200 shadow-xs divide-y divide-slate-100 max-h-[750px] overflow-y-auto">
-          {filteredTemplates.map((tmpl) => {
+          {filteredTemplates.length === 0 ? (
+            <div className="px-5 py-12 text-center">
+              <Search className="mx-auto h-8 w-8 text-slate-300" aria-hidden="true" />
+              <h3 className="mt-3 text-sm font-bold text-slate-900">मिल्दो ढाँचा भेटिएन</h3>
+              <p className="mt-1 text-xs leading-5 text-slate-600">खोज शब्द वा चयन गरिएको वर्ग परिवर्तन गर्नुहोस्।</p>
+              <button type="button" onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }} className="mt-3 rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                सबै ढाँचा देखाउनुहोस्
+              </button>
+            </div>
+          ) : filteredTemplates.map((tmpl) => {
             const isSelected = activeTemplate.id === tmpl.id;
             return (
-              <div
+              <button
+                type="button"
                 key={tmpl.id}
                 onClick={() => setActiveTemplate(tmpl)}
+                aria-pressed={isSelected}
                 className={`p-3.5 transition-colors cursor-pointer text-left ${
                   isSelected
                     ? 'bg-red-50/70 border-l-4 border-l-red-700'
                     : 'hover:bg-slate-50'
-                }`}
+                } w-full`}
               >
                 <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
                   <span className="font-mono text-red-800 font-semibold">{tmpl.legalReference.split(',')[0]}</span>
@@ -345,13 +363,19 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
                 <p className="text-xs text-slate-500 line-clamp-2 mt-1">
                   {tmpl.description}
                 </p>
-              </div>
+              </button>
             );
           })}
         </div>
 
         {/* Right Column: Customization and Live Preview (8 cols) */}
         <div className="lg:col-span-8 space-y-4">
+          {filteredTemplates.length === 0 ? (
+            <div className="flex min-h-64 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
+              <p className="max-w-sm text-sm leading-6 text-slate-600">ढाँचा छनोट गर्दा अनुकूलन र पूर्वावलोकन यहाँ देखिन्छ।</p>
+            </div>
+          ) : (
+          <>
           {/* Customization Toolbar */}
           <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
@@ -524,6 +548,8 @@ export const TemplatesView: React.FC<TemplatesViewProps> = ({
               </div>
             )}
           </div>
+          </>
+          )}
         </div>
       </div>
     </div>

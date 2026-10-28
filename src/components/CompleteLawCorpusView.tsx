@@ -293,7 +293,7 @@ export const CompleteLawCorpusView: React.FC = () => {
             aria-selected={activeLaw === 'rules'}
             onClick={() => selectLaw('rules')}
             className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${activeLaw === 'rules'
-                ? 'bg-red-700 text-white shadow-md shadow-red-700/20'
+                ? 'bg-blue-700 text-white shadow-md shadow-blue-700/20'
                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
           >
@@ -307,7 +307,7 @@ export const CompleteLawCorpusView: React.FC = () => {
             aria-selected={activeLaw === 'act'}
             onClick={() => selectLaw('act')}
             className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${activeLaw === 'act'
-                ? 'bg-red-700 text-white shadow-md shadow-red-700/20'
+                ? 'bg-blue-700 text-white shadow-md shadow-blue-700/20'
                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
               }`}
           >
@@ -386,7 +386,7 @@ export const CompleteLawCorpusView: React.FC = () => {
                         provisionViewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }}
                       className={`px-2.5 py-1 rounded-md border text-xs font-semibold transition-colors inline-flex items-center gap-1 ${isSelected
-                          ? 'bg-red-700 border-red-700 text-white shadow-xs'
+                          ? 'bg-blue-700 border-blue-700 text-white shadow-xs'
                           : 'bg-white border-slate-200 text-slate-700 hover:border-red-300 hover:text-red-800'
                         }`}
                     >
@@ -562,7 +562,7 @@ export const CompleteLawCorpusView: React.FC = () => {
                 key={ch.id}
                 onClick={() => setSelectedChapterId(ch.id)}
                 className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors ${selectedChapterId === ch.id
-                    ? 'bg-red-700 text-white font-semibold shadow-xs'
+                    ? 'bg-blue-700 text-white font-semibold shadow-xs'
                     : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
               >

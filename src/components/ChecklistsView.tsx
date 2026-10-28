@@ -203,6 +203,17 @@ export const ChecklistsView: React.FC<ChecklistsViewProps> = ({
       </div>
 
       {/* Grouped Checklist by Stages */}
+      {filteredItems.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-12 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
+            <Search className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h3 className="mt-4 text-base font-bold text-slate-900">मिल्दो चेकलिस्ट भेटिएन</h3>
+          <p className="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-600">
+            खोज शब्द हटाउनुहोस् वा खरिद प्रकार, चरण र अनिवार्य फिल्टर परिवर्तन गर्नुहोस्।
+          </p>
+        </div>
+      )}
       <div className="space-y-4">
         {PROCUREMENT_STAGES.map((stg) => {
           const itemsInThisStage = filteredItems.filter((i) => i.stageId === stg.id);
@@ -214,7 +225,7 @@ export const ChecklistsView: React.FC<ChecklistsViewProps> = ({
             <div key={stg.id} className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
               <div className="p-3.5 sm:px-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center">
                     {stg.stageNo}
                   </span>
                   <h3 className="text-sm font-bold text-slate-900">

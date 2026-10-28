@@ -202,7 +202,7 @@ export const TopicComparisonView: React.FC<TopicComparisonViewProps> = ({
               }}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap shrink-0 ${
                 selectedTopic === 'ALL'
-                  ? 'bg-red-700 text-white'
+                  ? 'bg-blue-700 text-white'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -222,7 +222,7 @@ export const TopicComparisonView: React.FC<TopicComparisonViewProps> = ({
                   }}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap shrink-0 ${
                     isSelected
-                      ? 'bg-red-700 text-white'
+                      ? 'bg-blue-700 text-white'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
@@ -299,7 +299,7 @@ export const TopicComparisonView: React.FC<TopicComparisonViewProps> = ({
                         {principle.ppmoStance}
                       </p>
                     </div>
-                    <div className="pl-3 border-l-2 border-red-700">
+                    <div className="pl-3 border-l-2 border-blue-700">
                       <div className="text-xs font-semibold text-red-800 mb-0.5">
                         PPRC को स्थापित निर्णय/नजिर:
                       </div>

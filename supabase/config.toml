@@ -1,2 +1,5 @@
 [functions.manage-users]
 verify_jwt = false
+
+[functions.procurement-chat]
+verify_jwt = true
